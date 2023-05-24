@@ -1,6 +1,8 @@
 import type { DataModel } from "./DataModel";
 import EVENT_TYPE from './constants/EventType';
 import EventObject from './EventObject';
+import { Util } from "konva/lib/Util";
+import Utils from "./Utils";
 
 export class SelectionManager {
 
@@ -21,14 +23,8 @@ export class SelectionManager {
         this.selectedNodes = this.dataModel.getNodes().filter((item: any) => {
             return nodeIds.includes(item.id)
         })
-        //通知给外部选中节点的变化
-        let nodes:any=[];
-        this.selectedNodes.forEach((element:any) => {
-            let jsonObj=element.toObject();
-            jsonObj.attributes = element.getAttributeValues(false);
-            nodes.push(jsonObj);
-        });
-        this.dataModel.fireEvent(new EventObject(EVENT_TYPE.SELECT_CHANGE, 'nodes',nodes), null);
+       
+        this.dataModel.fireEvent(new EventObject(EVENT_TYPE.SELECT_CHANGE, 'nodes',Utils.getObjectNodes(this.selectedNodes)), null);
         if (notifyStage) {
             //改变stage中选中的节点元素
             this.dataModel.fireEvent(new EventObject(EVENT_TYPE.SELECTION_KONVA_NODE_CHANGE, 'nodes', this.selectedNodes), null);

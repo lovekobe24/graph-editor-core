@@ -314,7 +314,7 @@ const warn = (info: string) => {
 const getObjectNodes = (nodes: any) => {
     let nodeObjs: any = [];
     nodes.forEach((element: any) => {
-        nodeObjs.push(element.toObject());
+        nodeObjs.push(element.toObject(false,false));
     });
     return nodeObjs;
 }

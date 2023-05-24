@@ -218,6 +218,7 @@
     //创建监听
     graphEditor.onSelectionChanged((sender, event) => {
       let selectedNodes = event.getProperty('nodes');
+      console.log("onSelectionChanged",selectedNodes);
     })
 
     graphEditor.addNode({

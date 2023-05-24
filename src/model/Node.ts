@@ -81,6 +81,11 @@ export abstract class Node {
         this.setAttributeValues(attrValue);
     }
 
+    /**
+     * 获取节点的属性值
+     * @param distinct 是否过滤掉属性值为默认值的属性
+     * @returns 属性的json对象
+     */
     getAttributeValues(distinct: boolean = false) {
         let attrValues: any = {};
         if (distinct) {
@@ -399,9 +404,9 @@ export abstract class Node {
         if (events) this.setEvents(events);
     }
 
-    toObject(isArray: boolean = false) {
+    toObject(isArray: boolean = false,distinct:boolean=true) {
         let id = this.id, tag = this.tag, className = this.getClassName();
-        let attributes = this.getAttributeValues(true);
+        let attributes = this.getAttributeValues(distinct);
         let animation = JSON.parse(JSON.stringify(this.animation));
         let variables = JSON.parse(JSON.stringify(this.variables));
         let events = JSON.parse(JSON.stringify(this.events));

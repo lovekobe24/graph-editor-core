@@ -18,6 +18,8 @@ describe('RectNode', function () {
         }
       }
      );
+     console.log(rectNode.getAttributeValues(true));
+     console.log(rectNode.getAttributeValues(false));
      assert.equal(rectNode.getAttributeValue('width'), 100);
      
   })
