@@ -785,7 +785,12 @@ export default class GraphEditor extends GraphManager {
         sel?.addRange(range);
     }
 
-    insertImage(){
+    /**
+     * 插入图片
+     * @example
+     * editor.insertImage()
+     */
+    public insertImage(){
         this.chooseImage((imgObj)=>{
             this.addNode({
                 className: 'ImageNode',

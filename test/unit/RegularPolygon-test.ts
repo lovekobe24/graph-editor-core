@@ -23,7 +23,7 @@ describe('RegularPolygon', function () {
         }
       }
      );
-     editor.getDataModel().addNode(regularPolygonNode);
+     editor.getDataModel()?.addNode(regularPolygonNode);
      assert.equal(regularPolygonNode.getAttributeValue('radius'), 20);
      
   })
@@ -41,7 +41,7 @@ describe('RegularPolygon', function () {
         }
       }
      );
-     editor.getDataModel().addNode(regularPolygonNode);
+     editor.getDataModel()?.addNode(regularPolygonNode);
      regularPolygonNode.setAttributeValue('sides',6);
      assert.equal(regularPolygonNode.getAttributeValue('radius'), 20);
    
