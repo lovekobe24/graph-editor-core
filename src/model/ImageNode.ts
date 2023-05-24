@@ -20,6 +20,12 @@ export class ImageNode extends ShapeNode {
     updateRefAttrs(attrValues: any) {
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
+            let {image} = attrValues;
+            if(image){
+                let imageObj=new Image();
+                imageObj.src=image;
+                this.ref.setAttr('image',imageObj);
+            }
         }
     }
 

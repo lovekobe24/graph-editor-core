@@ -309,7 +309,8 @@ export default class GraphEditor extends GraphManager {
                         this.currentMode = REGULAR_MODE;
                     });
                 } else if (target instanceof Konva.Image) {
-                    this.chooseImage((newImgData: string) => {
+                    this.chooseImage((newImgData: Image) => {
+                        console.log(newImgData);
                         let imageNode = this.dataModel.getSelectionManager().getSelection()[0];
                         let oldImgData = imageNode.getAttributeValue('image');
                         let attrChange = new AttributeChange(new Map([[imageNode, [{ image: oldImgData }, { image: newImgData }]]]), this.dataModel);
@@ -784,6 +785,22 @@ export default class GraphEditor extends GraphManager {
         sel?.addRange(range);
     }
 
+    insertImage(){
+        this.chooseImage((imgObj)=>{
+            this.addNode({
+                className: 'ImageNode',
+                attributes: {
+                    image: imgObj,
+                    x: 50,
+                    y: 50,
+                    width: 200,
+                    height: 200,
+                    strokeWidth:0
+                }
+            });
+        })
+       
+    }
     private chooseImage(callback: Function) {
         let input = document.createElement('input');
         input.style.display = 'none';

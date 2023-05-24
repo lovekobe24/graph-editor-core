@@ -35,6 +35,8 @@
           class="iconfont icon-zhixian"></i></button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="折线" id="polyline"><i
           class="iconfont icon-curve"></button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="图像" id="image"><i
+            class="iconfont icon-image"></button>
     </div>
     <div class="layui-btn-group" id="alginToolbar">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
@@ -113,6 +115,9 @@
     document.getElementById('polyline').addEventListener('click',()=>{
       graphEditor.drawShape('polyline');
     })
+    document.getElementById('image').addEventListener('click',()=>{
+      graphEditor.insertImage();
+    })
     document.getElementById('alignLeft').addEventListener('click',()=>{
       graphEditor.align('left');
     })
@@ -131,6 +136,13 @@
     document.getElementById('verDis').addEventListener('click',()=>{
       graphEditor.align('vertical');
     })
+    document.getElementById('save').addEventListener('click',()=>{
+      console.log(JSON.parse(graphEditor.toJSON()));
+    })
+    document.getElementById('preview').addEventListener('click',(e)=>{
+       preview(e.target)
+    })
+    
     
    
      

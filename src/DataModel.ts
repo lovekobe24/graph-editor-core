@@ -172,7 +172,10 @@ export class DataModel extends TemcEventSource {
                 for (let node of nodes) {
                     let id = node.id, className = node.className;
                     if (className === 'ImageNode') {
-                        let imageAttr = node.attributes, content = imageAttr.image;
+                        console.log(node);
+                        let imageAttr = node.attributes;
+                  
+                        let content = imageAttr.image;
                         imageAttr.image = null;
                         if (images.hasOwnProperty(content)) {
                             images[content].push(id);

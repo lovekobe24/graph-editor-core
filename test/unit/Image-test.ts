@@ -9,11 +9,10 @@ describe('Image', function () {
  
   it('add image node to editor', function () {
     let editor = createEditor('Image');
-    let image=new Image();
-    image.src="https://i.postimg.cc/HnFSw-Nf0/image.png"
+   
     let imageNode=new ImageNode({
       attributes: {
-        image: image,
+        image: "https://i.postimg.cc/HnFSw-Nf0/image.png",
         x: 50,
         y: 50,
         width: 100,
