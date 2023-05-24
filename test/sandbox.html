@@ -45,6 +45,8 @@
           class="iconfont icon-chuizhidingduiqi"></button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
           class="iconfont icon-chuizhididuiqi"></button>
+          <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis">水平等距</button>
+          <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis">垂直等距</button>
     </div>
     <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
   
@@ -140,6 +142,13 @@
     document.getElementById('alignBottom').addEventListener('click',()=>{
       graphEditor.align('bottom');
     })
+    document.getElementById('horDis').addEventListener('click',()=>{
+      graphEditor.align('horizontal');
+    })
+    document.getElementById('verDis').addEventListener('click',()=>{
+      graphEditor.align('vertical');
+    })
+    
    
      
    
