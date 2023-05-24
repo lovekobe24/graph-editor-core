@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>KonvaJS Sandbox</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+  <script>
+  </script>
+</head>
+
+<body>
+  <div>
+    <button id="preview">预览</button>
+    <input type="checkbox" id="startAnimation">开启动画
+  </div>
+  <div style="display: flex;">
+    <div id="editor" style="background-color: bisque"></div>
+    <div id="property" style="border:1px solid #ff0000;width: 160px;"></div>
+  </div>
+
+  <script type="module">
+    import { GraphEditor } from '../src/GraphEditor';
+    import { GraphViewer } from '../src/GraphViewer';
+    import { RectNode } from '../src/model/RectNode';
+    import { TextNode } from '../src/model/TextNode';
+    import { EllipseNode } from '../src/model/EllipseNode';
+    let graphViewer;
+    window.addEventListener('click', e => {
+      switch (e.target.id) {
+        case 'preview':
+          preview(e.target);
+          break;
+        case 'startAnimation':
+          let ids = graphEditor.getNodes().map(item => item.id);
+          if (e.target.checked) {
+            //开启动画
+            ids.forEach((id) => {
+              graphEditor.setAnimations({
+                'type': 'blink',
+                'autoPlay': true
+              }, id);
+            })
+          }else{
+            let ids = graphEditor.getNodes().map(item => item.id);
+            ids.forEach((id) => {
+              graphEditor.setAnimations({
+                'autoPlay': false
+              }, id);
+            })
+          }
+          break;
+        case 'line':
+          draw('line')
+          break;
+        case 'polyline':
+          draw('polyline')
+          break;
+        case 'copy':
+          graphEditor.copy();
+          break;
+        case 'paste':
+          graphEditor.paste();
+          break;
+        case 'toRegularMode':
+          toRegularMode();
+          break;
+        case 'save':
+          console.log(JSON.parse(graphEditor.toJSON()));
+          break;
+      }
+    })
+    const toRegularMode = () => {
+      graphEditor.stopDrawing();
+    }
+    const draw = (shapeName) => {
+      graphEditor.drawShape(shapeName);
+    }
+
+    const preview = (target) => {
+
+      if (target.innerHTML == '预览') {
+        let currentGraph = graphEditor.toJSON();
+        graphEditor.destroy();
+        graphView = new GraphViewer(
+          {
+            container:document.getElementById('editor'),
+            graph: currentGraph,
+           
+          }
+        );
+        graphView.refreshGraph();
+        target.innerHTML = '退出预览'
+      } else {
+        let currentGraph = graphView.config.graph;
+        graphView.destroy();
+
+        graphEditor = new GraphEditor(
+          {
+            container:document.getElementById('editor'),
+            graph: currentGraph,
+         
+          }
+        );
+        target.innerHTML = '预览'
+      }
+
+    }
+    let graphEditor = new GraphEditor(
+     
+      {
+        container:document.getElementById('editor'),
+        view: {
+          transformer: {
+            anchorSize: 6
+          },
+          editAnchor: {
+            anchorFill: 'white',
+            anchorStroke: 'rgb(0, 161, 255)'
+          }
+        },
+        drawing: {
+          snapToGrid: {
+            enable: true,
+          }
+        }
+      }
+    );
+    //创建监听
+    graphEditor.onSelectionChanged((sender, event) => {
+      let selectedNodes = event.getProperty('nodes');
+    })
+    const random = () => {
+      return 100 + 500 * Math.random();
+    }
+
+    for (let i = 0; i < 2000; i++) {
+      graphEditor.addNode({
+        className: 'RectNode',
+        attributes: {
+          x: random(),
+          y: random(),
+          width: 200,
+          height: 60,
+          strokeWidth: 2,
+          stroke: 'red'
+        }
+      })
+    }
+
+
+
+    graphEditor.onModelChanged((sender, event) => {
+      let nodes = event.getProperty('nodes');
+      let eventName = event.getName();
+      if (eventName == 'nodeAttributeChange') {
+        //  console.log("节点的属性改变了", event.getProperty('nodes'));
+      } else if (eventName == 'nodeEventsChange') {
+        console.log("节点绑定的事件改变了", event.getProperty('events'));
+      } else if (eventName == 'nodeVariableChange') {
+        console.log("节点绑定的变量改变了", event.getProperty('variable'));
+        let type = event.getProperty('type');
+        switch (type) {
+          case 'add':
+            break;
+          case 'delete':
+            break;
+          case 'update':
+            break;
+        }
+      } else if (eventName == 'nodeAnimationChange') {
+        console.log("动画属性改变了", event.getProperty('animation'));
+      } else if (eventName == 'modelVariableChange') {
+        console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
+        let type = event.getProperty('type');
+        switch (type) {
+          case 'add':
+            break;
+          case 'delete':
+            break;
+          case 'update':
+            break;
+        }
+      } else if (eventName == 'addNodes') {
+        console.log("添加节点", event.getProperty('nodes'));
+      } else if (eventName == 'removeNodes') {
+        console.log("删除节点", event.getProperty('nodes'));
+      } else if (eventName == 'nodePropertyChange') {
+        console.log("节点的属性变化了", event.getProperty('tag'));
+      }
+    });
+
+  </script>
+</body>
+
+</html>

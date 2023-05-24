@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+      "module": "ES6",
+      "target": "ES5",
+      "noImplicitAny": true,
+      "noEmit": true,
+      "strictNullChecks": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "moduleResolution": "Node",
+      "resolveJsonModule": true,
+      "skipLibCheck": true,
+      "rootDir": "src",
+      "baseUrl": "/",
+      "lib": [
+        "ES2017",
+        "ES2019.array",
+        "dom"
+      ],
+      "downlevelIteration": true
+    },
+    "compileOnSave": true,
+    "include": [
+      "src/**/*"
+    ],
+    "exclude": [
+      "src/**/*.test.ts"
+    ]
+  }
