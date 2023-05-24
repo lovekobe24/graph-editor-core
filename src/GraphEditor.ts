@@ -6,7 +6,7 @@ import EVENT_TYPE from "./constants/EventType";
 import { Node } from './model/Node';
 import Utils from "./Utils";
 import TemcEventSource from "./TemcEventSource";
-import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING,GRAPH_EDITOR_INFO } from './constants/TemcConstants';
+import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO } from './constants/TemcConstants';
 
 import Command from "./command/Command";
 
@@ -52,6 +52,7 @@ import { PolylineArrowNode } from "./model/PolylineArrowNode";
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
     private helpLayer: Layer = new Konva.Layer();
+    private drawingLayer: Layer = new Konva.Layer();
     transformer: any;
     private selectionRect: Rect;
     currentMode: string = REGULAR_MODE;
@@ -106,6 +107,7 @@ export default class GraphEditor extends GraphManager {
         this.stage.add(this.gridLayer);
         this.stage.add(this.nodeLayer);
         this.stage.add(this.helpLayer);
+        this.stage.add(this.drawingLayer);
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
         if (graph) this.dataModel.fromObject(graph.model);
@@ -131,11 +133,11 @@ export default class GraphEditor extends GraphManager {
         if (Utils.isBrowser()) {
             window.addEventListener('keydown', this.onKeyDown.bind(this))
         }
-      
+
 
     }
     registerNodeClass() {
-     
+
         RectNode.register();
         EllipseNode.register();
         ArcNode.register();
@@ -973,13 +975,12 @@ export default class GraphEditor extends GraphManager {
      *  
      */
     drawShape(shapeName: string) {
-        if (this.currentMode === REGULAR_MODE) {
-            let shape = this.getShapeModule(shapeName);
-            if (shape) {
-                this.drawingShape = shape;
-                this.currentMode = DRAWING_MODE;
-            }
+        let shape = this.getShapeModule(shapeName);
+        if (shape) {
+            this.drawingShape = shape;
+            this.currentMode = DRAWING_MODE;
         }
+
     }
 
     /**
@@ -989,19 +990,16 @@ export default class GraphEditor extends GraphManager {
         //停止绘制模式
         this.setMode(REGULAR_MODE);
         //如果有绘制到一半的东西，需要删除
-        this.clearHelpLayer();
+        this.drawingLayer.destroyChildren();
 
     }
-    clearHelpLayer() {
-        let nodes = this.transformer.nodes();
-        this.helpLayer.destroyChildren();
-        this.transformer = new Konva.Transformer(this.config.view.transformer);
-        this.transformer.nodes(nodes);
-        this.helpLayer.add(this.transformer);
-    }
+  
 
-     getHelpLayer() {
+    getHelpLayer() {
         return this.helpLayer;
+    }
+    getDrawingLayer() {
+        return this.drawingLayer;
     }
 
     /**
@@ -1144,7 +1142,7 @@ export default class GraphEditor extends GraphManager {
             if (operateNode) {
                 operateNode.saveVariable(name, variable, oldVariableName);
             } else {
-                console.log(GRAPH_EDITOR_WARNING+'未找到设置变量的节点');
+                console.log(GRAPH_EDITOR_WARNING + '未找到设置变量的节点');
             }
         }
     }
@@ -1163,7 +1161,7 @@ export default class GraphEditor extends GraphManager {
             if (operateNode) {
                 operateNode.deleteVariable(name);
             } else {
-                console.log(GRAPH_EDITOR_WARNING+'未找到删除变量的节点');
+                console.log(GRAPH_EDITOR_WARNING + '未找到删除变量的节点');
             }
         }
     }
@@ -1222,7 +1220,7 @@ export default class GraphEditor extends GraphManager {
         if (selectedNodes.length > 0) {
             this.dataModel.unGroup(selectedNodes);
         } else {
-            console.log(GRAPH_EDITOR_WARNING+'未找到需要解组的节点');
+            console.log(GRAPH_EDITOR_WARNING + '未找到需要解组的节点');
         }
     }
 
@@ -1431,7 +1429,7 @@ export default class GraphEditor extends GraphManager {
             this.dataModel.deleteEvent(operateNode, eventIndex);
 
         } else {
-            console.warn(GRAPH_EDITOR_WARNING+'没有操作的节点')
+            console.warn(GRAPH_EDITOR_WARNING + '没有操作的节点')
         }
     }
 

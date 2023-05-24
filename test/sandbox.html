@@ -104,31 +104,14 @@
     })
 
     let graphViewer;
-    window.addEventListener('click', e => {
-      switch (e.target.id) {
-        case 'preview':
-          preview(e.target);
-          break;
-        case 'line':
-          draw('line')
-          break;
-        case 'polyline':
-          draw('polyline')
-          break;
-        case 'copy':
-          graphEditor.copy();
-          break;
-        case 'paste':
-          graphEditor.paste();
-          break;
-        case 'toRegularMode':
-          toRegularMode();
-          break;
-        case 'save':
-          console.log(graphEditor.toJSON());
-          graphEditor.setGraph(graphEditor.toJSON());
-          break;
-      }
+    document.getElementById('toRegularMode').addEventListener('click',()=>{
+      graphEditor.stopDrawing();
+    })
+    document.getElementById('line').addEventListener('click',()=>{
+      graphEditor.drawShape('line');
+    })
+    document.getElementById('polyline').addEventListener('click',()=>{
+      graphEditor.drawShape('polyline');
     })
     document.getElementById('alignLeft').addEventListener('click',()=>{
       graphEditor.align('left');

@@ -34,7 +34,7 @@ class BasePolylineShape extends AbstractShape {
                             strokeWidth: 2,
                             stroke: '#ff0000'
                         });
-                        graphEditor.getHelpLayer().add(this.tempLine);
+                        graphEditor.getDrawingLayer().add(this.tempLine);
                     }
                 } else if (btn === 2 && this.tempLine) {
                     let points = JSON.parse(JSON.stringify(this.tempLine.points()));

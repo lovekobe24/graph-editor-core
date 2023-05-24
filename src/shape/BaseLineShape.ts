@@ -23,7 +23,7 @@ abstract class BaseLineShape extends AbstractShape {
                     strokeWidth: 2,
                     stroke: '#ff0000'
                 })
-                graphEditor.getHelpLayer().add(this.tempLine);
+                graphEditor.getDrawingLayer().add(this.tempLine);
                 let line = new Konva.Line({
                     x: 100,
                     y: 50,
@@ -31,7 +31,7 @@ abstract class BaseLineShape extends AbstractShape {
                     stroke: 'red',
                     tension: 1
                 });
-                graphEditor.getHelpLayer().add(line);
+                graphEditor.getDrawingLayer().add(line);
                 break;
             case DRAWING_MOUSE_MOVE:
                 if (this.firstPoint) {
