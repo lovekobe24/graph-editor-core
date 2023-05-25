@@ -19,6 +19,10 @@ export abstract class GraphManager {
     stage: Stage | undefined;
     width: number | undefined;
     height: number | undefined;
+    /**
+    * The settings
+    */
+    name: string = '';
     constructor(config: Config) {
         if (Utils.isBrowser() && !config.container) {
             throw new Error(GRAPH_EDITOR_WARNING + 'It needs to have a container element')
@@ -54,6 +58,42 @@ export abstract class GraphManager {
     */
     getNode(nodeId: string) {
         return this.dataModel ? this.dataModel.getNodeById(nodeId) : null;
+    }
+    /**
+  * 清空画布内容
+ */
+    private clear() {
+        this.dataModel?.clear();
+    }
+
+    setSize(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        let scale = this.stage?.getAttr('scaleX');
+        this.stage?.setAttr('width', width * scale);
+        this.stage?.setAttr('height', height * scale);
+    }
+    /**
+  * 加载指定的图形
+  * @param graphContent 图形信息的字符串
+  */
+    setGraph(graphContent: any) {
+        //清空原来的数据
+        this.clear();
+        let graphJson = JSON.parse(graphContent);
+        this.setSize(graphJson.width, graphJson.height);
+        let bgColor = graphJson.backgroundColor;
+        if (bgColor) {
+            let container = this.stage?.container();
+            if (container) {
+                container.style.backgroundColor = bgColor;
+            }
+        }
+        if (graphJson.name) {
+            this.name = graphJson.name;
+        }
+        this.dataModel?.fromObject(graphJson.model);
+        this.dataModel?.setVariables(graphJson.variables);
     }
 
     /**

@@ -59,7 +59,6 @@ export default class GraphEditor extends GraphManager {
     shapeModules: any[] = [];
     drawingShape: any = null;
     gridConfig: any;
-    name: string = '';
     isSquare: boolean = false;
     operateNodes: any[] = [];
     pasteCount: number = 1;
@@ -1036,12 +1035,7 @@ export default class GraphEditor extends GraphManager {
         this.currentMode = mode;
     }
 
-    /**
-    * 清空画布内容
-   */
-    private clear() {
-        this.dataModel.clear();
-    }
+  
 
     /**
      * 设置画布的宽度和高度
@@ -1095,25 +1089,7 @@ export default class GraphEditor extends GraphManager {
         return JSON.stringify(this.toObject(isArray));
     }
 
-    /**
-     * 加载指定的图形
-     * @param graphContent 图形信息的字符串
-     */
-    setGraph(graphContent: any) {
-        //清空原来的数据
-        this.clear();
-        let graphJson = JSON.parse(graphContent);
-        this.setSize(graphJson.width, graphJson.height);
-        let bgColor = graphJson.backgroundColor;
-        if (bgColor) {
-            this.stage.container().style.backgroundColor = bgColor;
-        }
-        if (graphJson.name) {
-            this.name = graphJson.name;
-        }
-        this.dataModel.fromObject(graphJson.model);
-        this.dataModel.setVariables(graphJson.variables);
-    }
+ 
 
     /**
      * 将当前画布内容转成Image对象

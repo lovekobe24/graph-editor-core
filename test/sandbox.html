@@ -163,10 +163,12 @@
 
           {
             container: document.getElementById('editor'),
-            graph: currentGraph,
+             graph: currentGraph,
 
           }
         );
+       
+       // graphView.setGraph(currentGraph);
         graphView.refreshGraph();
         target.innerHTML = '退出预览'
       } else {
