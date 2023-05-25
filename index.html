@@ -2,437 +2,571 @@
 <html>
 
 <head>
-  <meta charset="utf-8" />
-  <title>GraphEditor Sandbox</title>
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=1.0" />
-  <style>
-    body {
-      margin: 0;
-      width: 100vw;
-      height: 100vh;
-      user-select: none;
-    }
-  </style>
-  <script
-    src="https://at.alicdn.com/t/c/font_3759154_oub6bgxk4k.js?spm=a313x.7781069.1998910419.53&file=font_3759154_oub6bgxk4k.js"></script>
-  <link rel="stylesheet"
-    href="https://at.alicdn.com/t/c/font_3759154_oub6bgxk4k.css?spm=a313x.7781069.1998910419.52&file=font_3759154_oub6bgxk4k.css">
-  <!-- 引入 layui.css -->
-  <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
+    <meta charset="utf-8" />
+    <title>GraphEditor Sandbox</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+    <style>
+        body {
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            user-select: none;
+        }
+    </style>
+    <script
+        src="https://at.alicdn.com/t/c/font_3759154_oub6bgxk4k.js?spm=a313x.7781069.1998910419.53&file=font_3759154_oub6bgxk4k.js"></script>
+    <link rel="stylesheet"
+        href="https://at.alicdn.com/t/c/font_3759154_oub6bgxk4k.css?spm=a313x.7781069.1998910419.52&file=font_3759154_oub6bgxk4k.css">
+    <!-- 引入 layui.css -->
+    <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
 
-  <script src="https://cdn.jsdelivr.net/npm/graph-editor-core/umd/GraphEditor.js"></script>
-  <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graph-editor-core/umd/GraphEditor.js"></script>
+    <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
 </head>
 
 <body>
-  <div style="padding: 0px 2px">
+    <div style="padding: 0px 2px">
 
-    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="toRegularMode"><i
-        class="iconfont icon-xuanze"></i></button>
-    <div class="layui-btn-group">
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="直线" id="line"><i
-          class="iconfont icon-zhixian"></i></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="折线" id="polyline"><i
-          class="iconfont icon-curve"></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="图像" id="image"><i
-            class="iconfont icon-image"></button>
+        <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="toRegularMode"><i
+                class="iconfont icon-xuanze"></i></button>
+        <div class="layui-btn-group">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="直线" id="line"><i
+                    class="iconfont icon-zhixian"></i></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="折线" id="polyline"><i
+                    class="iconfont icon-curve"></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="图像" id="image"><i
+                    class="iconfont icon-image"></button>
+        </div>
+        <div class="layui-btn-group" id="alginToolbar">
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
+                    class="iconfont icon-shuipingzuoduiqi"></i></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="右对齐" id="alignRight"><i
+                    class="iconfont icon-shuipingyouduiqi"></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="顶对齐" id="alignTop"><i
+                    class="iconfont icon-chuizhidingduiqi"></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
+                    class="iconfont icon-chuizhididuiqi"></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距"
+                id="horDis">水平等距</button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距"
+                id="verDis">垂直等距</button>
+        </div>
+        <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
+
+        <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
     </div>
-    <div class="layui-btn-group" id="alginToolbar">
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
-          class="iconfont icon-shuipingzuoduiqi"></i></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="右对齐" id="alignRight"><i
-          class="iconfont icon-shuipingyouduiqi"></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="顶对齐" id="alignTop"><i
-          class="iconfont icon-chuizhidingduiqi"></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
-          class="iconfont icon-chuizhididuiqi"></button>
-          <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis">水平等距</button>
-          <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis">垂直等距</button>
+    <div style="display: flex;">
+        <div id="leftPanel"
+            style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
+        </div>
+        <div id="editor" style="background-color: bisque;border:1px solid gray;"></div>
+        <div id="property" style="border:1px solid gray;width: 260px;padding: 5px;"></div>
     </div>
-    <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
-  
-    <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
-  </div>
-  <div style="display: flex;">
-    <div id="leftPanel"
-      style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
-    </div>
-    <div id="editor" style="background-color: bisque;border:1px solid gray;"></div>
-    <div id="property" style="border:1px solid gray;width: 260px;padding: 5px;"></div>
-  </div>
 
-  <script type="module">
-   
-    document.getElementById("editor").addEventListener('dragover', (event) => {
-      event.preventDefault();
-    })
-    document.getElementById("editor").addEventListener('drop', (event) => {
-      console.log("drop........");
-      console.log(event.dataTransfer.getData("dropData"));
-      let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
-      graphEditor.dropShape(event, shape);
-    })
+    <script type="module">
 
-    import basicShapeList from "./test/shape/basic";
-    //初始化左侧面板
-    basicShapeList.forEach((shape) => {
-      let shapeDiv = document.createElement("div");
-      shapeDiv.style.width = "60px";
-      shapeDiv.style.height = "60px";
-      shapeDiv.style.display = "flex";
-      shapeDiv.style.border = "1px solid grey";
-      shapeDiv.style.margin = "2px";
-      shapeDiv.style.flexDirection = "column";
-      shapeDiv.setAttribute("draggable", true);
-      shapeDiv.addEventListener('dragstart', (event) => {
+        document.getElementById("editor").addEventListener('dragover', (event) => {
+            event.preventDefault();
+        })
+        document.getElementById("editor").addEventListener('drop', (event) => {
+            console.log("drop........");
+            console.log(event.dataTransfer.getData("dropData"));
+            let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
+            graphEditor.dropShape(event, shape);
+        })
 
-        event.dataTransfer.setData(
-          "dropData",
-          JSON.stringify({ type: 'shape', content: shape })
-        );
-        // graphEditor.dropShape(event,shape);
-      });
+        let basicShapeList = [
+            {
+                label: '矩形',
+                className: 'RectNode',
+                attributes: {
+                    width: 100,
+                    height: 50
+                },
+                path: '<svg viewBox="-5 -5 115 115" width="32" height="32"><rect x="4" y="20" width="92" height="60" rx="10" ry="10" fill="#ffffff" stroke="#000000" stroke-width="4"></rect></svg>'
+            },
+            {
+                label: '椭圆',
+                className: 'EllipseNode',
+                attributes: {
+                    radiusX: 50,
+                    radiusY: 25
+                },
+                path: '<svg viewBox="-5 -5 115 115" width="32" height="32"><ellipse cx="50" cy="50" rx="46" ry="30" fill="#ffffff" stroke="#000000" stroke-width="4"></ellipse></svg>'
+            },
+            {
+                label: '正多边形',
+                className: 'RegularPolygonNode',
+                attributes: {
+                    sides: 6,
+                    radius: 40,
+                },
+                path: '<svg viewBox="-230 -230 480 480" width="32" height="32"><polygon points="0,200 173.20508,100 173.20508,-100 0,-200 -173.20508,-100 -173.20508,100" fill="#ffffff" stroke="#000000" stroke-width="20"></polygon></svg>'
+            },
+            {
+                label: '星形',
+                className: 'StarNode',
+                attributes: {
+                    numPoints: 6,
+                    innerRadius: 20,
+                    outerRadius: 40,
+                },
+                path: '<svg viewBox="-230 -230 480 480" width="32" height="32"><polygon points="0,200 50,86.60254 173.20508,100 100,0 173.20508,-100 50,-86.60254 0,-200 -50,-86.60254 -173.20508,-100 -100,0 -173.20508,100 -50,86.60254" fill="#ffffff" stroke="#000000" stroke-width="20"></polygon></svg>'
+            },
+            {
+                label: '圆形',
+                className: 'CircleNode',
+                attributes: {
+                    radius: 50
+                },
+                path: '<svg viewBox="-53 -53 113 113" width="32" height="32"><circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#000000" stroke-width="4"></circle></svg>'
+            },
+            {
+                label: '环形',
+                className: 'RingNode',
+                attributes: {
+                    innerRadius: 20,
+                    outerRadius: 40
+                },
+                path: '<svg viewBox="-53 -53 113 113" width="32" height="32"><circle cx="0" cy="0" r="40" fill="#ffffff" stroke="#000000" stroke-width="4"></circle><circle cx="0" cy="0" r="30" fill="#ffffff" stroke="#000000" stroke-width="4"></circle></svg>'
+            },
+            {
+                label: '扇形',
+                className: 'WedgeNode',
+                attributes: {
+                    angle: 30,
+                    radius: 50,
+                    clockwise: false
+                },
+                path: '<svg viewBox="-35 -60 70 70" width="32" height="32"><path d="M0 -0 L-25 -43.3 A50 50 0 0 1 25 -43.3Z" fill="#ffffff" stroke="#000000" stroke-width="3"></path></svg>'
+            },
+            {
+                label: '弧形',
+                className: 'ArcNode',
+                attributes: {
+                    angle: 30,
+                    innerRadius: 90,
+                    outerRadius: 100,
+                    clockwise: false
+                },
+                path: '<svg viewBox="-35 -75 70 70" width="32" height="32"><path d="M-25 -43.3 A50 50 0 0 1 25 -43.3" fill="#ffffff" stroke="#000000" stroke-width="3"></path></svg>'
+            },
+            {
+                label: '心形',
+                className: 'PathNode',
+                attributes: {
+                    data: 'M213.1,6.7c-32.4-14.4-73.7,0-88.1,30.6C110.6,4.9,67.5-9.5,36.9,6.7C2.8,22.9-13.4,62.4,13.5,110.9C33.3,145.1,67.5,170.3,125,217c59.3-46.7,93.5-71.9,111.5-106.1C263.4,64.2,247.2,22.9,213.1,6.7z'
+                },
+                path: '<svg viewBox="-15 -27 300 300" width="32" height="32"><path d="M213.1,6.7c-32.4-14.4-73.7,0-88.1,30.6C110.6,4.9,67.5-9.5,36.9,6.7C2.8,22.9-13.4,62.4,13.5,110.9C33.3,145.1,67.5,170.3,125,217c59.3-46.7,93.5-71.9,111.5-106.1C263.4,64.2,247.2,22.9,213.1,6.7z" fill="#ffffff" stroke="#000000" stroke-width="12" /></svg>'
+            },
+            {
+                label: '风扇',
+                className: 'PathNode',
+                attributes: {
+                    scaleX: 0.2,
+                    scaleY: 0.2,
+                    data: 'M696.8 504.5c0-11.7-1.4-23-3.4-34.1 2 11 3.4 22.4 3.4 34.1h260.8c0-135.6-60.6-256.8-155.8-338.8L632.4 364.6c-32.7-28.6-75-46.4-121.9-46.4-11.5 0-22.7 1.4-33.6 3.4 10.9-2 22.1-3.4 33.6-3.4V57.3c-137.1 0-259.6 61.8-341.6 158.9L368 385.8c-26.9 32.3-43.8 73.3-43.8 118.7 0 11.5 1.4 22.7 3.4 33.6-2-10.9-3.4-22.1-3.4-33.6H63.3c0 137.1 61.8 259.6 158.9 341.6L391.8 647c32.3 26.9 73.3 43.8 118.7 43.8 11.7 0 23-1.4 34.1-3.4-11.1 2.1-22.4 3.4-34.1 3.4v260.8c135.6 0 256.8-60.6 338.8-155.8l-199-169.4c28.6-32.8 46.5-75.1 46.5-121.9zM684 437.9c3.5 8.8 6.4 17.9 8.5 27.3-2.1-9.4-5.1-18.5-8.5-27.3z m-26-46.1c0.4 0.5 0.7 0.9 1.1 1.3-0.4-0.4-0.8-0.8-1.1-1.3z m10.9 15.7c4 6.4 7.7 13.1 10.9 20.1-3.2-7-7-13.6-10.9-20.1z m-198.1-84.9c-9.3 2-18.3 5-27 8.4 8.7-3.4 17.7-6.3 27-8.4z m-38.2 13.1c-6.9 3.2-13.5 6.8-19.9 10.8 6.4-4 13.1-7.6 19.9-10.8z m-35.2 21.7c-0.9 0.7-1.7 1.5-2.6 2.2 0.8-0.8 1.7-1.5 2.6-2.2zM337 571.2c-3.4-8.7-6.3-17.7-8.4-27 2 9.3 5 18.2 8.4 27z m28.5 49c-0.7-0.9-1.5-1.7-2.2-2.6 0.8 0.9 1.5 1.7 2.2 2.6z m-13-18z m46.2-97.7c0-61.6 50.1-111.8 111.8-111.8s111.8 50.1 111.8 111.8c0 61.6-50.1 111.8-111.8 111.8s-111.8-50.2-111.8-111.8zM623.1 652c-0.5 0.4-0.9 0.7-1.3 1.1 0.4-0.4 0.8-0.8 1.3-1.1z m-15.7 10.9c-6.4 4-13.1 7.7-20.1 10.9 7-3.2 13.7-7 20.1-10.9zM577 678c-8.8 3.5-17.9 6.4-27.3 8.5 9.5-2.1 18.5-5.1 27.3-8.5z'
+                },
+                path: '<svg t="1679896772233" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5554" width="32" height="32"> <path d="M696.8 504.5c0-11.7-1.4-23-3.4-34.1 2 11 3.4 22.4 3.4 34.1h260.8c0-135.6-60.6-256.8-155.8-338.8L632.4 364.6c-32.7-28.6-75-46.4-121.9-46.4-11.5 0-22.7 1.4-33.6 3.4 10.9-2 22.1-3.4 33.6-3.4V57.3c-137.1 0-259.6 61.8-341.6 158.9L368 385.8c-26.9 32.3-43.8 73.3-43.8 118.7 0 11.5 1.4 22.7 3.4 33.6-2-10.9-3.4-22.1-3.4-33.6H63.3c0 137.1 61.8 259.6 158.9 341.6L391.8 647c32.3 26.9 73.3 43.8 118.7 43.8 11.7 0 23-1.4 34.1-3.4-11.1 2.1-22.4 3.4-34.1 3.4v260.8c135.6 0 256.8-60.6 338.8-155.8l-199-169.4c28.6-32.8 46.5-75.1 46.5-121.9zM684 437.9c3.5 8.8 6.4 17.9 8.5 27.3-2.1-9.4-5.1-18.5-8.5-27.3z m-26-46.1c0.4 0.5 0.7 0.9 1.1 1.3-0.4-0.4-0.8-0.8-1.1-1.3z m10.9 15.7c4 6.4 7.7 13.1 10.9 20.1-3.2-7-7-13.6-10.9-20.1z m-198.1-84.9c-9.3 2-18.3 5-27 8.4 8.7-3.4 17.7-6.3 27-8.4z m-38.2 13.1c-6.9 3.2-13.5 6.8-19.9 10.8 6.4-4 13.1-7.6 19.9-10.8z m-35.2 21.7c-0.9 0.7-1.7 1.5-2.6 2.2 0.8-0.8 1.7-1.5 2.6-2.2zM337 571.2c-3.4-8.7-6.3-17.7-8.4-27 2 9.3 5 18.2 8.4 27z m28.5 49c-0.7-0.9-1.5-1.7-2.2-2.6 0.8 0.9 1.5 1.7 2.2 2.6z m-13-18z m46.2-97.7c0-61.6 50.1-111.8 111.8-111.8s111.8 50.1 111.8 111.8c0 61.6-50.1 111.8-111.8 111.8s-111.8-50.2-111.8-111.8zM623.1 652c-0.5 0.4-0.9 0.7-1.3 1.1 0.4-0.4 0.8-0.8 1.3-1.1z m-15.7 10.9c-6.4 4-13.1 7.7-20.1 10.9 7-3.2 13.7-7 20.1-10.9zM577 678c-8.8 3.5-17.9 6.4-27.3 8.5 9.5-2.1 18.5-5.1 27.3-8.5z" fill="#20A4FF" p-id="5555"></path></svg>'
 
-      let topDiv = document.createElement("div");
-      topDiv.innerHTML = shape.path;
-      let labelDiv = document.createElement("div");
-      labelDiv.innerHTML = shape.label;
-      shapeDiv.appendChild(topDiv);
-      shapeDiv.appendChild(labelDiv);
-      document.getElementById("leftPanel").appendChild(shapeDiv);
-    })
 
-    let graphViewer;
-    document.getElementById('toRegularMode').addEventListener('click',()=>{
-      graphEditor.stopDrawing();
-    })
-    document.getElementById('line').addEventListener('click',()=>{
-      graphEditor.drawShape('line');
-    })
-    document.getElementById('polyline').addEventListener('click',()=>{
-      graphEditor.drawShape('polyline');
-    })
-    document.getElementById('image').addEventListener('click',()=>{
-      graphEditor.insertImage();
-    })
-    document.getElementById('alignLeft').addEventListener('click',()=>{
-      graphEditor.align('left');
-    })
-    document.getElementById('alignRight').addEventListener('click',()=>{
-      graphEditor.align('right');
-    })
-    document.getElementById('alignTop').addEventListener('click',()=>{
-      graphEditor.align('top');
-    })
-    document.getElementById('alignBottom').addEventListener('click',()=>{
-      graphEditor.align('bottom');
-    })
-    document.getElementById('horDis').addEventListener('click',()=>{
-      graphEditor.align('horizontal');
-    })
-    document.getElementById('verDis').addEventListener('click',()=>{
-      graphEditor.align('vertical');
-    })
-    document.getElementById('save').addEventListener('click',()=>{
-      console.log(JSON.parse(graphEditor.toJSON()));
-    })
-    document.getElementById('preview').addEventListener('click',(e)=>{
-       preview(e.target)
-    })
-    
-    
-   
-     
-   
-    const toRegularMode = () => {
-      graphEditor.stopDrawing();
-    }
-    const draw = (shapeName) => {
-      graphEditor.drawShape(shapeName);
-    }
+            },
+            {
+                label: '文字',
+                className: 'TextNode',
+                attributes: {
+                    text: '文本信息',
+                    fontSize: 14,
+                    fontFamily: 'Calibri',
+                    padding: 5,
+                    fill: '#ff0000',
+                    strokeWidth: 0
+                },
+                path: '<svg viewBox="0 0 100 100" width="32" height="32"><path d="M20 20 L80 20 M50 20 L50 80" fill="#000000" stroke="#000000" stroke-width="8"></path></svg>'
+            },
+            {
+                label: '标签',
+                className: 'LabelNode',
+                attributes: {
+                    text: 'Tooltip',
+                    fontSize: 30,
+                    fontFamily: 'Calibri',
+                    textFill: '#ffffff',
+                    fill: 'black',
+                    pointerWidth: 10,
+                    pointerHeight: 10,
+                    lineJoin: 'round',
+                    shadowColor: 'black',
+                    shadowBlur: 10,
+                    shadowOffsetX: 10,
+                    shadowOffsetY: 10,
+                    shadowOpacity: 0.5,
+                    padding: 10,
+                    pointerDirection: 'down'
+                },
 
-    const preview = (target) => {
-
-      if (target.innerHTML == '预览') {
-        let currentGraph = graphEditor.toJSON();
-        graphEditor.destroy();
-        graphView = new GraphViewer(
-
-          {
-            container: document.getElementById('editor'),
-            graph: currentGraph,
-
-          }
-        );
-        graphView.refreshGraph();
-        target.innerHTML = '退出预览'
-      } else {
-        let currentGraph = graphView.config.graph;
-        graphView.destroy();
-
-        graphEditor = new GraphEditor(
-
-          {
-            container: document.getElementById('editor'),
-            graph: currentGraph,
-            drawing: {
-              snapToGrid: {
-                enable: true
-              }
+                path: '<svg t="1677742278587" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2100" width="32" height="32"><path d="M170.666667 85.333333h682.666666a85.333333 85.333333 0 0 1 85.333334 85.333334v512a85.333333 85.333333 0 0 1-85.333334 85.333333h-170.666666l-170.666667 170.666667-170.666667-170.666667H170.666667a85.333333 85.333333 0 0 1-85.333334-85.333333V170.666667a85.333333 85.333333 0 0 1 85.333334-85.333334m0 85.333334v512h206.08L512 817.92 647.253333 682.666667H853.333333V170.666667H170.666667z" fill="" p-id="2101"></path></svg>'
             }
-          }
+        ];
+        //初始化左侧面板
+        basicShapeList.forEach((shape) => {
+            let shapeDiv = document.createElement("div");
+            shapeDiv.style.width = "60px";
+            shapeDiv.style.height = "60px";
+            shapeDiv.style.display = "flex";
+            shapeDiv.style.border = "1px solid grey";
+            shapeDiv.style.margin = "2px";
+            shapeDiv.style.flexDirection = "column";
+            shapeDiv.setAttribute("draggable", true);
+            shapeDiv.addEventListener('dragstart', (event) => {
+
+                event.dataTransfer.setData(
+                    "dropData",
+                    JSON.stringify({ type: 'shape', content: shape })
+                );
+                // graphEditor.dropShape(event,shape);
+            });
+
+            let topDiv = document.createElement("div");
+            topDiv.innerHTML = shape.path;
+            let labelDiv = document.createElement("div");
+            labelDiv.innerHTML = shape.label;
+            shapeDiv.appendChild(topDiv);
+            shapeDiv.appendChild(labelDiv);
+            document.getElementById("leftPanel").appendChild(shapeDiv);
+        })
+
+        let graphViewer;
+        document.getElementById('toRegularMode').addEventListener('click', () => {
+            graphEditor.stopDrawing();
+        })
+        document.getElementById('line').addEventListener('click', () => {
+            graphEditor.drawShape('line');
+        })
+        document.getElementById('polyline').addEventListener('click', () => {
+            graphEditor.drawShape('polyline');
+        })
+        document.getElementById('image').addEventListener('click', () => {
+            graphEditor.insertImage();
+        })
+        document.getElementById('alignLeft').addEventListener('click', () => {
+            graphEditor.align('left');
+        })
+        document.getElementById('alignRight').addEventListener('click', () => {
+            graphEditor.align('right');
+        })
+        document.getElementById('alignTop').addEventListener('click', () => {
+            graphEditor.align('top');
+        })
+        document.getElementById('alignBottom').addEventListener('click', () => {
+            graphEditor.align('bottom');
+        })
+        document.getElementById('horDis').addEventListener('click', () => {
+            graphEditor.align('horizontal');
+        })
+        document.getElementById('verDis').addEventListener('click', () => {
+            graphEditor.align('vertical');
+        })
+        document.getElementById('save').addEventListener('click', () => {
+            console.log(JSON.parse(graphEditor.toJSON()));
+        })
+        document.getElementById('preview').addEventListener('click', (e) => {
+            preview(e.target)
+        })
+
+
+
+
+
+        const toRegularMode = () => {
+            graphEditor.stopDrawing();
+        }
+        const draw = (shapeName) => {
+            graphEditor.drawShape(shapeName);
+        }
+
+        const preview = (target) => {
+
+            if (target.innerHTML == '预览') {
+                let currentGraph = graphEditor.toJSON();
+                graphEditor.destroy();
+                graphView = new GraphViewer(
+
+                    {
+                        container: document.getElementById('editor'),
+                        graph: currentGraph,
+
+                    }
+                );
+                graphView.refreshGraph();
+                target.innerHTML = '退出预览'
+            } else {
+                let currentGraph = graphView.config.graph;
+                graphView.destroy();
+
+                graphEditor = new GraphEditor(
+
+                    {
+                        container: document.getElementById('editor'),
+                        graph: currentGraph,
+                        drawing: {
+                            snapToGrid: {
+                                enable: true
+                            }
+                        }
+                    }
+                );
+                target.innerHTML = '预览'
+            }
+
+        }
+        let testJson = '{"width":1000,"height":800,"backgroundColor":"rgb(255, 255, 255)","name":"","model":{"nodes":[{"id":"82db3545-7ee9-4346-82d1-09db9aed1afa","className":"RectNode","attributes":{"draggable":true,"x":32,"y":49,"width":200,"height":60,"stroke":"red","strokeWidth":2,"hitStrokeWidth":2,"strokeScaleEnabled":false,"fill":"red"},"animation":{"type":"blink","autoPlay":false},"variables":{"state":{"type":"integer","defaultVal":1}},"events":[{"type":"valueUpdate","action":"changeProperty","value":[{"name":"fill","val":"rgba(0,0,0,1)"}],"where":{"type":"comparison","value":1,"key":"state","comparison":"="}},{"type":"click","action":"executeAnimation","where":{"type":"none"}}]},{"id":"88a64c04-ddbd-4375-a1fa-8760a3ccaded","className":"EllipseNode","attributes":{"draggable":true,"x":100,"y":200,"stroke":"green","strokeWidth":4,"hitStrokeWidth":2,"strokeScaleEnabled":false,"radiusX":50,"radiusY":25},"animation":{},"variables":{},"events":[]},{"id":"7f307619-e5c7-4198-bf89-a2baa0fc14f8","className":"TextNode","attributes":{"draggable":true,"x":50,"y":50,"stroke":"green","strokeWidth":2,"hitStrokeWidth":2,"strokeScaleEnabled":false,"padding":10,"text":"中文"},"animation":{},"variables":{},"events":[]}],"images":{},"format":"object","variables":{}}}';
+        let graphEditor = new GraphEditor(
+            {
+                container: document.getElementById('editor'),
+                graph: testJson,
+                view: {
+                    transformer: {
+                        anchorSize: 6
+                    },
+                    editAnchor: {
+                        anchorFill: 'white',
+                        anchorStroke: 'rgb(0, 161, 255)'
+                    }
+                },
+                drawing: {
+                    snapToGrid: {
+                        enable: true,
+                    }
+                }
+            }
         );
-        target.innerHTML = '预览'
-      }
+        //创建监听
+        graphEditor.onSelectionChanged((sender, event) => {
+            let selectedNodes = event.getProperty('nodes');
+            console.log("onSelectionChanged", selectedNodes);
+        })
 
-    }
-    let testJson = '{"width":1000,"height":800,"backgroundColor":"rgb(255, 255, 255)","name":"","model":{"nodes":[{"id":"82db3545-7ee9-4346-82d1-09db9aed1afa","className":"RectNode","attributes":{"draggable":true,"x":32,"y":49,"width":200,"height":60,"stroke":"red","strokeWidth":2,"hitStrokeWidth":2,"strokeScaleEnabled":false,"fill":"red"},"animation":{"type":"blink","autoPlay":false},"variables":{"state":{"type":"integer","defaultVal":1}},"events":[{"type":"valueUpdate","action":"changeProperty","value":[{"name":"fill","val":"rgba(0,0,0,1)"}],"where":{"type":"comparison","value":1,"key":"state","comparison":"="}},{"type":"click","action":"executeAnimation","where":{"type":"none"}}]},{"id":"88a64c04-ddbd-4375-a1fa-8760a3ccaded","className":"EllipseNode","attributes":{"draggable":true,"x":100,"y":200,"stroke":"green","strokeWidth":4,"hitStrokeWidth":2,"strokeScaleEnabled":false,"radiusX":50,"radiusY":25},"animation":{},"variables":{},"events":[]},{"id":"7f307619-e5c7-4198-bf89-a2baa0fc14f8","className":"TextNode","attributes":{"draggable":true,"x":50,"y":50,"stroke":"green","strokeWidth":2,"hitStrokeWidth":2,"strokeScaleEnabled":false,"padding":10,"text":"中文"},"animation":{},"variables":{},"events":[]}],"images":{},"format":"object","variables":{}}}';
-    let graphEditor = new GraphEditor(
-      {
-        container: document.getElementById('editor'),
-        graph: testJson,
-        view: {
-          transformer: {
-            anchorSize: 6
-          },
-          editAnchor: {
-            anchorFill: 'white',
-            anchorStroke: 'rgb(0, 161, 255)'
-          }
-        },
-        drawing: {
-          snapToGrid: {
-            enable: true,
-          }
+        graphEditor.addNode({
+            className: 'RectNode',
+            attributes: {
+                x: 20,
+                y: 20,
+                width: 200,
+                height: 60,
+                strokeWidth: 2,
+                stroke: 'red'
+            }
+        })
+        graphEditor.addNode({
+            className: 'EllipseNode',
+            attributes: {
+                x: 40,
+                y: 100,
+                radiusX: 50,
+                radiusY: 25,
+                strokeWidth: 4,
+                stroke: 'green'
+            }
+        })
+        graphEditor.addNode({
+            className: 'TextNode',
+            attributes: {
+                x: 50,
+                y: 50,
+                align: 'left',
+                padding: 10,
+                fontFamily: "Arial",
+                fontSize: 12,
+                fontStyle: "normal",
+                fontVariant: "normal",
+                text: "中文",
+                strokeWidth: 2,
+                stroke: 'green',
+                draggable: true
+            }
+        })
+
+        let allNodes = graphEditor.getNodes();
+
+        let ids = [];
+        for (let node of allNodes) {
+            ids.push(node.id);
         }
-      }
-    );
-    //创建监听
-    graphEditor.onSelectionChanged((sender, event) => {
-      let selectedNodes = event.getProperty('nodes');
-      console.log("onSelectionChanged",selectedNodes);
-    })
+        // //复制，粘贴功能测试
+        // graphEditor.copy(ids);
+        // graphEditor.paste();
+        // //撤销重做
+        // graphEditor.undo();
+        // graphEditor.redo();
+        // //微调
+        // graphEditor.move('up',100);
+        // graphEditor.move('right',300);
+        // graphEditor.move('down');
+        // //对齐
+        // graphEditor.align('top',ids);
+        // graphEditor.align('top');
 
-    graphEditor.addNode({
-      className: 'RectNode',
-      attributes: {
-        x: 20,
-        y: 20,
-        width: 200,
-        height: 60,
-        strokeWidth: 2,
-        stroke: 'red'
-      }
-    })
-    graphEditor.addNode({
-      className: 'EllipseNode',
-      attributes: {
-        x: 40,
-        y: 100,
-        radiusX: 50,
-        radiusY: 25,
-        strokeWidth: 4,
-        stroke: 'green'
-      }
-    })
-    graphEditor.addNode({
-      className: 'TextNode',
-      attributes: {
-        x: 50,
-        y: 50,
-        align: 'left',
-        padding: 10,
-        fontFamily: "Arial",
-        fontSize: 12,
-        fontStyle: "normal",
-        fontVariant: "normal",
-        text: "中文",
-        strokeWidth: 2,
-        stroke: 'green',
-        draggable: true
-      }
-    })
+        // //调整显示比例
+        // graphEditor.setScale(1.2);
 
-    let allNodes = graphEditor.getNodes();
-   
-    let ids = [];
-    for (let node of allNodes) {
-      ids.push(node.id);
-    }
-    // //复制，粘贴功能测试
-    // graphEditor.copy(ids);
-    // graphEditor.paste();
-    // //撤销重做
-    // graphEditor.undo();
-    // graphEditor.redo();
-    // //微调
-    // graphEditor.move('up',100);
-    // graphEditor.move('right',300);
-    // graphEditor.move('down');
-    // //对齐
-    // graphEditor.align('top',ids);
-    // graphEditor.align('top');
+        // graphEditor.setSize(800,600);
 
-    // //调整显示比例
-    // graphEditor.setScale(1.2);
+        // //添加变量
+        graphEditor.saveVariable('state', {
+            type: 'integer',
+            defaultVal: 1
+        }, false, null, ids[0]);
+        graphEditor.saveVariable('变量3', {
+            type: 'integer',
+            defaultVal: 0
+        }, false, null, ids[0]);
+        //修改变量
+        graphEditor.saveVariable('变量2', {
+            type: 'integer',
+            defaultVal: 0
+        }, false, '变量3', ids[0]);
 
-    // graphEditor.setSize(800,600);
+        graphEditor.deleteVariable('变量2', false, ids[0]);
+        // //设置属性
+        graphEditor.setAttributes({
+            'fill': 'red'
+        }, ids[0]);
+        // graphEditor.setAttributes({
+        //   'rotation': 30
+        // },ids);
+        // graphEditor.setAttribute('fill','orange',ids);
+        // graphEditor.group(ids);
+        // let selectNodes=graphEditor.getSelection();
+        // graphEditor.unGroup(selectNodes[0].id);
+        // console.log('当前配置',graphEditor.getConfig());
 
-    // //添加变量
-    graphEditor.saveVariable('state', {
-      type: 'integer',
-      defaultVal: 1
-    }, false, null, ids[0]);
-    graphEditor.saveVariable('变量3', {
-      type: 'integer',
-      defaultVal: 0
-    }, false, null, ids[0]);
-    //修改变量
-    graphEditor.saveVariable('变量2', {
-      type: 'integer',
-      defaultVal: 0
-    }, false, '变量3', ids[0]);
+        // //添加动画
+        selectNodes = graphEditor.getSelection();
+        graphEditor.setAnimations({
+            'type': 'blink',
+            'autoPlay': false
+        }, ids[0]);
+        // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
+        // graphEditor.setAnimation('period',6,selectNodes[0].id);
+        // console.log('获取画布上所有的节点',graphEditor.getNodes());
+        // //设置背景色
+        // graphEditor.setBackgroundColor('black');
+        // // graphEditor.deleteNodes(selectNodes[0].id);
+        //  //添加事件
+        graphEditor.addEvent({
+            type: 'valueUpdate',
+            action: 'changeProperty',
+            value: [{
+                name: 'fill', val: 'rgba(0,0,0,1)'
+            }],
+            where: {
+                type: 'comparison',
+                value: 1,
+                key: "state",
+                comparison: "="
+            }
+        }, ids[0])
+        //点击启动动画
+        graphEditor.addEvent({
+            type: 'click',
+            action: 'executeAnimation'
+        }, ids[0])
+        // //更新事件
+        // graphEditor.updateEvent({type:'click'}, 0, selectNodes[0].id)
+        // //添加属性
+        // graphEditor.savePropertyInEvent({'stroke':'green'}, -1, 0, selectNodes[0].id)
+        // //删除属性
+        // graphEditor.deletePropertyInEvent(0, 0, selectNodes[0].id);
+        // //删除事件
+        //graphEditor.deleteEvent(0,selectNodes[0].id);
 
-    graphEditor.deleteVariable('变量2', false, ids[0]);
-    // //设置属性
-    graphEditor.setAttributes({
-      'fill': 'red'
-    }, ids[0]);
-    // graphEditor.setAttributes({
-    //   'rotation': 30
-    // },ids);
-    // graphEditor.setAttribute('fill','orange',ids);
-    // graphEditor.group(ids);
-    // let selectNodes=graphEditor.getSelection();
-    // graphEditor.unGroup(selectNodes[0].id);
-    // console.log('当前配置',graphEditor.getConfig());
+        // let json = graphEditor.toJSON();
+        graphEditor.onSelectionChanged((sender, event) => {
+            let selectedNodes = event.getProperty('nodes');
 
-    // //添加动画
-    selectNodes = graphEditor.getSelection();
-    graphEditor.setAnimations({
-      'type': 'blink',
-      'autoPlay': false
-    }, ids[0]);
-    // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
-    // graphEditor.setAnimation('period',6,selectNodes[0].id);
-    // console.log('获取画布上所有的节点',graphEditor.getNodes());
-    // //设置背景色
-    // graphEditor.setBackgroundColor('black');
-    // // graphEditor.deleteNodes(selectNodes[0].id);
-    //  //添加事件
-    graphEditor.addEvent({
-      type: 'valueUpdate',
-      action: 'changeProperty',
-      value: [{
-        name: 'fill', val: 'rgba(0,0,0,1)'
-      }],
-      where: {
-        type: 'comparison',
-        value: 1,
-        key: "state",
-        comparison: "="
-      }
-    }, ids[0])
-    //点击启动动画
-    graphEditor.addEvent({
-      type: 'click',
-      action: 'executeAnimation'
-    }, ids[0])
-    // //更新事件
-    // graphEditor.updateEvent({type:'click'}, 0, selectNodes[0].id)
-    // //添加属性
-    // graphEditor.savePropertyInEvent({'stroke':'green'}, -1, 0, selectNodes[0].id)
-    // //删除属性
-    // graphEditor.deletePropertyInEvent(0, 0, selectNodes[0].id);
-    // //删除事件
-    //graphEditor.deleteEvent(0,selectNodes[0].id);
+            if (selectedNodes.length > 0) {
+                initPropertyPanel(selectedNodes[0])
+            }
+            //进行相应操作
+        });
+        graphEditor.onModelChanged((sender, event) => {
+            let nodes = event.getProperty('nodes');
+            let eventName = event.getName();
+            if (eventName == 'nodeAttributeChange') {
+                console.log("节点的属性改变了", event.getProperty('nodes'));
+            } else if (eventName == 'nodeEventsChange') {
+                console.log("节点绑定的事件改变了", event.getProperty('events'));
+            } else if (eventName == 'nodeVariableChange') {
+                console.log("节点绑定的变量改变了", event.getProperty('variable'));
+                let type = event.getProperty('type');
+                switch (type) {
+                    case 'add':
+                        break;
+                    case 'delete':
+                        break;
+                    case 'update':
+                        break;
+                }
+            } else if (eventName == 'nodeAnimationChange') {
+                console.log("动画属性改变了", event.getProperty('animation'));
+            } else if (eventName == 'modelVariableChange') {
+                console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
+                let type = event.getProperty('type');
+                switch (type) {
+                    case 'add':
+                        break;
+                    case 'delete':
+                        break;
+                    case 'update':
+                        break;
+                }
+            } else if (eventName == 'addNodes') {
+                console.log("添加节点", event.getProperty('nodes'));
+            } else if (eventName == 'removeNodes') {
+                console.log("删除节点", event.getProperty('nodes'));
+            } else if (eventName == 'nodePropertyChange') {
+                console.log("节点的属性变化了", event.getProperty('tag'));
+            }
+        });
+        const getColorDiv = (proName, value) => {
+            let compDiv = document.createElement('div');
+            compDiv.style.display = 'flex';
+            compDiv.style.padding = '5px';
+            let strokeLabel = document.createElement('div');
+            strokeLabel.innerHTML = proName;
+            strokeLabel.style.marginRight = '4px';
+            let attrDiv = document.createElement('input')
 
-    // let json = graphEditor.toJSON();
-    graphEditor.onSelectionChanged((sender, event) => {
-      let selectedNodes = event.getProperty('nodes');
-    
-      if (selectedNodes.length > 0) {
-        initPropertyPanel(selectedNodes[0])
-      }
-      //进行相应操作
-    });
-    graphEditor.onModelChanged((sender, event) => {
-      let nodes = event.getProperty('nodes');
-      let eventName = event.getName();
-      if (eventName == 'nodeAttributeChange') {
-        console.log("节点的属性改变了", event.getProperty('nodes'));
-      } else if (eventName == 'nodeEventsChange') {
-        console.log("节点绑定的事件改变了", event.getProperty('events'));
-      } else if (eventName == 'nodeVariableChange') {
-        console.log("节点绑定的变量改变了", event.getProperty('variable'));
-        let type = event.getProperty('type');
-        switch (type) {
-          case 'add':
-            break;
-          case 'delete':
-            break;
-          case 'update':
-            break;
+            attrDiv.setAttribute('type', 'color');
+            attrDiv.value = value;
+            compDiv.appendChild(strokeLabel);
+            compDiv.appendChild(attrDiv);
+            attrDiv.addEventListener('change', (evt) => {
+                let strokeColor = attrDiv.value;
+
+                graphEditor.setAttribute(proName, strokeColor);
+            })
+            return compDiv;
         }
-      } else if (eventName == 'nodeAnimationChange') {
-        console.log("动画属性改变了", event.getProperty('animation'));
-      } else if (eventName == 'modelVariableChange') {
-        console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
-        let type = event.getProperty('type');
-        switch (type) {
-          case 'add':
-            break;
-          case 'delete':
-            break;
-          case 'update':
-            break;
+        const initPropertyPanel = (node) => {
+
+            document.getElementById('property').innerHTML = '';
+            for (let key in node.attributes) {
+
+                switch (key) {
+                    case 'fill':
+                    case 'stroke':
+                        let compDiv = getColorDiv(key, node.attributes[key]);
+                        document.getElementById('property').appendChild(compDiv);
+
+                        break;
+                }
+
+            }
         }
-      } else if (eventName == 'addNodes') {
-        console.log("添加节点", event.getProperty('nodes'));
-      } else if (eventName == 'removeNodes') {
-        console.log("删除节点", event.getProperty('nodes'));
-      } else if (eventName == 'nodePropertyChange') {
-        console.log("节点的属性变化了", event.getProperty('tag'));
-      }
-    });
-    const getColorDiv = (proName, value) => {
-      let compDiv = document.createElement('div');
-      compDiv.style.display = 'flex';
-      compDiv.style.padding = '5px';
-      let strokeLabel = document.createElement('div');
-      strokeLabel.innerHTML = proName;
-      strokeLabel.style.marginRight = '4px';
-      let attrDiv = document.createElement('input')
-   
-      attrDiv.setAttribute('type', 'color');
-      attrDiv.value = value;
-      compDiv.appendChild(strokeLabel);
-      compDiv.appendChild(attrDiv);
-      attrDiv.addEventListener('change', (evt) => {
-        let strokeColor = attrDiv.value;
-
-        graphEditor.setAttribute(proName, strokeColor);
-      })
-      return compDiv;
-    }
-    const initPropertyPanel = (node) => {
-    
-      document.getElementById('property').innerHTML = '';
-      for (let key in node.attributes) {
-
-        switch (key) {
-          case 'fill':
-          case 'stroke':
-            let compDiv = getColorDiv(key, node.attributes[key]);
-            document.getElementById('property').appendChild(compDiv);
-
-            break;
-        }
-
-      }
-    }
-  </script>
+    </script>
 </body>
 
 </html>
