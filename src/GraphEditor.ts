@@ -852,22 +852,22 @@ export default class GraphEditor extends GraphManager {
      * @returns 
      */
     private getNodeIdToDistanceXorY(idToBoundRect: any, style: string) {
-        let allXorYs: any = [];
-        let xorYToElement = new Map();
         let nodeIdToDis = new Map();
+        let nodeIdToXorY=new Map();
         idToBoundRect.forEach(function (value: any, key: any) {
-            allXorYs.push(value[style]);
-            xorYToElement.set(value[style], key);
+            nodeIdToXorY.set(key,value[style])
         });
-        allXorYs = allXorYs.sort(function (a: any, b: any) {
-            return a - b;
+        let nodeIdToXorYArray=Array.from(nodeIdToXorY);
+        nodeIdToXorYArray = nodeIdToXorYArray.sort(function (a: any, b: any) {
+            return a[1] - b[1];
         });
+        let allXorYs=nodeIdToXorYArray.map(item => item[1]);
         var len = allXorYs.length;
         var wholeWidthOrHeight = allXorYs[len - 1] - allXorYs[0];
-        var lastElement = xorYToElement.get(allXorYs[len - 1]);
+        var lastElementId = nodeIdToXorYArray[len-1][0];
         var distance = 0;
         idToBoundRect.forEach(function (value: any, key: any) {
-            if (key != lastElement) {
+            if (key != lastElementId) {
                 if (style == 'x') {
                     wholeWidthOrHeight = wholeWidthOrHeight - (value.width);
                 } else {
@@ -878,13 +878,13 @@ export default class GraphEditor extends GraphManager {
         });
         var eachDis = wholeWidthOrHeight / (len - 1);
         for (let i = 0; i < allXorYs.length; i++) {
-            var element = xorYToElement.get(allXorYs[i]);
+            var id =nodeIdToXorYArray[i][0];
             var distanceXorY = 0;
             if (i == 0) {
-                nodeIdToDis.set(element, 0.00);
+                nodeIdToDis.set(id, 0.00);
             } else {
                 for (let j = 0; j < i; j++) {
-                    var bbox = idToBoundRect.get(xorYToElement.get(allXorYs[j]));
+                    var bbox = idToBoundRect.get(nodeIdToXorYArray[j][0]);
                     if (style == 'x') {
                         distanceXorY = distanceXorY + (bbox.width);
                     } else {
@@ -892,7 +892,7 @@ export default class GraphEditor extends GraphManager {
                     }
                 }
                 distanceXorY = i * eachDis + distanceXorY;
-                nodeIdToDis.set(element, distanceXorY);
+                nodeIdToDis.set(id, distanceXorY);
             }
         }
         return nodeIdToDis;
@@ -912,7 +912,7 @@ export default class GraphEditor extends GraphManager {
             let shapeNode = this.stage.findOne('#' + item.getId());
             let rectBound = shapeNode.getClientRect();
             rectBounds.push(rectBound);
-            idToBoundRect.set(item, rectBound);
+            idToBoundRect.set(item.getId(), rectBound);
         }
         let unionRect = Utils.getUnionRect(rectBounds);
         let initDistanceX = unionRect.x;
@@ -923,32 +923,35 @@ export default class GraphEditor extends GraphManager {
         } else if (direction == DIRECTION_VERTICAL) {
             nodeIdToDistance = this.getNodeIdToDistanceXorY(idToBoundRect, 'y');
         }
+        console.log(nodeIdToDistance);
         for (let item of selectNodes) {
+            let id=item.getId();
+            let bbox=idToBoundRect.get(id);
             let shapeNode = this.stage.findOne('#' + item.getId());
             let transform = shapeNode.getTransform();
             let newTransform = new Konva.Transform();
             let translateFactor: any;
             switch (direction) {
                 case DIRECTION_LEFT:
-                    translateFactor = { x: unionRect.x - idToBoundRect.get(item).x, y: 0 };
+                    translateFactor = { x: unionRect.x - bbox.x, y: 0 };
                     break;
                 case DIRECTION_RIGHT:
-                    translateFactor = { x: unionRect.maxX - (idToBoundRect.get(item).x + idToBoundRect.get(item).width), y: 0 };
+                    translateFactor = { x: unionRect.maxX - (bbox.x + bbox.width), y: 0 };
                     break;
                 case DIRECTION_TOP:
-                    translateFactor = { x: 0, y: unionRect.y - idToBoundRect.get(item).y };
+                    translateFactor = { x: 0, y: unionRect.y - bbox.y };
                     break;
                 case DIRECTION_BOTTOM:
-                    translateFactor = { x: 0, y: unionRect.maxY - (idToBoundRect.get(item).y + idToBoundRect.get(item).height) };
+                    translateFactor = { x: 0, y: unionRect.maxY - (bbox.y + bbox.height) };
                     break;
                 case DIRECTION_HORIZONTAL:
-                    let distance = nodeIdToDistance.get(item);
-                    let addValue = (parseFloat(initDistanceX) + parseFloat(distance) - idToBoundRect.get(item).x);
+                    let distance = nodeIdToDistance.get(id);
+                    let addValue = (parseFloat(initDistanceX) + parseFloat(distance) - bbox.x);
                     translateFactor = { x: addValue, y: 0 };
                     break;
                 case DIRECTION_VERTICAL:
-                    let distanceY = nodeIdToDistance.get(item);
-                    let addValueY = (parseFloat(initDistanceY) + parseFloat(distanceY) - idToBoundRect.get(item).y);
+                    let distanceY = nodeIdToDistance.get(id);
+                    let addValueY = (parseFloat(initDistanceY) + parseFloat(distanceY) -bbox.y);
                     translateFactor = { x: 0, y: addValueY };
                     break;
             }
@@ -959,6 +962,7 @@ export default class GraphEditor extends GraphManager {
             let cloneOldTransform = transform.copy();
             newTransform.multiply(cloneOldTransform);
             let newTransformDeCompose = newTransform.decompose();
+            console.log("newTransformDeCompose",newTransformDeCompose);
             shapeNode.setAttrs(newTransformDeCompose);
         }
         let resizeChange = new GeometryChange(selectNodes, 'resize', this.dataModel);
