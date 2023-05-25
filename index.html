@@ -34,19 +34,19 @@
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="直线" id="line"><i
                     class="iconfont icon-zhixian"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="折线" id="polyline"><i
-                    class="iconfont icon-curve"></button>
+                    class="iconfont icon-curve"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="图像" id="image"><i
-                    class="iconfont icon-image"></button>
+                    class="iconfont icon-image"></i></button>
         </div>
         <div class="layui-btn-group" id="alginToolbar">
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
                     class="iconfont icon-shuipingzuoduiqi"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="右对齐" id="alignRight"><i
-                    class="iconfont icon-shuipingyouduiqi"></button>
+                    class="iconfont icon-shuipingyouduiqi"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="顶对齐" id="alignTop"><i
-                    class="iconfont icon-chuizhidingduiqi"></button>
+                    class="iconfont icon-chuizhidingduiqi"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
-                    class="iconfont icon-chuizhididuiqi"></button>
+                    class="iconfont icon-chuizhididuiqi"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距"
                 id="horDis">水平等距</button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距"
@@ -443,7 +443,7 @@
         // console.log('当前配置',graphEditor.getConfig());
 
         // //添加动画
-        selectNodes = graphEditor.getSelection();
+        let selectNodes = graphEditor.getSelection();
         graphEditor.setAnimations({
             'type': 'blink',
             'autoPlay': false
