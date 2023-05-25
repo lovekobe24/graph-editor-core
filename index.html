@@ -21,7 +21,7 @@
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
 
-  <script src="../umd/GraphEditor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/graph-editor-core/umd/GraphEditor.js"></script>
   <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
 </head>
 
@@ -74,7 +74,7 @@
       graphEditor.dropShape(event, shape);
     })
 
-
+    import basicShapeList from "./test/shape/basic";
     //初始化左侧面板
     basicShapeList.forEach((shape) => {
       let shapeDiv = document.createElement("div");
