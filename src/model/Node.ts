@@ -99,10 +99,10 @@ export abstract class Node {
                 attrValues[name] = attrValue;
             }
         } else {
-            for (let name in this.attributes) {
-                let attrValue = this.attributes[name].value;
+            let arr=Object.entries(this.attributes)
+            for (let [key,attrValue] of arr) {
                 if (typeof attrValue === 'object' && attrValue !== null) attrValue = JSON.parse(JSON.stringify(attrValue));
-                attrValues[name] = attrValue;
+                attrValues[key] = attrValue;
             }
         }
         return attrValues;
