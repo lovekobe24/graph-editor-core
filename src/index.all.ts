@@ -27,5 +27,7 @@ export { TextNode }  from './model/TextNode';
 export { WedgeNode }  from './model/WedgeNode';
 export { EditableShapeNode }  from './model/EditableShapeNode';
 export {EditorConfig} from './types/config';
+export {GridConfig} from './types/config';
+export {StyleConfig} from './types/config';
 
 export default GraphEditor;

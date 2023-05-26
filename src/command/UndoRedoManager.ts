@@ -64,7 +64,7 @@ class UndoRedoManager {
             shiftKey: boolean
         }
     ) {
-        console.log(this.settings);
+     
         if (this.settings?.history?.keyboard?.enabled === false) {
             return
         }

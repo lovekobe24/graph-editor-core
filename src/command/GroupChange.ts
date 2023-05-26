@@ -18,7 +18,6 @@ class GroupChange extends Change {
         this.isGroup = isGroup;
         if (isGroup) {
             const group = new GroupNode();
-            console.log(group);
             group.setAttributeValue('draggable', true);
             group.setMembers(nodes.map((item: any) => {
                 let node = item.clone(true);

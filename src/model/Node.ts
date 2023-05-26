@@ -315,7 +315,6 @@ export abstract class Node {
     deletePropertyInEvent(propertyIndex: number = -1, evtIndex: number) {
         if (propertyIndex != -1 && evtIndex != -1) {
             let pros = this.events[evtIndex]['value'];
-            console.log(pros);
             pros.splice(propertyIndex, 1);
         } else {
             console.error("未找到事件或属性索引")

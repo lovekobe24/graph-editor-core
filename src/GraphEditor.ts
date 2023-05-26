@@ -269,7 +269,6 @@ export default class GraphEditor extends GraphManager {
                     });
                 } else if (target instanceof Konva.Image) {
                     this.chooseImage((newImgData: Image) => {
-                        console.log(newImgData);
                         let imageNode = this.dataModel.getSelectionManager().getSelection()[0];
                         let oldImgData = imageNode.getAttributeValue('image');
                         let attrChange = new AttributeChange(new Map([[imageNode, [{ image: oldImgData }, { image: newImgData }]]]), this.dataModel);
@@ -891,7 +890,6 @@ export default class GraphEditor extends GraphManager {
         } else if (direction == DIRECTION_VERTICAL) {
             nodeIdToDistance = this.getNodeIdToDistanceXorY(idToBoundRect, 'y');
         }
-        console.log(nodeIdToDistance);
         for (let item of selectNodes) {
             let id = item.getId();
             let bbox = idToBoundRect.get(id);
@@ -930,7 +928,6 @@ export default class GraphEditor extends GraphManager {
             let cloneOldTransform = transform.copy();
             newTransform.multiply(cloneOldTransform);
             let newTransformDeCompose = newTransform.decompose();
-            console.log("newTransformDeCompose", newTransformDeCompose);
             shapeNode.setAttrs(newTransformDeCompose);
         }
         let resizeChange = new GeometryChange(selectNodes, 'resize', this.dataModel);

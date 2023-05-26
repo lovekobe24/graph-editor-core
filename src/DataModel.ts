@@ -71,7 +71,6 @@ export class DataModel extends TemcEventSource {
     }
 
     addNode(node: any, index: number = -1) {
-        console.log(node);
         if (index == -1) {
             this.nodes.push(node);
             node.setDataModel(this);
@@ -179,9 +178,7 @@ export class DataModel extends TemcEventSource {
                 for (let node of nodes) {
                     let id = node.id, className = node.className;
                     if (className === 'ImageNode') {
-                        console.log(node);
                         let imageAttr = node.attributes;
-                  
                         let content = imageAttr.image;
                         imageAttr.image = null;
                         if (images.hasOwnProperty(content)) {
