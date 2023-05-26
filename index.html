@@ -22,7 +22,8 @@
     <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/graph-editor-core/umd/GraphEditor.js"></script>
-    <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
+    <script src="https://unpkg.com/graph-editor-core/umd/GraphViewer.js"></script>
+    <script src="https://unpkg.com/layui@2.8.3/dist/layui.js"></script>
 </head>
 
 <body>
@@ -48,9 +49,9 @@
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
                     class="iconfont icon-chuizhididuiqi"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距"
-                id="horDis">水平等距</button>
+                id="horDis"><i class="iconfont icon-shuipingdengjufenbu"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距"
-                id="verDis">垂直等距</button>
+                id="verDis"><i class="iconfont icon-chuizhidengjufenbu"></i></button>
         </div>
         <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
 
@@ -237,7 +238,7 @@
             document.getElementById("leftPanel").appendChild(shapeDiv);
         })
 
-        let graphViewer;
+        let graphView;
         document.getElementById('toRegularMode').addEventListener('click', () => {
             graphEditor.stopDrawing();
         })
