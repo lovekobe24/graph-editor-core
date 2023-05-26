@@ -35,6 +35,7 @@ export default class GraphViewer extends GraphManager {
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
         if (graph) this.dataModel.fromObject(graph.model);
+        this.stage.setAttr("draggable",true);
 
     }
 
