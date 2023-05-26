@@ -176,14 +176,19 @@ export abstract class Node {
                 let tween = tweenResult.obj;
                 let autoPlay = this.animation.autoPlay;
                 if (autoPlay) {
-                    if(!isPreview) this.setAttributeValue('draggable',false);
+                    if(!isPreview){
+                        this.setAttributeValue('draggable',false);
+                    }
+                 
                     if (tween.node) {
                         tween?.play();
                     } else {
                         tween?.start();
                     }
                 }else{
-                    if(!isPreview)  this.setAttributeValue('draggable',true);
+                    if(!isPreview)  {
+                        this.setAttributeValue('draggable',true);
+                    }
                 }
             }
         }

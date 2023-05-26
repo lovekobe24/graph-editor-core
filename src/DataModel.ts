@@ -71,6 +71,7 @@ export class DataModel extends TemcEventSource {
     }
 
     addNode(node: any, index: number = -1) {
+        console.log(node);
         if (index == -1) {
             this.nodes.push(node);
             node.setDataModel(this);
@@ -144,11 +145,9 @@ export class DataModel extends TemcEventSource {
                 })(nodes);
             }
         }
-        console.log("dataModel fromObject",nodes);
+       
         nodes.map((item: any) => {
-            console.log(item);
             let node = Node.create(item);
-            console.log(node);
             this.addNode(node, -1);
         });
     }

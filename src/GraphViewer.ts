@@ -205,6 +205,12 @@ export default class GraphViewer extends GraphManager {
             }
         }
     }
+    setGraph(graphContent: any) {
+        super.setGraph(graphContent);
+        this.dataModel?.getNodes().forEach((node:Node)=>{
+            node.setAttributeValue("draggable",false);
+        })
+    }
 
     /**
   * 设置节点的属性
