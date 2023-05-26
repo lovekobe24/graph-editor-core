@@ -1,0 +1,12 @@
+{
+    "entryPoints": ["src/GraphEditor.ts","src/GraphViewer.ts"],
+    "includes": "src/*.ts",
+    "out": "docs",
+    "readme": "none",
+    "includeVersion": true,
+    "disableSources": false,
+    "exclude": [
+      "**/node_modules/**"
+    ],
+  }
+  
