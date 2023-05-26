@@ -16,6 +16,7 @@ import { Node } from './model/Node';
 import { GRAPH_EDITOR_WARNING } from "./constants/TemcConstants";
 import { ContainerNode } from "./model/ContainerNode";
 import type { GraphManager } from "./GraphManager";
+import GraphViewer from "./GraphViewer";
 
 export class DataModel extends TemcEventSource {
 
@@ -24,12 +25,16 @@ export class DataModel extends TemcEventSource {
     selectionManager: any;
     undoRedoManager: any;
     variables: any;
+    isPreview:boolean=false;
 
     constructor(gm:GraphManager) {
         super();
         this.selectionManager = new SelectionManager(this);
         this.undoRedoManager = new UndoRedoManager(gm,50);
         this.variables = {};
+        if(gm instanceof GraphViewer){
+            this.isPreview=true;
+        }
     }
 
     getUndoRedoManager() {
@@ -66,6 +71,7 @@ export class DataModel extends TemcEventSource {
     }
 
     addNode(node: any, index: number = -1) {
+        console.log(node);
         if (index == -1) {
             this.nodes.push(node);
             node.setDataModel(this);
@@ -75,7 +81,7 @@ export class DataModel extends TemcEventSource {
 
         this.fireEvent(new EventObject(EVENT_TYPE.ADD_KONVA_NODE, 'node', node.getRef(), 'zIndex', index ? index : -1), null);
         //对于Tween动画来说，必须将konva节点加入到Layer后，才能调用动画
-        node.updateRefAnimation();
+        node.updateRefAnimation(this.isPreview);
     }
 
 
@@ -139,6 +145,7 @@ export class DataModel extends TemcEventSource {
                 })(nodes);
             }
         }
+       
         nodes.map((item: any) => {
             let node = Node.create(item);
             this.addNode(node, -1);

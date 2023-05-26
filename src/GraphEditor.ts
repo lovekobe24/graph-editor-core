@@ -18,19 +18,6 @@ import GeometryChange from "./command/GeometryChange";
 import NodeChange from "./command/NodeChange";
 import EventObject from "./EventObject";
 
-import { SymbolNode } from './model/SymbolNode';
-import { RectNode } from './model/RectNode';
-import { EllipseNode } from './model/EllipseNode';
-import { CircleNode } from './model/CircleNode';
-import { ImageNode } from './model/ImageNode';
-import { StarNode } from "./model/StarNode";
-import { RegularPolygonNode } from './model/RegularPolygonNode';
-import { ArcNode } from "./model/ArcNode";
-import { PathNode } from "./model/PathNode";
-import { TextNode } from "./model/TextNode";
-import { RingNode } from './model/RingNode';
-import { WedgeNode } from './model/WedgeNode';
-import { LabelNode } from "./model/LabelNode";
 import { EditableShapeNode } from './model/EditableShapeNode';
 import ArrowShape from "./shape/ArrowShape";
 import PolylineArrowShape from './shape/PolylineArrowShape';
@@ -43,12 +30,7 @@ import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
 import type { EditorConfig } from "./types";
-import { GroupNode } from "./model/GroupNode";
-import { LineArrowNode } from "./model/LineArrowNode";
-import { LineNode } from "./model/LineNode";
-import { PenNode } from "./model/PenNode";
-import { PolylineNode } from "./model/PolylineNode";
-import { PolylineArrowNode } from "./model/PolylineArrowNode";
+
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
     private helpLayer: Layer = new Konva.Layer();
@@ -59,7 +41,6 @@ export default class GraphEditor extends GraphManager {
     shapeModules: any[] = [];
     drawingShape: any = null;
     gridConfig: any;
-    name: string = '';
     isSquare: boolean = false;
     operateNodes: any[] = [];
     pasteCount: number = 1;
@@ -94,7 +75,7 @@ export default class GraphEditor extends GraphManager {
         super(config);
         this.container = config.container;
         this.config = Utils.combine(defaultConfig, config);
-        this.registerNodeClass();
+       
         let view = this.config?.view;
         let graph;
         if (this.config.graph) {
@@ -136,29 +117,7 @@ export default class GraphEditor extends GraphManager {
 
 
     }
-    registerNodeClass() {
-
-        RectNode.register();
-        EllipseNode.register();
-        ArcNode.register();
-        CircleNode.register();
-        GroupNode.register();
-        ImageNode.register();
-        LabelNode.register();
-        LineArrowNode.register();
-        LineNode.register();
-        PathNode.register();
-        PenNode.register();
-        PolylineArrowNode.register();
-        PolylineNode.register()
-        RegularPolygonNode.register();
-        RingNode.register();
-        StarNode.register();
-        SymbolNode.register();
-        TextNode.register();
-        WedgeNode.register();
-    }
-
+ 
 
 
 
@@ -852,22 +811,22 @@ export default class GraphEditor extends GraphManager {
      * @returns 
      */
     private getNodeIdToDistanceXorY(idToBoundRect: any, style: string) {
-        let allXorYs: any = [];
-        let xorYToElement = new Map();
         let nodeIdToDis = new Map();
+        let nodeIdToXorY=new Map();
         idToBoundRect.forEach(function (value: any, key: any) {
-            allXorYs.push(value[style]);
-            xorYToElement.set(value[style], key);
+            nodeIdToXorY.set(key,value[style])
         });
-        allXorYs = allXorYs.sort(function (a: any, b: any) {
-            return a - b;
+        let nodeIdToXorYArray=Array.from(nodeIdToXorY);
+        nodeIdToXorYArray = nodeIdToXorYArray.sort(function (a: any, b: any) {
+            return a[1] - b[1];
         });
+        let allXorYs=nodeIdToXorYArray.map(item => item[1]);
         var len = allXorYs.length;
         var wholeWidthOrHeight = allXorYs[len - 1] - allXorYs[0];
-        var lastElement = xorYToElement.get(allXorYs[len - 1]);
+        var lastElementId = nodeIdToXorYArray[len-1][0];
         var distance = 0;
         idToBoundRect.forEach(function (value: any, key: any) {
-            if (key != lastElement) {
+            if (key != lastElementId) {
                 if (style == 'x') {
                     wholeWidthOrHeight = wholeWidthOrHeight - (value.width);
                 } else {
@@ -878,13 +837,13 @@ export default class GraphEditor extends GraphManager {
         });
         var eachDis = wholeWidthOrHeight / (len - 1);
         for (let i = 0; i < allXorYs.length; i++) {
-            var element = xorYToElement.get(allXorYs[i]);
+            var id =nodeIdToXorYArray[i][0];
             var distanceXorY = 0;
             if (i == 0) {
-                nodeIdToDis.set(element, 0.00);
+                nodeIdToDis.set(id, 0.00);
             } else {
                 for (let j = 0; j < i; j++) {
-                    var bbox = idToBoundRect.get(xorYToElement.get(allXorYs[j]));
+                    var bbox = idToBoundRect.get(nodeIdToXorYArray[j][0]);
                     if (style == 'x') {
                         distanceXorY = distanceXorY + (bbox.width);
                     } else {
@@ -892,7 +851,7 @@ export default class GraphEditor extends GraphManager {
                     }
                 }
                 distanceXorY = i * eachDis + distanceXorY;
-                nodeIdToDis.set(element, distanceXorY);
+                nodeIdToDis.set(id, distanceXorY);
             }
         }
         return nodeIdToDis;
@@ -912,7 +871,7 @@ export default class GraphEditor extends GraphManager {
             let shapeNode = this.stage.findOne('#' + item.getId());
             let rectBound = shapeNode.getClientRect();
             rectBounds.push(rectBound);
-            idToBoundRect.set(item, rectBound);
+            idToBoundRect.set(item.getId(), rectBound);
         }
         let unionRect = Utils.getUnionRect(rectBounds);
         let initDistanceX = unionRect.x;
@@ -923,32 +882,35 @@ export default class GraphEditor extends GraphManager {
         } else if (direction == DIRECTION_VERTICAL) {
             nodeIdToDistance = this.getNodeIdToDistanceXorY(idToBoundRect, 'y');
         }
+        console.log(nodeIdToDistance);
         for (let item of selectNodes) {
+            let id=item.getId();
+            let bbox=idToBoundRect.get(id);
             let shapeNode = this.stage.findOne('#' + item.getId());
             let transform = shapeNode.getTransform();
             let newTransform = new Konva.Transform();
             let translateFactor: any;
             switch (direction) {
                 case DIRECTION_LEFT:
-                    translateFactor = { x: unionRect.x - idToBoundRect.get(item).x, y: 0 };
+                    translateFactor = { x: unionRect.x - bbox.x, y: 0 };
                     break;
                 case DIRECTION_RIGHT:
-                    translateFactor = { x: unionRect.maxX - (idToBoundRect.get(item).x + idToBoundRect.get(item).width), y: 0 };
+                    translateFactor = { x: unionRect.maxX - (bbox.x + bbox.width), y: 0 };
                     break;
                 case DIRECTION_TOP:
-                    translateFactor = { x: 0, y: unionRect.y - idToBoundRect.get(item).y };
+                    translateFactor = { x: 0, y: unionRect.y - bbox.y };
                     break;
                 case DIRECTION_BOTTOM:
-                    translateFactor = { x: 0, y: unionRect.maxY - (idToBoundRect.get(item).y + idToBoundRect.get(item).height) };
+                    translateFactor = { x: 0, y: unionRect.maxY - (bbox.y + bbox.height) };
                     break;
                 case DIRECTION_HORIZONTAL:
-                    let distance = nodeIdToDistance.get(item);
-                    let addValue = (parseFloat(initDistanceX) + parseFloat(distance) - idToBoundRect.get(item).x);
+                    let distance = nodeIdToDistance.get(id);
+                    let addValue = (parseFloat(initDistanceX) + parseFloat(distance) - bbox.x);
                     translateFactor = { x: addValue, y: 0 };
                     break;
                 case DIRECTION_VERTICAL:
-                    let distanceY = nodeIdToDistance.get(item);
-                    let addValueY = (parseFloat(initDistanceY) + parseFloat(distanceY) - idToBoundRect.get(item).y);
+                    let distanceY = nodeIdToDistance.get(id);
+                    let addValueY = (parseFloat(initDistanceY) + parseFloat(distanceY) -bbox.y);
                     translateFactor = { x: 0, y: addValueY };
                     break;
             }
@@ -959,6 +921,7 @@ export default class GraphEditor extends GraphManager {
             let cloneOldTransform = transform.copy();
             newTransform.multiply(cloneOldTransform);
             let newTransformDeCompose = newTransform.decompose();
+            console.log("newTransformDeCompose",newTransformDeCompose);
             shapeNode.setAttrs(newTransformDeCompose);
         }
         let resizeChange = new GeometryChange(selectNodes, 'resize', this.dataModel);
@@ -1032,12 +995,7 @@ export default class GraphEditor extends GraphManager {
         this.currentMode = mode;
     }
 
-    /**
-    * 清空画布内容
-   */
-    private clear() {
-        this.dataModel.clear();
-    }
+  
 
     /**
      * 设置画布的宽度和高度
@@ -1091,25 +1049,7 @@ export default class GraphEditor extends GraphManager {
         return JSON.stringify(this.toObject(isArray));
     }
 
-    /**
-     * 加载指定的图形
-     * @param graphContent 图形信息的字符串
-     */
-    setGraph(graphContent: any) {
-        //清空原来的数据
-        this.clear();
-        let graphJson = JSON.parse(graphContent);
-        this.setSize(graphJson.width, graphJson.height);
-        let bgColor = graphJson.backgroundColor;
-        if (bgColor) {
-            this.stage.container().style.backgroundColor = bgColor;
-        }
-        if (graphJson.name) {
-            this.name = graphJson.name;
-        }
-        this.dataModel.fromObject(graphJson.model);
-        this.dataModel.setVariables(graphJson.variables);
-    }
+ 
 
     /**
      * 将当前画布内容转成Image对象

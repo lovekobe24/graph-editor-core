@@ -99,10 +99,10 @@ export abstract class Node {
                 attrValues[name] = attrValue;
             }
         } else {
-            for (let name in this.attributes) {
-                let attrValue = this.attributes[name].value;
+            let arr=Object.entries(this.attributes)
+            for (let [key,attrValue] of arr) {
                 if (typeof attrValue === 'object' && attrValue !== null) attrValue = JSON.parse(JSON.stringify(attrValue));
-                attrValues[name] = attrValue;
+                attrValues[key] = attrValue;
             }
         }
         return attrValues;
@@ -152,7 +152,7 @@ export abstract class Node {
     /**
      * 更新konva节点的动画
      */
-    updateRefAnimation() {
+    updateRefAnimation(isPreview:boolean=false) {
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
@@ -176,14 +176,19 @@ export abstract class Node {
                 let tween = tweenResult.obj;
                 let autoPlay = this.animation.autoPlay;
                 if (autoPlay) {
-                    this.setAttributeValue('draggable',false);
+                    if(!isPreview){
+                        this.setAttributeValue('draggable',false);
+                    }
+                 
                     if (tween.node) {
                         tween?.play();
                     } else {
                         tween?.start();
                     }
                 }else{
-                    this.setAttributeValue('draggable',true);
+                    if(!isPreview)  {
+                        this.setAttributeValue('draggable',true);
+                    }
                 }
             }
         }

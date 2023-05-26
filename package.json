@@ -1,7 +1,11 @@
 {
   "name": "graph-editor-core",
-  "version": "1.0.20",
+  "version": "1.0.25",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lovekobe24/graph-editor-core"
+  },
   "files": [
     "README.md",
     "esm",

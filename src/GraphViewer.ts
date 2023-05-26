@@ -17,21 +17,21 @@ export default class GraphViewer extends GraphManager {
     eventToRealTimeInfo: any = new Map();
     constructor(config: ViewerConfig) {
         super(config);
-        this.config=config;
+        this.config = config;
         let graph;
         if (this.config.graph) {
             graph = JSON.parse(this.config.graph);
-        }else{
-           return
         }
         this.width = graph?.width ?? 1000;
         this.height = graph?.height ?? 800;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
         this.stage.add(this.nodeLayer);
-        //运行态所有节点不可拖动
-        graph.model.nodes.map((item: any) => {
-            item.attributes.draggable = false;
-        });
+        if (graph) {
+            //运行态所有节点不可拖动
+            graph.model.nodes.map((item: any) => {
+                item.attributes.draggable = false;
+            });
+        }
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
         if (graph) this.dataModel.fromObject(graph.model);
@@ -205,6 +205,12 @@ export default class GraphViewer extends GraphManager {
             }
         }
     }
+    setGraph(graphContent: any) {
+        super.setGraph(graphContent);
+        this.dataModel?.getNodes().forEach((node:Node)=>{
+            node.setAttributeValue("draggable",false);
+        })
+    }
 
     /**
   * 设置节点的属性
@@ -338,7 +344,7 @@ export default class GraphViewer extends GraphManager {
      * @beta
      */
     refreshGraph() {
-        if(this.dataModel){
+        if (this.dataModel) {
             if (this.firstPreview) {
                 this.parseMouseEventNode();
                 this.firstPreview = false;
@@ -348,7 +354,7 @@ export default class GraphViewer extends GraphManager {
                 this.changeNodeByEvent(node, variableJson, true);
             })
         }
-        
+
     }
     isMouseEvent(type: string) {
         if (type == MOUSE_CLICK_EVT_TYPE || type == MOUSE_MOVE_EVT_TYPE || type == MOUSE_OUT_EVT_TYPE) {

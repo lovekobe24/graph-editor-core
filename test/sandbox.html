@@ -21,7 +21,9 @@
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
 
-  <!-- <script src="../umd/GraphEditor.js"></script> -->
+  <script src="../umd/GraphEditor.js"></script>
+  <!-- <script src="../umd/GraphViewer.js"></script> -->
+  <!-- <script src="https://unpkg.com/graph-editor-core@1.0.25/umd/GraphViewer.js"></script> -->
   <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
 </head>
 
@@ -36,7 +38,7 @@
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="折线" id="polyline"><i
           class="iconfont icon-curve"></button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="图像" id="image"><i
-            class="iconfont icon-image"></button>
+          class="iconfont icon-image"></button>
     </div>
     <div class="layui-btn-group" id="alginToolbar">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
@@ -47,11 +49,11 @@
           class="iconfont icon-chuizhidingduiqi"></button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
           class="iconfont icon-chuizhididuiqi"></button>
-          <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis">水平等距</button>
-          <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis">垂直等距</button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis">水平等距</button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis">垂直等距</button>
     </div>
     <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
-  
+
     <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
   </div>
   <div style="display: flex;">
@@ -59,7 +61,38 @@
       style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
     </div>
     <div id="editor" style="background-color: bisque;border:1px solid gray;"></div>
-    <div id="property" style="border:1px solid gray;width: 260px;padding: 5px;"></div>
+    <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
+      <ul class="layui-tab-title">
+        <li class="layui-this" lay-id="11">属性</li>
+        <li lay-id="22">动画</li>
+      </ul>
+      <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+          <div id="property" style="border:1px solid gray;width: 260px;padding: 5px;"></div>
+        </div>
+        <div class="layui-tab-item">
+          <div id="animationPanel" style="border:1px solid gray;width: 260px;padding: 5px;">
+            <div class="layui-form-item">
+              <label class="layui-form-label">类型</label>
+              <div class="layui-input-block">
+                <select id="animationType">
+                  <option value="none">无</option>
+                  <option value="rotateByCenter">旋转</option>
+                  <option value="blink" selected>闪烁</option>
+                  <option value="flow">流动</option>
+                </select>
+              </div>
+            </div>
+            <div class="layui-form-item">
+              <label class="layui-form-label">自动播放</label>
+              <div class="layui-input-block">
+                <input type="checkbox" name="open" lay-skin="switch" lay-filter="switchTest" title="ON|OFF">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script type="module">
@@ -106,47 +139,56 @@
     })
 
     let graphViewer;
-    document.getElementById('toRegularMode').addEventListener('click',()=>{
+    document.getElementById('toRegularMode').addEventListener('click', () => {
       graphEditor.stopDrawing();
     })
-    document.getElementById('line').addEventListener('click',()=>{
+    document.getElementById('line').addEventListener('click', () => {
       graphEditor.drawShape('line');
     })
-    document.getElementById('polyline').addEventListener('click',()=>{
+    document.getElementById('polyline').addEventListener('click', () => {
       graphEditor.drawShape('polyline');
     })
-    document.getElementById('image').addEventListener('click',()=>{
+    document.getElementById('image').addEventListener('click', () => {
       graphEditor.insertImage();
     })
-    document.getElementById('alignLeft').addEventListener('click',()=>{
+    document.getElementById('alignLeft').addEventListener('click', () => {
       graphEditor.align('left');
     })
-    document.getElementById('alignRight').addEventListener('click',()=>{
+    document.getElementById('alignRight').addEventListener('click', () => {
       graphEditor.align('right');
     })
-    document.getElementById('alignTop').addEventListener('click',()=>{
+    document.getElementById('alignTop').addEventListener('click', () => {
       graphEditor.align('top');
     })
-    document.getElementById('alignBottom').addEventListener('click',()=>{
+    document.getElementById('alignBottom').addEventListener('click', () => {
       graphEditor.align('bottom');
     })
-    document.getElementById('horDis').addEventListener('click',()=>{
+    document.getElementById('horDis').addEventListener('click', () => {
       graphEditor.align('horizontal');
     })
-    document.getElementById('verDis').addEventListener('click',()=>{
+    document.getElementById('verDis').addEventListener('click', () => {
       graphEditor.align('vertical');
     })
-    document.getElementById('save').addEventListener('click',()=>{
+    document.getElementById('save').addEventListener('click', () => {
       console.log(JSON.parse(graphEditor.toJSON()));
     })
-    document.getElementById('preview').addEventListener('click',(e)=>{
-       preview(e.target)
+    document.getElementById('preview').addEventListener('click', (e) => {
+      preview(e.target)
     })
-    
-    
-   
-     
-   
+    //动画面板
+    document.getElementById('animationType').addEventListener('change', (e) => {
+      console.log(e.target.value);
+      let animationType = e.target.value;
+      graphEditor.setAnimations({
+        'type': animationType
+      });
+    })
+
+
+
+
+
+
     const toRegularMode = () => {
       graphEditor.stopDrawing();
     }
@@ -163,10 +205,12 @@
 
           {
             container: document.getElementById('editor'),
-            graph: currentGraph,
+           //  graph: currentGraph,
 
           }
         );
+
+       graphView.setGraph(currentGraph);
         graphView.refreshGraph();
         target.innerHTML = '退出预览'
       } else {
@@ -193,7 +237,7 @@
     let graphEditor = new GraphEditor(
       {
         container: document.getElementById('editor'),
-        graph: testJson,
+        // graph: testJson,
         view: {
           transformer: {
             anchorSize: 6
@@ -213,7 +257,7 @@
     //创建监听
     graphEditor.onSelectionChanged((sender, event) => {
       let selectedNodes = event.getProperty('nodes');
-      console.log("onSelectionChanged",selectedNodes);
+      console.log("onSelectionChanged", selectedNodes);
     })
 
     graphEditor.addNode({
@@ -257,7 +301,7 @@
     })
 
     let allNodes = graphEditor.getNodes();
-   
+
     let ids = [];
     for (let node of allNodes) {
       ids.push(node.id);
@@ -353,9 +397,13 @@
     // let json = graphEditor.toJSON();
     graphEditor.onSelectionChanged((sender, event) => {
       let selectedNodes = event.getProperty('nodes');
-    
+
       if (selectedNodes.length > 0) {
         initPropertyPanel(selectedNodes[0])
+        if (selectedNodes.length == 1) {
+          initAnimationPanel(selectedNodes[0])
+        }
+
       }
       //进行相应操作
     });
@@ -406,7 +454,7 @@
       strokeLabel.innerHTML = proName;
       strokeLabel.style.marginRight = '4px';
       let attrDiv = document.createElement('input')
-   
+
       attrDiv.setAttribute('type', 'color');
       attrDiv.value = value;
       compDiv.appendChild(strokeLabel);
@@ -419,7 +467,7 @@
       return compDiv;
     }
     const initPropertyPanel = (node) => {
-    
+
       document.getElementById('property').innerHTML = '';
       for (let key in node.attributes) {
 
@@ -433,6 +481,10 @@
         }
 
       }
+    }
+
+    const initAnimationPanel = (node) => {
+
     }
   </script>
 </body>
