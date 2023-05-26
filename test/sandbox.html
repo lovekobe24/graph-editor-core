@@ -55,6 +55,8 @@
     <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
 
     <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
+    <button title="预设" id="styleConfig" class="layui-btn layui-btn-sm layui-btn-primary">预设线色为黄色</button>
+    <button title="预设" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
   </div>
   <div style="display: flex;">
     <div id="leftPanel"
@@ -176,6 +178,19 @@
     document.getElementById('preview').addEventListener('click', (e) => {
       preview(e.target)
     })
+    document.getElementById('styleConfig').addEventListener('click', (e) => {
+      graphEditor.setStyleConfig({
+        'stroke':'yellow',
+        'hhsh':'sdfsf'
+      })
+    })
+    document.getElementById('gridConfig').addEventListener('click', (e) => {
+      graphEditor.setGridConfig({
+        'color':'yellow'
+      })
+    })
+    
+    
     //动画面板
     document.getElementById('animationType').addEventListener('change', (e) => {
       console.log(e.target.value);

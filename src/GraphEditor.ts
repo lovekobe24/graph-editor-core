@@ -29,7 +29,7 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import type { EditorConfig, NodeConfig } from "./types";
+import type { EditorConfig, GridConfig, NodeConfig, StyleConfig } from "./types";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -1309,18 +1309,28 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
-     * 修改默认配置
-     * @param addConfig 修改配置项
+     * 修改默认样式配置
+     * @param styleConfig 要修改的样式
+     * @example
+     * graphEditor.setStyleConfig({
+     *   'stroke':'yellow'
+     *  })
      */
-    setConfig(addConfig: any) {
-        this.config = Utils.combine(this.config, addConfig)
-        if (addConfig.view) {
-            let configKeys = Object.keys(addConfig.view);
-            if (configKeys.indexOf('grid') != -1) {
-                this.initGrid();
-            }
-        }
+    setStyleConfig(styleConfig:StyleConfig){
+        this.config.style = Utils.combine(this.config.style, styleConfig);
+    }
 
+     /**
+     * 修改默认网格配置
+     * @param gridConfig 要修改的网格样式
+     * @example
+     * graphEditor.setGridConfig({
+     *   'color':'yellow'
+     *  })
+     */
+    setGridConfig(gridConfig:GridConfig){
+        this.config.view.grid = Utils.combine(this.config.view.grid, gridConfig);
+        this.initGrid();
     }
 
     /**

@@ -7,22 +7,12 @@ import type Konva from 'konva'
 export declare interface BaseConfig {
   container?: HTMLDivElement
   graph?:string
-  style?:Partial<{
-    strokeWidth: number,
-    stroke: string,
-    draggable: boolean,
-    strokeScaleEnabled: boolean,
-    hitStrokeWidth: number
-  }>
+  style?:StyleConfig
 }
 export declare interface EditorConfig extends BaseConfig {
 
   view?: Partial<{
-    grid: Partial<{
-      show: boolean,
-      distance: number,
-      color: string
-    }>,
+    grid:GridConfig,
     size: Partial<{
       width: number,
       height: number
@@ -78,6 +68,20 @@ export declare interface EditorConfig extends BaseConfig {
 
 export declare interface ViewerConfig extends BaseConfig{
   
+}
+
+export declare interface StyleConfig{
+    strokeWidth?: number,
+    stroke?: string,
+    draggable?: boolean,
+    strokeScaleEnabled?: boolean,
+    hitStrokeWidth?: number
+}
+
+export declare interface GridConfig{
+    show?: boolean,
+    distance?: number,
+    color?: string
 }
 
 export declare type Config = Partial<BaseConfig>
