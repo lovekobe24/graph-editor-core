@@ -61,6 +61,7 @@ typings/
 # next.js build output
 .next
 .parcel-cache
+docs
 output
 esm
 cmj

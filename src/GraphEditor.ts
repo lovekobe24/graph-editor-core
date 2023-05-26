@@ -29,7 +29,7 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import type { EditorConfig } from "./types";
+import type { EditorConfig, NodeConfig } from "./types";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -75,7 +75,7 @@ export default class GraphEditor extends GraphManager {
         super(config);
         this.container = config.container;
         this.config = Utils.combine(defaultConfig, config);
-       
+
         let view = this.config?.view;
         let graph;
         if (this.config.graph) {
@@ -117,7 +117,7 @@ export default class GraphEditor extends GraphManager {
 
 
     }
- 
+
 
 
 
@@ -601,7 +601,7 @@ export default class GraphEditor extends GraphManager {
      *    }
      * })
      */
-    addNode(opt: any) {
+    addNode(opt: NodeConfig) {
         let defaultStyleConfig = this.config.style;
         let wholeStyle = { ...defaultStyleConfig, ...opt.attributes };
         opt.attributes = wholeStyle;
@@ -621,8 +621,17 @@ export default class GraphEditor extends GraphManager {
      * 根据鼠标的位置，将节点加入到模型
      * @param e 鼠标事件
      * @param node 添加的节点
+     * @example
+     * editor.dropShape(event,{
+     *   className：'RectNode'
+     *    attributes:{
+     *      opacity:0.5,
+     *      width:200,
+     *      height:60
+     *    }
+     * })
      */
-    dropShape(e: any, node: any) {
+    dropShape(e: DragEvent, node: NodeConfig) {
         e.preventDefault();
         //将屏幕坐标转为文档坐标
         this.stage.setPointersPositions(e);
@@ -749,8 +758,8 @@ export default class GraphEditor extends GraphManager {
      * @example
      * editor.insertImage()
      */
-    public insertImage(){
-        this.chooseImage((imgObj)=>{
+    public insertImage() {
+        this.chooseImage((imgObj) => {
             this.addNode({
                 className: 'ImageNode',
                 attributes: {
@@ -759,11 +768,11 @@ export default class GraphEditor extends GraphManager {
                     y: 50,
                     width: 200,
                     height: 200,
-                    strokeWidth:0
+                    strokeWidth: 0
                 }
             });
         })
-       
+
     }
     private chooseImage(callback: Function) {
         let input = document.createElement('input');
@@ -812,18 +821,18 @@ export default class GraphEditor extends GraphManager {
      */
     private getNodeIdToDistanceXorY(idToBoundRect: any, style: string) {
         let nodeIdToDis = new Map();
-        let nodeIdToXorY=new Map();
+        let nodeIdToXorY = new Map();
         idToBoundRect.forEach(function (value: any, key: any) {
-            nodeIdToXorY.set(key,value[style])
+            nodeIdToXorY.set(key, value[style])
         });
-        let nodeIdToXorYArray=Array.from(nodeIdToXorY);
+        let nodeIdToXorYArray = Array.from(nodeIdToXorY);
         nodeIdToXorYArray = nodeIdToXorYArray.sort(function (a: any, b: any) {
             return a[1] - b[1];
         });
-        let allXorYs=nodeIdToXorYArray.map(item => item[1]);
+        let allXorYs = nodeIdToXorYArray.map(item => item[1]);
         var len = allXorYs.length;
         var wholeWidthOrHeight = allXorYs[len - 1] - allXorYs[0];
-        var lastElementId = nodeIdToXorYArray[len-1][0];
+        var lastElementId = nodeIdToXorYArray[len - 1][0];
         var distance = 0;
         idToBoundRect.forEach(function (value: any, key: any) {
             if (key != lastElementId) {
@@ -837,7 +846,7 @@ export default class GraphEditor extends GraphManager {
         });
         var eachDis = wholeWidthOrHeight / (len - 1);
         for (let i = 0; i < allXorYs.length; i++) {
-            var id =nodeIdToXorYArray[i][0];
+            var id = nodeIdToXorYArray[i][0];
             var distanceXorY = 0;
             if (i == 0) {
                 nodeIdToDis.set(id, 0.00);
@@ -884,8 +893,8 @@ export default class GraphEditor extends GraphManager {
         }
         console.log(nodeIdToDistance);
         for (let item of selectNodes) {
-            let id=item.getId();
-            let bbox=idToBoundRect.get(id);
+            let id = item.getId();
+            let bbox = idToBoundRect.get(id);
             let shapeNode = this.stage.findOne('#' + item.getId());
             let transform = shapeNode.getTransform();
             let newTransform = new Konva.Transform();
@@ -910,7 +919,7 @@ export default class GraphEditor extends GraphManager {
                     break;
                 case DIRECTION_VERTICAL:
                     let distanceY = nodeIdToDistance.get(id);
-                    let addValueY = (parseFloat(initDistanceY) + parseFloat(distanceY) -bbox.y);
+                    let addValueY = (parseFloat(initDistanceY) + parseFloat(distanceY) - bbox.y);
                     translateFactor = { x: 0, y: addValueY };
                     break;
             }
@@ -921,7 +930,7 @@ export default class GraphEditor extends GraphManager {
             let cloneOldTransform = transform.copy();
             newTransform.multiply(cloneOldTransform);
             let newTransformDeCompose = newTransform.decompose();
-            console.log("newTransformDeCompose",newTransformDeCompose);
+            console.log("newTransformDeCompose", newTransformDeCompose);
             shapeNode.setAttrs(newTransformDeCompose);
         }
         let resizeChange = new GeometryChange(selectNodes, 'resize', this.dataModel);
@@ -978,7 +987,7 @@ export default class GraphEditor extends GraphManager {
         this.drawingLayer.destroyChildren();
 
     }
-  
+
 
     getHelpLayer() {
         return this.helpLayer;
@@ -995,7 +1004,7 @@ export default class GraphEditor extends GraphManager {
         this.currentMode = mode;
     }
 
-  
+
 
     /**
      * 设置画布的宽度和高度
@@ -1049,7 +1058,7 @@ export default class GraphEditor extends GraphManager {
         return JSON.stringify(this.toObject(isArray));
     }
 
- 
+
 
     /**
      * 将当前画布内容转成Image对象

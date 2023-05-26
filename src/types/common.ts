@@ -1,3 +1,5 @@
+import { NodeAttrs } from "../model/Node"
+
 export type Nullable<T> = T | null
 
 export interface UnknownObject {
@@ -12,4 +14,11 @@ export declare interface Dimensions {
 export declare interface Point {
   x: number
   y: number
+}
+
+export declare interface NodeConfig {
+  className: string
+  attributes: NodeAttrs
+  animation:any
+  variables:any
 }

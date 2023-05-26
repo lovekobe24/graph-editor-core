@@ -1,6 +1,6 @@
 {
   "name": "graph-editor-core",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
     "README.md",
     "esm",
     "cmj",
-    "umd"
+    "umd",
+    "docs"
   ],
   "typings": "./esm/index.all.d.ts",
   "main": "./esm/index.all.js",

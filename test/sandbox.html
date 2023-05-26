@@ -106,6 +106,7 @@
       console.log("drop........");
       console.log(event.dataTransfer.getData("dropData"));
       let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
+      console.log(event);
       graphEditor.dropShape(event, shape);
     })
 
@@ -323,7 +324,9 @@
     // //调整显示比例
     // graphEditor.setScale(1.2);
 
-    // graphEditor.setSize(800,600);
+     graphEditor.setSize(500,600);
+    //设置背景色
+    graphEditor.setBackgroundColor("#00ff00");
 
     // //添加变量
     graphEditor.saveVariable('state', {
