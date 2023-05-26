@@ -17,8 +17,9 @@ yarn add graph-editor-core
 ```
 
 
-#### <script> tag
 
+
+#### Umd
 graph-editor-core also supports UMD loading
 
 ```js
@@ -33,8 +34,9 @@ const editor = new GraphEditor({
   container: document.getElementById('<YOUR_DIV_ID>'),
 })
 ```
-  
 
+## Documentation
+[Full Documentation](https://unpkg.com/graph-editor-core/docs/index.html)
   
 ## License
 According to the terms of the [MIT license](LICENSE), graph-editor-core is freely distributable.

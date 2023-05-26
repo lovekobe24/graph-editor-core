@@ -29,7 +29,7 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import type { EditorConfig, GridConfig, NodeConfig, StyleConfig } from "./types";
+import type { Dimensions, EditorConfig, GridConfig, NodeConfig, StyleConfig } from "./types";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -557,7 +557,6 @@ export default class GraphEditor extends GraphManager {
 
     /**
      * 根据网格的配置，初始化网格
-     * @param gridConfig 网格的配置
      */
     private initGrid() {
         let { view: { grid: gridConfig } } = this.config;
@@ -832,7 +831,6 @@ export default class GraphEditor extends GraphManager {
         var len = allXorYs.length;
         var wholeWidthOrHeight = allXorYs[len - 1] - allXorYs[0];
         var lastElementId = nodeIdToXorYArray[len - 1][0];
-        var distance = 0;
         idToBoundRect.forEach(function (value: any, key: any) {
             if (key != lastElementId) {
                 if (style == 'x') {
@@ -1022,7 +1020,7 @@ export default class GraphEditor extends GraphManager {
      * 获取当前画布的宽度和高度
      * @returns 宽度和高度
      */
-    getSize() {
+    getSize():Dimensions {
         return {
             width: this.stage.attrs.width,
             height: this.stage.attrs.height
@@ -1030,11 +1028,11 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
-     * 将当前画布的JSON对象
-     * @returns 序列前的JavaScript对象
+     * 将当前图形转成JSON对象
+     * @isArray 为true,则以数组的方式对JSON对象进行压缩
+     * @returns 当前图形的JSON对象
      */
-    toObject(isArray: boolean = false) {
-
+    private toObject(isArray: boolean = false) {
         let graphObj = {
             width: this.width,
             height: this.height,
@@ -1042,7 +1040,6 @@ export default class GraphEditor extends GraphManager {
             name: this.name,
             model: this.dataModel.toObject(isArray),
         };
-
         return graphObj;
     }
 
@@ -1067,7 +1064,6 @@ export default class GraphEditor extends GraphManager {
     toImage(callbackFn: any) {
         this.nodeLayer.toImage({
             callback(img: any) {
-
                 callbackFn.apply(this, [img]);
             }
         });
