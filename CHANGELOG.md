@@ -1,4 +1,7 @@
 
+## 1.0.24  2023-05-26
+### Added  
+1. GraphViewer添加setGraph接口 
 
 ## 1.0.23  2023-05-25
 ### Added  

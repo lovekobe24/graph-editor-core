@@ -18,19 +18,6 @@ import GeometryChange from "./command/GeometryChange";
 import NodeChange from "./command/NodeChange";
 import EventObject from "./EventObject";
 
-import { SymbolNode } from './model/SymbolNode';
-import { RectNode } from './model/RectNode';
-import { EllipseNode } from './model/EllipseNode';
-import { CircleNode } from './model/CircleNode';
-import { ImageNode } from './model/ImageNode';
-import { StarNode } from "./model/StarNode";
-import { RegularPolygonNode } from './model/RegularPolygonNode';
-import { ArcNode } from "./model/ArcNode";
-import { PathNode } from "./model/PathNode";
-import { TextNode } from "./model/TextNode";
-import { RingNode } from './model/RingNode';
-import { WedgeNode } from './model/WedgeNode';
-import { LabelNode } from "./model/LabelNode";
 import { EditableShapeNode } from './model/EditableShapeNode';
 import ArrowShape from "./shape/ArrowShape";
 import PolylineArrowShape from './shape/PolylineArrowShape';
@@ -43,12 +30,7 @@ import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
 import type { EditorConfig } from "./types";
-import { GroupNode } from "./model/GroupNode";
-import { LineArrowNode } from "./model/LineArrowNode";
-import { LineNode } from "./model/LineNode";
-import { PenNode } from "./model/PenNode";
-import { PolylineNode } from "./model/PolylineNode";
-import { PolylineArrowNode } from "./model/PolylineArrowNode";
+
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
     private helpLayer: Layer = new Konva.Layer();
@@ -93,7 +75,7 @@ export default class GraphEditor extends GraphManager {
         super(config);
         this.container = config.container;
         this.config = Utils.combine(defaultConfig, config);
-        this.registerNodeClass();
+       
         let view = this.config?.view;
         let graph;
         if (this.config.graph) {
@@ -135,29 +117,7 @@ export default class GraphEditor extends GraphManager {
 
 
     }
-    registerNodeClass() {
-
-        RectNode.register();
-        EllipseNode.register();
-        ArcNode.register();
-        CircleNode.register();
-        GroupNode.register();
-        ImageNode.register();
-        LabelNode.register();
-        LineArrowNode.register();
-        LineNode.register();
-        PathNode.register();
-        PenNode.register();
-        PolylineArrowNode.register();
-        PolylineNode.register()
-        RegularPolygonNode.register();
-        RingNode.register();
-        StarNode.register();
-        SymbolNode.register();
-        TextNode.register();
-        WedgeNode.register();
-    }
-
+ 
 
 
 
