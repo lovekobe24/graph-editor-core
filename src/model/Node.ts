@@ -398,6 +398,7 @@ export abstract class Node {
         if (index !== -1) {
             this.dataModel.nodes.splice(index, 1);
             if (this.ref !== null) this.ref.remove();
+            if(this.ref) this.destroyAnimation()
         }
     }
     destroy() {

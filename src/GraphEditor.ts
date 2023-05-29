@@ -433,8 +433,6 @@ export default class GraphEditor extends GraphManager {
         if (keyboard?.map?.group?.includes(realKey)) {
             this.group()
         }
-
-        // e.preventDefault();
     }
 
     deselect() {
