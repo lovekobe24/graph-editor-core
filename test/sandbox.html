@@ -59,7 +59,8 @@
     <button id="clear" class="layui-btn layui-btn-sm layui-btn-primary">清空画布</button>
     <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
     <button title="预设" id="styleConfig" class="layui-btn layui-btn-sm layui-btn-primary">预设线色为黄色</button>
-    <button title="预设" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
+    <button title="修改网格" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
+    <button title="显示比例" id="zoom" class="layui-btn layui-btn-sm layui-btn-primary">150%</button>
   </div>
   <div style="display: flex;">
     <div id="leftPanel"
@@ -196,6 +197,10 @@
         'color': 'yellow'
       })
     })
+    document.getElementById('zoom').addEventListener('click', (e) => {
+      graphEditor.setScale(1.5)
+    })
+    
 
 
     //动画面板
@@ -226,6 +231,7 @@
 
       if (target.innerHTML == '预览') {
         let currentGraph = graphEditor.toJSON();
+        let scale=graphEditor.getScale();
         graphEditor.destroy();
         graphView = new GraphViewer(
           {
@@ -233,7 +239,7 @@
             graph: currentGraph,
           }
         );
-
+        graphView.setScale(scale);
         //   graphView.setGraph(currentGraph);
         graphView.refreshGraph();
         target.innerHTML = '退出预览'
@@ -345,7 +351,7 @@
     // graphEditor.align('top');
 
     // //调整显示比例
-    // graphEditor.setScale(1.2);
+    graphEditor.setScale(1.2);
 
     graphEditor.setSize(500, 600);
     //设置背景色
@@ -386,9 +392,9 @@
       'type': 'rotateByCenter',
 
     }, ids[0]);
-    // graphEditor.setAnimations({
-    //   'autoPlay': true
-    // }, ids[0]);
+    graphEditor.setAnimations({
+      'autoPlay': true
+    }, ids[0]);
 
     // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
     // graphEditor.setAnimation('period',6,selectNodes[0].id);

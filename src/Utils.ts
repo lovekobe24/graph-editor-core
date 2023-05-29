@@ -207,7 +207,8 @@ const fitNodesInto = (node:Node, oldAttrs:any, newAttrs:any) => {
     const delta = newTr.multiply(oldTr.invert());
    // console.log( node.getParent().getTransform())
 
-    const parentTransform = node.getParent().getTransform();
+    //如何忽略stage的Transform呢？在预览的时候如果有stage的Transform,则旋转中心会偏移
+    const parentTransform = node.getParent().getAbsoluteTransform();
     const localTransform = node.getTransform().copy();
     // skip offset:
     localTransform.translate(node.offsetX(), node.offsetY());

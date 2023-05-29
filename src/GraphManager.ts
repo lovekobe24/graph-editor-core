@@ -96,6 +96,16 @@ export abstract class GraphManager {
                 this.stage.setAttr('height', this.height * scale);
             }
         }
+        this.dataModel?.getNodes().forEach((node:any)=>{
+             node.updateRefAnimation();
+        });
+    }
+
+    /**
+     * 获取当前画布的显示比例
+     */
+    getScale(){
+        return this.stage?.getAttr('scaleX');
     }
 
     /**

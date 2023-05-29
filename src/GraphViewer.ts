@@ -35,8 +35,29 @@ export default class GraphViewer extends GraphManager {
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
         if (graph) this.dataModel.fromObject(graph.model);
-        this.stage.setAttr("draggable",true);
+        this.initStageDrag();
+    }
 
+    initStageDrag() {
+        this.stage.setAttr("draggable", true);
+        this.stage.on('dragstart', (e: any) => {
+            this.dataModel?.getNodes().forEach((node: Node) => {
+                let autoPlay = node.getAnimation('autoPlay');
+                if (autoPlay) {
+                    //如果正在播放动画，在移动过程中要将动画暂停
+                    if (node.getAnimationObj().obj) {
+                        node.destroyAnimation();
+                    }
+                }
+            });
+
+        });
+        this.stage.on('dragend', (e: any) => {
+            this.dataModel?.getNodes().forEach((node) => {
+                node.updateRefAnimation();
+            })
+
+        });
     }
 
 
@@ -210,8 +231,8 @@ export default class GraphViewer extends GraphManager {
     }
     setGraph(graphContent: any) {
         super.setGraph(graphContent);
-        this.dataModel?.getNodes().forEach((node:Node)=>{
-            node.setAttributeValue("draggable",false);
+        this.dataModel?.getNodes().forEach((node: Node) => {
+            node.setAttributeValue("draggable", false);
         })
     }
 
