@@ -205,8 +205,9 @@ const fitNodesInto = (node:Node, oldAttrs:any, newAttrs:any) => {
     // that means that
     // [delta transform] = [new transform] * [old transform inverted]
     const delta = newTr.multiply(oldTr.invert());
+   // console.log( node.getParent().getTransform())
 
-    const parentTransform = node.getParent().getAbsoluteTransform();
+    const parentTransform = node.getParent().getTransform();
     const localTransform = node.getTransform().copy();
     // skip offset:
     localTransform.translate(node.offsetX(), node.offsetY());
