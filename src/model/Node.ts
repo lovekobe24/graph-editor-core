@@ -102,7 +102,8 @@ export abstract class Node {
             let arr=Object.entries(this.attributes)
             for (let [key,attrValue] of arr) {
                 if (typeof attrValue === 'object' && attrValue !== null) attrValue = JSON.parse(JSON.stringify(attrValue));
-                attrValues[key] = attrValue;
+                let resValue:any=attrValue;
+                attrValues[key] = resValue.value;
             }
         }
         return attrValues;
@@ -166,8 +167,8 @@ export abstract class Node {
                         tween.destroy();
                     } else {
                         //手动设置konva节点到原来的状态
-                        this.ref.setAttrs(this.getAttributeValues());
-                        tween.stop();
+                         this.ref.setAttrs(this.getAttributeValues());
+                         tween.stop();
                     }
                 }
                 let period = this.animation.period ? this.animation.period : animationToDefaultPeriod[type];
@@ -179,7 +180,6 @@ export abstract class Node {
                     if(!isPreview){
                         this.setAttributeValue('draggable',false);
                     }
-                 
                     if (tween.node) {
                         tween?.play();
                     } else {

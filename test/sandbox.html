@@ -21,8 +21,9 @@
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
 
-  <script src="../umd/GraphEditor.js"></script>
+  <!-- <script src="../umd/GraphEditor.js"></script> -->
   <!-- <script src="../umd/GraphViewer.js"></script> -->
+  <!-- <script src="https://unpkg.com/graph-editor-core/umd/GraphEditor.js"></script> -->
   <!-- <script src="https://unpkg.com/graph-editor-core@1.0.25/umd/GraphViewer.js"></script> -->
   <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
 </head>
@@ -194,10 +195,10 @@
     //动画面板
     document.getElementById('animationType').addEventListener('change', (e) => {
       console.log(e.target.value);
-      let animationType = e.target.value;
-      graphEditor.setAnimations({
-        'type': animationType
-      });
+      // let animationType = e.target.value;
+      // graphEditor.setAnimations({
+      //   'type': animationType
+      // });
     })
 
 
@@ -375,9 +376,13 @@
     // //添加动画
     selectNodes = graphEditor.getSelection();
     graphEditor.setAnimations({
-      'type': 'blink',
-      'autoPlay': false
+      'type': 'rotateByCenter',
+     
     }, ids[0]);
+    graphEditor.setAnimations({
+      'autoPlay': true
+    }, ids[0]);
+   
     // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
     // graphEditor.setAnimation('period',6,selectNodes[0].id);
     // console.log('获取画布上所有的节点',graphEditor.getNodes());
@@ -399,10 +404,10 @@
       }
     }, ids[0])
     //点击启动动画
-    graphEditor.addEvent({
-      type: 'click',
-      action: 'executeAnimation'
-    }, ids[0])
+    // graphEditor.addEvent({
+    //   type: 'click',
+    //   action: 'executeAnimation'
+    // }, ids[0])
     // //更新事件
     // graphEditor.updateEvent({type:'click'}, 0, selectNodes[0].id)
     // //添加属性
