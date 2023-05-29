@@ -49,6 +49,7 @@ export default class GraphViewer extends GraphManager {
             if (nodeIndex != -1) {
                 node.zIndex(nodeIndex);
             }
+            console.log(node.getParent())
         });
     }
 

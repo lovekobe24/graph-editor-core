@@ -188,7 +188,7 @@ const getRad = (degree: any) => {
 
 
 const fitNodesInto = (node:Node, oldAttrs:any, newAttrs:any) => {
-
+  
     const baseSize = 10000000;
     const oldTr = new Konva.Transform();
     oldTr.translate(oldAttrs.x, oldAttrs.y);

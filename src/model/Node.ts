@@ -150,27 +150,33 @@ export abstract class Node {
             this.updateRefAnimation();
         }
     }
+    destroyAnimation(){
+        let animationObj = this.getAnimationObj();
+        if (animationObj.obj) {
+            let tween = animationObj.obj;
+            if (tween.node) {
+                //清除原来的状态
+                tween.reset();
+                tween.destroy();
+            } else {
+                //手动设置konva节点到原来的状态
+                 this.ref.setAttrs(this.getAttributeValues());
+                 tween.stop();
+            }
+        }
+    }
     /**
      * 更新konva节点的动画
      */
     updateRefAnimation(isPreview:boolean=false) {
+        console.log("updateRefAnimatin");
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
             } else {
-                let animationObj = this.getAnimationObj();
-                if (animationObj.obj) {
-                    let tween = animationObj.obj;
-                    if (tween.node) {
-                        //清除原来的状态
-                        tween.reset();
-                        tween.destroy();
-                    } else {
-                        //手动设置konva节点到原来的状态
-                         this.ref.setAttrs(this.getAttributeValues());
-                         tween.stop();
-                    }
-                }
+               
+                this.destroyAnimation();
+                
                 let period = this.animation.period ? this.animation.period : animationToDefaultPeriod[type];
                 let tweenResult = Utils.getTweenByType(type, this.ref, period);
                 this.setAnimationObj(tweenResult)
@@ -389,6 +395,7 @@ export abstract class Node {
         if (index !== -1) {
             this.dataModel.nodes.splice(index, 1);
             if (this.ref !== null) this.ref.destroy();
+            this.destroyAnimation();
         }
     }
 

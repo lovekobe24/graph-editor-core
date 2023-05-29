@@ -33,6 +33,8 @@
 
     <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="toRegularMode"><i
         class="iconfont icon-xuanze"></i></button>
+        <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="save"><i
+          class="iconfont icon-baocun"></i></button>
     <div class="layui-btn-group">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="直线" id="line"><i
           class="iconfont icon-zhixian"></i></button>
@@ -53,8 +55,8 @@
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis">水平等距</button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis">垂直等距</button>
     </div>
-    <button id="save" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
-
+    <button id="showJson" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
+    <button id="clear" class="layui-btn layui-btn-sm layui-btn-primary">清空画布</button>
     <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
     <button title="预设" id="styleConfig" class="layui-btn layui-btn-sm layui-btn-primary">预设线色为黄色</button>
     <button title="预设" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
@@ -64,6 +66,7 @@
       style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
     </div>
     <div id="editor" style="background-color: bisque;border:1px solid gray;"></div>
+    <div id="previewPanel" style="background-color: bisque;border:1px solid gray;"></div>
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
       <ul class="layui-tab-title">
         <li class="layui-this" lay-id="11">属性</li>
@@ -174,7 +177,8 @@
       graphEditor.align('vertical');
     })
     document.getElementById('save').addEventListener('click', () => {
-      console.log(JSON.parse(graphEditor.toJSON()));
+      localStorage.setItem('graph',graphEditor.toJSON());
+     
     })
     document.getElementById('preview').addEventListener('click', (e) => {
       preview(e.target)
@@ -200,6 +204,9 @@
       //   'type': animationType
       // });
     })
+     document.getElementById("clear").addEventListener('click',()=>{
+      graphEditor.destroy();
+     })
 
 
 
@@ -219,15 +226,13 @@
         let currentGraph = graphEditor.toJSON();
         graphEditor.destroy();
         graphView = new GraphViewer(
-
           {
             container: document.getElementById('editor'),
-           //  graph: currentGraph,
-
+            graph: currentGraph,
           }
         );
 
-       graphView.setGraph(currentGraph);
+    //   graphView.setGraph(currentGraph);
         graphView.refreshGraph();
         target.innerHTML = '退出预览'
       } else {
@@ -250,11 +255,11 @@
       }
 
     }
-    let testJson = '{"width":1000,"height":800,"backgroundColor":"rgb(255, 255, 255)","name":"","model":{"nodes":[{"id":"82db3545-7ee9-4346-82d1-09db9aed1afa","className":"RectNode","attributes":{"draggable":true,"x":32,"y":49,"width":200,"height":60,"stroke":"red","strokeWidth":2,"hitStrokeWidth":2,"strokeScaleEnabled":false,"fill":"red"},"animation":{"type":"blink","autoPlay":false},"variables":{"state":{"type":"integer","defaultVal":1}},"events":[{"type":"valueUpdate","action":"changeProperty","value":[{"name":"fill","val":"rgba(0,0,0,1)"}],"where":{"type":"comparison","value":1,"key":"state","comparison":"="}},{"type":"click","action":"executeAnimation","where":{"type":"none"}}]},{"id":"88a64c04-ddbd-4375-a1fa-8760a3ccaded","className":"EllipseNode","attributes":{"draggable":true,"x":100,"y":200,"stroke":"green","strokeWidth":4,"hitStrokeWidth":2,"strokeScaleEnabled":false,"radiusX":50,"radiusY":25},"animation":{},"variables":{},"events":[]},{"id":"7f307619-e5c7-4198-bf89-a2baa0fc14f8","className":"TextNode","attributes":{"draggable":true,"x":50,"y":50,"stroke":"green","strokeWidth":2,"hitStrokeWidth":2,"strokeScaleEnabled":false,"padding":10,"text":"中文"},"animation":{},"variables":{},"events":[]}],"images":{},"format":"object","variables":{}}}';
+    let existGraph=localStorage.getItem('graph');
     let graphEditor = new GraphEditor(
       {
         container: document.getElementById('editor'),
-        // graph: testJson,
+        // graph: existGraph,
         view: {
           transformer: {
             anchorSize: 6

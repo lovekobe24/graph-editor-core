@@ -147,6 +147,9 @@ export abstract class GraphManager {
    */
     destroy() {
         this.stage?.destroy();
+        this.dataModel?.getNodes().forEach((node:Node)=>{
+            node.destroy();
+        })
         delete this.dataModel;
     }
     setNodesAttributes(nodes: Array<Node>, attrValues: any, toHistory: boolean = true) {
