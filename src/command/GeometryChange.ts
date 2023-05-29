@@ -16,10 +16,9 @@ class GeometryChange extends Change {
             let prevAllAttrs = node.getAttributeValues(), nextAllAttrs = konvaNode.attrs;
             let prevAttrs: any = {}, nextAttrs: any = {};
             for (let key of actionAttrKeys) {
-                if(prevAllAttrs[key]) prevAttrs[key] = prevAllAttrs[key];
-                let nextAttrValue=nextAllAttrs[key] ?? konvaNode.getAttr(key);
+                if(prevAllAttrs.hasOwnProperty(key)) prevAttrs[key] = prevAllAttrs[key];
+                let nextAttrValue=nextAllAttrs.hasOwnProperty(key)?nextAllAttrs[key]: konvaNode.getAttr(key);
                 if(nextAttrValue) nextAttrs[key] = nextAttrValue;
-                
             }
             map.set(node, [prevAttrs, nextAttrs]);
         }

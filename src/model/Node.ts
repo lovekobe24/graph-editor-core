@@ -174,33 +174,23 @@ export abstract class Node {
      * 更新konva节点的动画
      */
     updateRefAnimation(isPreview: boolean = false) {
-        console.log("updateRefAnimatin");
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
             } else {
-
                 this.destroyAnimation();
-
                 let period = this.animation.period ? this.animation.period : animationToDefaultPeriod[type];
                 let tweenResult = Utils.getTweenByType(type, this.ref, period);
                 this.setAnimationObj(tweenResult)
                 let tween = tweenResult.obj;
                 let autoPlay = this.animation.autoPlay;
                 if (autoPlay) {
-                    if (!isPreview) {
-                        //this.setAttributeValue('draggable',false);
-                    }
                     if (tween.node) {
                         tween?.play();
                     } else {
                         tween?.start();
                     }
-                } else {
-                    if (!isPreview) {
-                        // this.setAttributeValue('draggable',true);
-                    }
-                }
+                } 
             }
         }
     }

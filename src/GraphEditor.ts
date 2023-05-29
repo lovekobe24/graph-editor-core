@@ -29,7 +29,7 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import type { AlignDirection, Dimensions, EditorConfig, GridConfig, NodeConfig, StyleConfig } from "./types";
+import type { AlignDirection, Dimensions, EditorConfig, GridConfig, MoveDirection, NodeConfig, StyleConfig } from "./types";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -463,11 +463,39 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
-     * 监听节点属性的变化
-     * @param callback 
+     * 监听模型变换
+     * @param callback 模型变化的回调函数
      */
     onModelChanged(callback: any) {
         this.dataModel.onModelChanged(callback);
+    }
+    
+    /**
+     * 监听节点属性变化
+     * @param callback 回调函数
+     */
+    onNodeAttributeChange(callback:any){
+        this.addListener(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, callback);
+    }
+
+    /**
+     * 监听节点的事件变化
+     * @param callback 回调函数
+     */
+    onNodeEventsChange(callback:any){
+        this.addListener(EVENT_TYPE.NODE_EVENTS_CHANGE, callback);
+    }
+
+    /**
+     * 监听节点的变量的变化
+     * @param callback 回调函数
+     */
+    onNodeVariableChange(callback:any){
+        this.addListener(EVENT_TYPE.NODE_VARIABLE_CHANGE, callback);
+    }
+
+    onNodeAnimationChange(callback:any){
+        this.addListener(EVENT_TYPE.NODE_ANIMATION_CHANGE,callback);
     }
 
     /**
@@ -519,10 +547,10 @@ export default class GraphEditor extends GraphManager {
 
     /**
      * 微调功能
-     * @param direction 方向,取值为'up','down','left','right'
+     * @param direction 移动的方向
      * @param step 调整距离
      */
-    move(direction: string, step?: number = 1, nodeIds?: Array<string>) {
+    move(direction: MoveDirection, step?: number = 1, nodeIds?: Array<string>) {
         let undoRedoManager = this.dataModel.getUndoRedoManager();
         let selectNodes;
         if (nodeIds) {
