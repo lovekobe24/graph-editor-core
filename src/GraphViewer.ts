@@ -40,7 +40,9 @@ export default class GraphViewer extends GraphManager {
     }
 
 
-
+    /**
+     * 添加对数据模型的监听事件
+     */
     addDataModelListeners() {
         this.dataModel.addListener(EVENT_TYPE.ADD_KONVA_NODE, (sender: any, event: any) => {
             let node = event.getProperty('node');
@@ -49,7 +51,6 @@ export default class GraphViewer extends GraphManager {
             if (nodeIndex != -1) {
                 node.zIndex(nodeIndex);
             }
-            console.log(node.getParent())
         });
     }
 

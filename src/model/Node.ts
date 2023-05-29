@@ -99,10 +99,10 @@ export abstract class Node {
                 attrValues[name] = attrValue;
             }
         } else {
-            let arr=Object.entries(this.attributes)
-            for (let [key,attrValue] of arr) {
+            let arr = Object.entries(this.attributes)
+            for (let [key, attrValue] of arr) {
                 if (typeof attrValue === 'object' && attrValue !== null) attrValue = JSON.parse(JSON.stringify(attrValue));
-                let resValue:any=attrValue;
+                let resValue: any = attrValue;
                 attrValues[key] = resValue.value;
             }
         }
@@ -130,6 +130,11 @@ export abstract class Node {
     updateRefAttrs(attrValues: any) {
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
+            //如果有动画是正在执行的，则要重新生成动画
+            let autoPlay = this.getAnimation('autoPlay');
+            if (autoPlay) {
+                this.updateRefAnimation();
+            }
         }
     }
 
@@ -150,7 +155,7 @@ export abstract class Node {
             this.updateRefAnimation();
         }
     }
-    destroyAnimation(){
+    destroyAnimation() {
         let animationObj = this.getAnimationObj();
         if (animationObj.obj) {
             let tween = animationObj.obj;
@@ -160,40 +165,40 @@ export abstract class Node {
                 tween.destroy();
             } else {
                 //手动设置konva节点到原来的状态
-                 this.ref.setAttrs(this.getAttributeValues());
-                 tween.stop();
+                this.ref.setAttrs(this.getAttributeValues());
+                tween.stop();
             }
         }
     }
     /**
      * 更新konva节点的动画
      */
-    updateRefAnimation(isPreview:boolean=false) {
+    updateRefAnimation(isPreview: boolean = false) {
         console.log("updateRefAnimatin");
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
             } else {
-               
+
                 this.destroyAnimation();
-                
+
                 let period = this.animation.period ? this.animation.period : animationToDefaultPeriod[type];
                 let tweenResult = Utils.getTweenByType(type, this.ref, period);
                 this.setAnimationObj(tweenResult)
                 let tween = tweenResult.obj;
                 let autoPlay = this.animation.autoPlay;
                 if (autoPlay) {
-                    if(!isPreview){
-                        this.setAttributeValue('draggable',false);
+                    if (!isPreview) {
+                        //this.setAttributeValue('draggable',false);
                     }
                     if (tween.node) {
                         tween?.play();
                     } else {
                         tween?.start();
                     }
-                }else{
-                    if(!isPreview)  {
-                        this.setAttributeValue('draggable',true);
+                } else {
+                    if (!isPreview) {
+                        // this.setAttributeValue('draggable',true);
                     }
                 }
             }
@@ -343,7 +348,12 @@ export abstract class Node {
     }
 
     getAnimation(key: string) {
-        return this.animation[key];
+        if (key) {
+            return this.animation[key];
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "getAnimation需要一个key");
+        }
+
     }
 
     getAnimationObj(): any {
@@ -400,7 +410,7 @@ export abstract class Node {
     }
 
     fromObject(obj: any) {
-        
+
         let id, tag, attributes, animation, variables, events;
         if (obj instanceof Array) {
             [id, tag, , attributes, animation, variables, events] = obj;
@@ -415,7 +425,7 @@ export abstract class Node {
         if (events) this.setEvents(events);
     }
 
-    toObject(isArray: boolean = false,distinct:boolean=true) {
+    toObject(isArray: boolean = false, distinct: boolean = true) {
         let id = this.id, tag = this.tag, className = this.getClassName();
         let attributes = this.getAttributeValues(distinct);
         let animation = JSON.parse(JSON.stringify(this.animation));
@@ -440,15 +450,15 @@ export abstract class Node {
 
     static register() {
         this._classes[this.className] = this;
-      
+
     }
-  
+
 
     static create(json: any) {
-       
+
         if (typeof json === 'string') json = JSON.parse(json);
         let className = json instanceof Array ? json[2] : json.className;
-       
+
         let _class = this._classes[className];
         if (_class) {
             return new _class(json);

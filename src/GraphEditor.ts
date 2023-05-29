@@ -344,6 +344,18 @@ export default class GraphEditor extends GraphManager {
      * 监听鼠标事件，节点平移后，同步模型
      */
     private initNodeMove() {
+        this.transformer.on('dragstart', (e: any) => {
+            let selectNodes = this.dataModel.getSelectionManager().getSelection();
+            selectNodes.forEach((node: Node) => {
+                let autoPlay = node.getAnimation('autoPlay');
+                if (autoPlay) {
+                    //如果正在播放动画，在移动过程中要将动画暂停
+                    if (node.getAnimationObj().obj) {
+                        node.destroyAnimation();
+                    }
+                }
+            });
+        });
         this.transformer.on('dragend', (e: any) => {
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             let undoRedoManager = this.dataModel.getUndoRedoManager();
@@ -1020,7 +1032,7 @@ export default class GraphEditor extends GraphManager {
      * 获取当前画布的宽度和高度
      * @returns 宽度和高度
      */
-    getSize():Dimensions {
+    getSize(): Dimensions {
         return {
             width: this.stage.attrs.width,
             height: this.stage.attrs.height
@@ -1134,14 +1146,14 @@ export default class GraphEditor extends GraphManager {
 
     /**
      * 设置节点的属性
-     * @param attrValues Object对象
+     * @param attrValues JSON对象
      * @example
-     *  graphEditor.setAttributes({
+     *  graphEditor.setAttributeValues({
      *  'fill':'red'
      *   },ids);
      * 
      */
-    setAttributes(attrValues: any, nodeIds?: any) {
+    setAttributeValues(attrValues: any, nodeIds?: any) {
         let selectNodes = this.getOperateNodes(nodeIds);
         if (selectNodes) {
             this.setNodesAttributes(selectNodes, attrValues, true);
@@ -1156,12 +1168,12 @@ export default class GraphEditor extends GraphManager {
      * @param val 属性值
      * @param nodeIds 操作节点id数组，如果为空，则默认为画布选中元素
      *  @example
-     *  graphEditor.setAttributes('fill','orange',ids);
+     *  graphEditor.setAttributeValue('fill','orange',ids);
      */
-    setAttribute(key: string, val: any, nodeIds?: any) {
+    setAttributeValue(key: string, val: any, nodeIds?: any) {
         let attr = {};
         attr[key] = val;
-        this.setAttributes(attr, nodeIds);
+        this.setAttributeValues(attr, nodeIds);
     }
 
 
@@ -1309,19 +1321,19 @@ export default class GraphEditor extends GraphManager {
      *   'stroke':'yellow'
      *  })
      */
-    setStyleConfig(styleConfig:StyleConfig){
+    setStyleConfig(styleConfig: StyleConfig) {
         this.config.style = Utils.combine(this.config.style, styleConfig);
     }
 
-     /**
-     * 修改默认网格配置
-     * @param gridConfig 要修改的网格样式
-     * @example
-     * graphEditor.setGridConfig({
-     *   'color':'yellow'
-     *  })
-     */
-    setGridConfig(gridConfig:GridConfig){
+    /**
+    * 修改默认网格配置
+    * @param gridConfig 要修改的网格样式
+    * @example
+    * graphEditor.setGridConfig({
+    *   'color':'yellow'
+    *  })
+    */
+    setGridConfig(gridConfig: GridConfig) {
         this.config.view.grid = Utils.combine(this.config.view.grid, gridConfig);
         this.initGrid();
     }
@@ -1347,6 +1359,8 @@ export default class GraphEditor extends GraphManager {
      * 获取节点的所有属性
      * @param id 节点id
      * @returns 属性的JSON数组，含有属性中所有的信息
+     * @example 
+     * editor.getAttributes(id);
      */
     getAttributes(id: string) {
         let node = this.getNode(id);
@@ -1401,7 +1415,6 @@ export default class GraphEditor extends GraphManager {
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             this.dataModel.deleteEvent(operateNode, eventIndex);
-
         } else {
             console.warn(GRAPH_EDITOR_WARNING + '没有操作的节点')
         }

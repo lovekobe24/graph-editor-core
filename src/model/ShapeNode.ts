@@ -45,7 +45,7 @@ export abstract class ShapeNode extends Node {
                 }
                 Object.assign(attrValues, obj);
             }
-            this.ref.setAttrs(attrValues);
+            super.updateRefAttrs(attrValues);
         }
     }
 

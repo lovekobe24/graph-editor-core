@@ -54,8 +54,8 @@ describe('GraphEditor', function () {
     editor.move('down',30,ids[0]);
     assert.equal(editor.getAttributeValue('y',ids[0]), 50);
   })
-  it('setAttributes', function () {
-    editor.setAttributes({
+  it('setAttributeValues', function () {
+    editor.setAttributeValues({
       'fill':'red'
     });
     assert.equal(editor.getSelection()[0].attributes.fill, 'red');
@@ -113,10 +113,15 @@ describe('GraphEditor', function () {
     editor.unGroup();
     assert.equal(editor.getNodes().length, 3);
   })
-  it('setAttributeValues', function () {
+  it('setAttributeValue', function () {
     let ids= editor.getNodes().map(item =>item.id);
-    editor.setAttributes({ 'fill': 'yellow' },ids[0]);
+    editor.setAttributeValue('fill','yellow',ids[0]);
     assert.equal(editor.getAttributeValue('fill',ids[0]), 'yellow');
+  })
+  it('getAttributes', function () {
+    let ids= editor.getNodes().map(item =>item.id);
+    let attrs=editor.getAttributes(ids[0]);
+    assert.equal(attrs['fill'].value, 'yellow');
   })
   it('addEvent', function () {
     let ids= editor.getNodes().map(item =>item.id);
