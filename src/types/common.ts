@@ -5,6 +5,7 @@ export type Nullable<T> = T | null
 export interface UnknownObject {
   [key: string]: boolean | number | string | object | null | undefined
 }
+export type AlignDirection = 'left'| 'right'| 'top' | 'bottom' | 'horizontal' | 'vertical'
 
 export declare interface Dimensions {
   width: number

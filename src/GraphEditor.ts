@@ -29,7 +29,7 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import type { Dimensions, EditorConfig, GridConfig, NodeConfig, StyleConfig } from "./types";
+import type { AlignDirection, Dimensions, EditorConfig, GridConfig, NodeConfig, StyleConfig } from "./types";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -877,10 +877,10 @@ export default class GraphEditor extends GraphManager {
 
     /**
     * 对齐操作
-    * @param direction 对齐的方向,枚举值：left,right,top,bottom,horizontal,vertical
+    * @param direction 对齐的方向
     * @param nodeIds 要对齐的节点id数组，如果为空，则默认对齐选中元素
     */
-    align(direction: any, nodeIds?: any) {
+    align(direction: AlignDirection, nodeIds?: any) {
         let undoRedoManager = this.dataModel.getUndoRedoManager();
         let selectNodes = this.getOperateNodes(nodeIds);
         let idToBoundRect = new Map();

@@ -41,7 +41,7 @@ export const defaultConfig:EditorConfig = {
             enabled: true,
             movingSpaces: 5,
             map: {
-                delete: ['Backspace', 'Delete'],
+                delete: ['Delete'],
                 moveLeft: ['ArrowLeft'],
                 moveRight: ['ArrowRight'],
                 moveUp: ['ArrowUp'],
