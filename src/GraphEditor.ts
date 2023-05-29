@@ -434,7 +434,7 @@ export default class GraphEditor extends GraphManager {
             this.group()
         }
 
-        e.preventDefault();
+        // e.preventDefault();
     }
 
     deselect() {

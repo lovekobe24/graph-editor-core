@@ -36,7 +36,8 @@ const editor = new GraphEditor({
 ```
 
 ## Documentation
-[Full Documentation](https://unpkg.com/graph-editor-core/docs/index.html)
+[Full Documentation](https://unpkg.com/graph-editor-core/docs/index.html)  
+[CHANGELOG](https://unpkg.com/graph-editor-core/CHANGELOG.md)
   
 ## License
 According to the terms of the [MIT license](LICENSE), graph-editor-core is freely distributable.

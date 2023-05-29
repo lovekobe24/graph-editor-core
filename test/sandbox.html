@@ -33,8 +33,8 @@
 
     <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="toRegularMode"><i
         class="iconfont icon-xuanze"></i></button>
-        <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="save"><i
-          class="iconfont icon-baocun"></i></button>
+    <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="save"><i
+        class="iconfont icon-baocun"></i></button>
     <div class="layui-btn-group">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="直线" id="line"><i
           class="iconfont icon-zhixian"></i></button>
@@ -74,7 +74,9 @@
       </ul>
       <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
-          <div id="property" style="border:1px solid gray;width: 260px;padding: 5px;"></div>
+          <div id="property" style="border:1px solid gray;width: 260px;padding: 5px;">
+            <input>
+          </div>
         </div>
         <div class="layui-tab-item">
           <div id="animationPanel" style="border:1px solid gray;width: 260px;padding: 5px;">
@@ -177,25 +179,25 @@
       graphEditor.align('vertical');
     })
     document.getElementById('save').addEventListener('click', () => {
-      localStorage.setItem('graph',graphEditor.toJSON());
-     
+      localStorage.setItem('graph', graphEditor.toJSON());
+
     })
     document.getElementById('preview').addEventListener('click', (e) => {
       preview(e.target)
     })
     document.getElementById('styleConfig').addEventListener('click', (e) => {
       graphEditor.setStyleConfig({
-        'stroke':'yellow',
-        'hhsh':'sdfsf'
+        'stroke': 'yellow',
+        'hhsh': 'sdfsf'
       })
     })
     document.getElementById('gridConfig').addEventListener('click', (e) => {
       graphEditor.setGridConfig({
-        'color':'yellow'
+        'color': 'yellow'
       })
     })
-    
-    
+
+
     //动画面板
     document.getElementById('animationType').addEventListener('change', (e) => {
       console.log(e.target.value);
@@ -204,9 +206,9 @@
       //   'type': animationType
       // });
     })
-     document.getElementById("clear").addEventListener('click',()=>{
+    document.getElementById("clear").addEventListener('click', () => {
       graphEditor.destroy();
-     })
+    })
 
 
 
@@ -232,7 +234,7 @@
           }
         );
 
-    //   graphView.setGraph(currentGraph);
+        //   graphView.setGraph(currentGraph);
         graphView.refreshGraph();
         target.innerHTML = '退出预览'
       } else {
@@ -255,7 +257,7 @@
       }
 
     }
-    let existGraph=localStorage.getItem('graph');
+    let existGraph = localStorage.getItem('graph');
     let graphEditor = new GraphEditor(
       {
         container: document.getElementById('editor'),
@@ -345,7 +347,7 @@
     // //调整显示比例
     // graphEditor.setScale(1.2);
 
-     graphEditor.setSize(500,600);
+    graphEditor.setSize(500, 600);
     //设置背景色
     graphEditor.setBackgroundColor("#00ff00");
 
@@ -382,12 +384,12 @@
     selectNodes = graphEditor.getSelection();
     graphEditor.setAnimations({
       'type': 'rotateByCenter',
-     
+
     }, ids[0]);
     graphEditor.setAnimations({
-      'autoPlay': false
+      'autoPlay': true
     }, ids[0]);
-   
+
     // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
     // graphEditor.setAnimation('period',6,selectNodes[0].id);
     // console.log('获取画布上所有的节点',graphEditor.getNodes());
@@ -494,6 +496,22 @@
       })
       return compDiv;
     }
+    const getNumberDiv = (proName, value) => {
+      let compDiv = document.createElement('div');
+      compDiv.style.display = 'flex';
+      compDiv.style.padding = '5px';
+      let strokeLabel = document.createElement('div');
+      strokeLabel.innerHTML = proName;
+      strokeLabel.style.marginRight = '4px';
+      let attrDiv = document.createElement('input')
+      attrDiv.value = value;
+      compDiv.appendChild(strokeLabel);
+      compDiv.appendChild(attrDiv);
+      attrDiv.addEventListener('change', (evt) => {
+        graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
+      })
+      return compDiv;
+    }
     const initPropertyPanel = (node) => {
 
       document.getElementById('property').innerHTML = '';
@@ -505,6 +523,16 @@
             let compDiv = getColorDiv(key, node.attributes[key]);
             document.getElementById('property').appendChild(compDiv);
 
+            break;
+          case 'width':
+          case 'height':
+          case 'radiusX':
+          case 'radiusY':
+          case 'strokeWidth':
+          case 'scaleX':
+          case 'scaleY':
+            let numberDiv = getNumberDiv(key, node.attributes[key]);
+            document.getElementById('property').appendChild(numberDiv);
             break;
         }
 
