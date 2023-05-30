@@ -200,7 +200,7 @@
     document.getElementById('zoom').addEventListener('click', (e) => {
       graphEditor.setScale(1.5)
     })
-    
+
 
 
     //动画面板
@@ -231,7 +231,7 @@
 
       if (target.innerHTML == '预览') {
         let currentGraph = graphEditor.toJSON();
-        let scale=graphEditor.getScale();
+        let scale = graphEditor.getScale();
         graphEditor.destroy();
         graphView = new GraphViewer(
           {
@@ -280,6 +280,16 @@
         drawing: {
           snapToGrid: {
             enable: true,
+          }
+        },
+        selection: {
+          keyboard: {
+            map: {
+              moveLeft: ['Shift+ArrowLeft'],
+              moveRight: ['Shift+ArrowRight'],
+              moveUp: ['Shift+ArrowUp'],
+              moveDown: ['Shift+ArrowDown']
+            }
           }
         }
       }

@@ -68,6 +68,21 @@ export default class GraphEditor extends GraphManager {
      * @example
      * var graphEditor=new GraphEditor({
      *     container:document.getElementById('editor'),
+     *     drawing: {
+     *          snapToGrid: {
+     *              enable: true,
+     *           }
+     *     },
+     *     selection: {
+     *          keyboard: {
+     *              map: {
+     *                   moveLeft: ['Shift+ArrowLeft'],
+     *                   moveRight: ['Shift+ArrowRight'],
+     *                   moveUp: ['Shift+ArrowUp'],
+     *                   moveDown: ['Shift+ArrowDown']
+     *               }
+     *           }
+     *     }
      * })
      * 
      */
@@ -380,6 +395,7 @@ export default class GraphEditor extends GraphManager {
         ctrlKey: boolean
     }) {
         const isCtrlKey = e.ctrlKey;
+        const isShiftKey = e.shiftKey;
         const keyboard = this.config.selection?.keyboard
         if (keyboard?.enabled === false) {
             return
@@ -387,7 +403,14 @@ export default class GraphEditor extends GraphManager {
         const nodes = this.transformer.nodes();
         const movingSpaces = keyboard?.movingSpaces ?? 5
         function getRealKey() {
-            return isCtrlKey ? ('Control+' + e.key) : e.key
+            let realKey = e.key;
+            if (isCtrlKey) {
+                realKey = 'Control+' + realKey
+            }
+            if (isShiftKey) {
+                realKey = 'Shift+' + realKey
+            }
+            return realKey
         }
         let realKey = getRealKey(e.key);
 
@@ -469,12 +492,12 @@ export default class GraphEditor extends GraphManager {
     onModelChanged(callback: any) {
         this.dataModel.onModelChanged(callback);
     }
-    
+
     /**
      * 监听节点属性变化
      * @param callback 回调函数
      */
-    onNodeAttributeChange(callback:any){
+    onNodeAttributeChange(callback: any) {
         this.addListener(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, callback);
     }
 
@@ -482,7 +505,7 @@ export default class GraphEditor extends GraphManager {
      * 监听节点的事件变化
      * @param callback 回调函数
      */
-    onNodeEventsChange(callback:any){
+    onNodeEventsChange(callback: any) {
         this.addListener(EVENT_TYPE.NODE_EVENTS_CHANGE, callback);
     }
 
@@ -490,12 +513,12 @@ export default class GraphEditor extends GraphManager {
      * 监听节点的变量的变化
      * @param callback 回调函数
      */
-    onNodeVariableChange(callback:any){
+    onNodeVariableChange(callback: any) {
         this.addListener(EVENT_TYPE.NODE_VARIABLE_CHANGE, callback);
     }
 
-    onNodeAnimationChange(callback:any){
-        this.addListener(EVENT_TYPE.NODE_ANIMATION_CHANGE,callback);
+    onNodeAnimationChange(callback: any) {
+        this.addListener(EVENT_TYPE.NODE_ANIMATION_CHANGE, callback);
     }
 
     /**
