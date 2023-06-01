@@ -1,5 +1,6 @@
 import { NodeAttrs } from "../model/Node"
 
+
 export type Nullable<T> = T | null
 
 export interface UnknownObject {
@@ -7,7 +8,9 @@ export interface UnknownObject {
 }
 export type AlignDirection = 'left'| 'right'| 'top' | 'bottom' | 'horizontal' | 'vertical'
 export type MoveDirection = 'left'| 'right'| 'up' | 'down'
-
+export type EventType = 'click' | 'valueUpdate'| 'mousemove' | 'mouseout'
+export type EventAction = 'changeProperty' | 'executeAnimation'| 'stopAnimation' | 'executeScript'
+export type EventWhereType = 'customScript'|'comparison'|'none'
 export declare interface Dimensions {
   width: number
   height: number
@@ -23,4 +26,17 @@ export declare interface NodeConfig {
   attributes: NodeAttrs
   animation:any
   variables:any
+}
+
+export declare interface Event {
+   type?:EventType,
+   action?:EventAction,
+   value?:any,
+   where?:{
+     type?:EventWhereType,
+     value?: any,
+     key?: string,
+     comparison?: string,
+     fnjs?:string
+   }
 }

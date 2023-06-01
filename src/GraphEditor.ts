@@ -360,13 +360,14 @@ export default class GraphEditor extends GraphManager {
      */
     private initNodeMove() {
         this.transformer.on('dragstart', (e: any) => {
+          
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             selectNodes.forEach((node: Node) => {
                 let autoPlay = node.getAnimation('autoPlay');
                 if (autoPlay) {
                     //如果正在播放动画，在移动过程中要将动画暂停
                     if (node.getAnimationObj().obj) {
-                        node.destroyAnimation();
+                        node.destroyAnimation(true);
                     }
                 }
             });
@@ -1390,6 +1391,8 @@ export default class GraphEditor extends GraphManager {
     /**
      * 设置背景色
      * @param color 背景色
+     * @example
+     * editor.setBackgroundColor('red');
      */
     setBackgroundColor(color: string) {
         this.stage.container().style.backgroundColor = color;
@@ -1436,7 +1439,7 @@ export default class GraphEditor extends GraphManager {
      * editor.getAttributeValue('fill')
      */
     getAttributeValue(attrName: string, nodeId?: string) {
-        let node = this.getNode(nodeId);
+        let node = this.getOperateNode(nodeId);
         if (node) {
             return node.getAttributeValue(attrName)
         }
@@ -1460,7 +1463,7 @@ export default class GraphEditor extends GraphManager {
     * @param eventIndex 事件索引
     * @param nodeId 操作节点
     */
-    deleteEvent(eventIndex: number, nodeId: string) {
+    deleteEvent(eventIndex: number, nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             this.dataModel.deleteEvent(operateNode, eventIndex);
@@ -1527,7 +1530,7 @@ export default class GraphEditor extends GraphManager {
      * }
      *  },nodeId)
      */
-    addEvent(event: any, nodeId?: string) {
+    addEvent(event: Event, nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             this.dataModel.addEvent(operateNode, event);

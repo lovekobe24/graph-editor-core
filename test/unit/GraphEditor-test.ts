@@ -10,6 +10,7 @@ import { RegularPolygonNode } from '../../src/model/RegularPolygonNode';
 import { StarNode } from '../../src/model/StarNode';
 import { TextNode } from '../../src/model/TextNode';
 import { WedgeNode } from '../../src/model/WedgeNode';
+import { Node } from '../../src/model/Node';
 
 describe('GraphEditor', function () {
   let editor = createEditor('GraphEditor');
@@ -162,6 +163,19 @@ describe('GraphEditor', function () {
       autoPlay:true
     },ids[0]);
     assert.equal(editor.getNodes()[0].animation.type, "blink");
+  })
+  it('getAllNodeAttributes', function () {
+     let rectNode=new RectNode();
+     let attrs = {};
+     let _classes  = Node._classes;
+     for (const _name in _classes) {
+         let _class = _classes[_name];
+         console.log("_class is",_class);
+          let obj = new _classes[_name]();
+         let _attrs = obj.attributes;
+         Object.assign(attrs, _attrs);
+     }
+    
   })
 })
 

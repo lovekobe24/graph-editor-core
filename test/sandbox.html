@@ -15,9 +15,9 @@
     }
   </style>
   <script
-    src="https://at.alicdn.com/t/c/font_3759154_oub6bgxk4k.js?spm=a313x.7781069.1998910419.53&file=font_3759154_oub6bgxk4k.js"></script>
+    src="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.js?spm=a313x.7781069.1998910419.53&file=font_3759154_f4x5ab2inh5.js"></script>
   <link rel="stylesheet"
-    href="https://at.alicdn.com/t/c/font_3759154_oub6bgxk4k.css?spm=a313x.7781069.1998910419.52&file=font_3759154_oub6bgxk4k.css">
+    href="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.css?spm=a313x.7781069.1998910419.52&file=font_3759154_f4x5ab2inh5.css">
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
 
@@ -43,6 +43,10 @@
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="图像" id="image"><i
           class="iconfont icon-image"></button>
     </div>
+    <div class="layui-btn-group">
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="镜像" id="mirrorBtn"><i
+        class="iconfont icon-jingxiang"></i></button>
+    </div>
     <div class="layui-btn-group" id="alginToolbar">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
           class="iconfont icon-shuipingzuoduiqi"></i></button>
@@ -52,8 +56,10 @@
           class="iconfont icon-chuizhidingduiqi"></button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="底对齐" id="alignBottom"><i
           class="iconfont icon-chuizhididuiqi"></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis">水平等距</button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis">垂直等距</button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="水平等距" id="horDis"><i
+        class="iconfont icon-shuipingdengjufenbu"></button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="垂直等距" id="verDis"><i
+        class="iconfont icon-chuizhidengjufenbu"></button>
     </div>
     <button id="showJson" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
     <button id="clear" class="layui-btn layui-btn-sm layui-btn-primary">清空画布</button>
@@ -200,6 +206,12 @@
     document.getElementById('zoom').addEventListener('click', (e) => {
       graphEditor.setScale(1.5)
     })
+    document.getElementById('mirrorBtn').addEventListener('click', (e) => {
+       let oldScaleX=graphEditor.getAttributeValue('scaleX');
+       graphEditor.setAttributeValue('scaleX',-oldScaleX);
+       console.log(oldScaleX);
+    })
+    
 
 
 
@@ -312,6 +324,17 @@
       }
     })
     graphEditor.addNode({
+      className: 'RectNode',
+      attributes: {
+        x: 200,
+        y: 300,
+        width: 200,
+        height: 60,
+        strokeWidth: 2,
+        stroke: 'yellow'
+      }
+    })
+    graphEditor.addNode({
       className: 'EllipseNode',
       attributes: {
         x: 40,
@@ -320,6 +343,18 @@
         radiusY: 25,
         strokeWidth: 4,
         stroke: 'green'
+      }
+    })
+    graphEditor.addNode({
+      className: 'EllipseNode',
+      attributes: {
+        x: 200,
+        y: 100,
+        radiusX: 50,
+        radiusY: 25,
+        strokeWidth: 4,
+        stroke: 'green',
+        fill:'green'
       }
     })
     graphEditor.addNode({
@@ -405,6 +440,9 @@
     graphEditor.setAnimations({
       'autoPlay': true
     }, ids[0]);
+    let groupArray=new Array(ids[2],ids[3]);
+    
+    graphEditor.group(groupArray);
 
     // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
     // graphEditor.setAnimation('period',6,selectNodes[0].id);
@@ -547,6 +585,8 @@
           case 'strokeWidth':
           case 'scaleX':
           case 'scaleY':
+          case 'x':
+          case 'y':
             let numberDiv = getNumberDiv(key, node.attributes[key]);
             document.getElementById('property').appendChild(numberDiv);
             break;

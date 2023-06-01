@@ -128,6 +128,7 @@ export abstract class Node {
     }
 
     updateRefAttrs(attrValues: any) {
+
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
             //如果有动画是正在执行的，则要重新生成动画
@@ -155,7 +156,7 @@ export abstract class Node {
             this.updateRefAnimation();
         }
     }
-    destroyAnimation() {
+    destroyAnimation(isDragStart: boolean = false) {
         let animationObj = this.getAnimationObj();
         if (animationObj.obj) {
             let tween = animationObj.obj;
@@ -164,9 +165,15 @@ export abstract class Node {
                 tween.reset();
                 tween.destroy();
             } else {
-                //手动设置konva节点到原来的状态
-                this.ref.setAttrs(this.getAttributeValues());
                 tween.stop();
+                if (isDragStart) {
+                    this.ref.stopDrag();
+                    this.ref.setAttrs(this.getAttributeValues());
+                    this.ref.startDrag();
+                } else {
+                    //手动设置konva节点到原来的状态
+                    this.ref.setAttrs(this.getAttributeValues());
+                }
             }
         }
     }
@@ -190,7 +197,7 @@ export abstract class Node {
                     } else {
                         tween?.start();
                     }
-                } 
+                }
             }
         }
     }
@@ -388,7 +395,7 @@ export abstract class Node {
         if (index !== -1) {
             this.dataModel.nodes.splice(index, 1);
             if (this.ref !== null) this.ref.remove();
-            if(this.ref) this.destroyAnimation()
+            if (this.ref) this.destroyAnimation()
         }
     }
     destroy() {
