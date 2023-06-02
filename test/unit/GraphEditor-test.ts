@@ -170,7 +170,6 @@ describe('GraphEditor', function () {
      let _classes  = Node._classes;
      for (const _name in _classes) {
          let _class = _classes[_name];
-         console.log("_class is",_class);
           let obj = new _classes[_name]();
          let _attrs = obj.attributes;
          Object.assign(attrs, _attrs);

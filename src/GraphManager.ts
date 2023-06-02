@@ -168,8 +168,9 @@ export abstract class GraphManager {
             //如果是手动修改rotation，则需要改变x,y
             nodes.forEach((node) => {
                 let attrs = node.getRef().getClientRect();
-                let rad = Utils.getRad(attrValues['rotation']);
-                attrs.rotation = 0;
+                attrs.rotation=0;
+                let diff=attrValues['rotation']-node.getRef().getAttr('rotation');
+                let rad = Utils.getRad(diff);
                 const shape = Utils.rotateAroundCenter(attrs, rad);
                 Utils.fitNodesInto(node.getRef(), attrs, shape);
             })
@@ -177,7 +178,6 @@ export abstract class GraphManager {
             let moveChange = new GeometryChange(nodes, 'rotate', this.dataModel);
             let cmd = new Command([moveChange]);
             undoRedoManager.execute(cmd, toHistory);
-
 
         } else {
             // 将预设属性值分成 [全部预设属性值]、[容器节点预设属性值]、[成员节点预设属性值] 三类

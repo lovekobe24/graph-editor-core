@@ -1,6 +1,7 @@
 import type { Node } from '../model/Node';
 import { GroupNode } from '../model/GroupNode';
 import Change from './Change';
+import Konva from 'konva';
 
 class GroupChange extends Change {
 
@@ -37,7 +38,11 @@ class GroupChange extends Change {
                 const _nodes = (node as GroupNode).getMembers();
                 for (let _node of _nodes) {
                     const _konvaNode = _node.getRef();
-                    const attrs = _konvaNode.getTransform().decompose();
+                    const parentTransform = _konvaNode.getParent().getTransform();
+                    const newLocalTransform = new Konva.Transform();
+                    newLocalTransform.multiply(parentTransform.copy())
+                                    .multiply(_konvaNode.getTransform());
+                    const attrs =newLocalTransform.decompose();
                     const member = _node.clone(true);
                     member.setAttributeValue('scaleX', attrs['scaleX']);
                     member.setAttributeValue('scaleY', attrs['scaleY']);

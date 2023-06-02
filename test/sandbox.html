@@ -47,6 +47,12 @@
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="镜像" id="mirrorBtn"><i
         class="iconfont icon-jingxiang"></i></button>
     </div>
+    <div class="layui-btn-group">
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="组合" id="group"><i
+        class="iconfont icon-zuhe"></i></button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="取消组合" id="ungroup"><i
+        class="iconfont icon-zuhe"></i></button>
+    </div>
     <div class="layui-btn-group" id="alginToolbar">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
           class="iconfont icon-shuipingzuoduiqi"></i></button>
@@ -205,6 +211,12 @@
     })
     document.getElementById('zoom').addEventListener('click', (e) => {
       graphEditor.setScale(1.5)
+    })
+    document.getElementById('group').addEventListener('click', (e) => {
+      graphEditor.group()
+    })
+    document.getElementById('ungroup').addEventListener('click', (e) => {
+      graphEditor.unGroup()
     })
     document.getElementById('mirrorBtn').addEventListener('click', (e) => {
        let oldScaleX=graphEditor.getAttributeValue('scaleX');
@@ -587,6 +599,7 @@
           case 'scaleY':
           case 'x':
           case 'y':
+          case 'rotation':
             let numberDiv = getNumberDiv(key, node.attributes[key]);
             document.getElementById('property').appendChild(numberDiv);
             break;

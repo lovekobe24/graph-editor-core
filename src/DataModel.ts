@@ -70,7 +70,7 @@ export class DataModel extends TemcEventSource {
         this.fireEvent(new EventObject(EVENT_TYPE.ADD_NODES, 'nodes', Utils.getObjectNodes(nodes)), null);
     }
 
-    addNode(node: any, index: number = -1) {
+    addNode(node: Node, index: number = -1) {
         if (index == -1) {
             this.nodes.push(node);
             node.setDataModel(this);
