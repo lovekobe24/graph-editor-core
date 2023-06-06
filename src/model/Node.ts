@@ -2,6 +2,7 @@ import Utils from "../Utils";
 import EVENT_TYPE from '../constants/EventType';
 import EventObject from "../EventObject";
 import { EXECUTE_SCRIPT_ACTION, GRAPH_EDITOR_INFO, GRAPH_EDITOR_WARNING, animationToDefaultPeriod, supportAnimation, supportEventAction, supportEventType } from "../constants/TemcConstants";
+import { RESIZE_STYLE } from "../constants/StyleMap";
 
 export abstract class NodeAttrs {
     visible = { "value": true, "default": true, "group": "hidden", "type": "Boolean" };
@@ -174,13 +175,24 @@ export abstract class Node {
                 tween.destroy();
             } else {
                 tween.stop();
+                let updateAttr:any={};
+                let nodeAttrValues=this.getAttributeValues();
+                for(let key in nodeAttrValues){
+                    if(RESIZE_STYLE.indexOf(key)!=-1){
+                        updateAttr[key]=nodeAttrValues[key];
+                    }
+                }
+                
                 if (isDragStart) {
                     this.ref.stopDrag();
-                    this.ref.setAttrs(this.getAttributeValues());
+                   
+                    console.log(['outerRadius']);
+                    this.ref.setAttrs(updateAttr);
                     this.ref.startDrag();
                 } else {
+                  
                     //手动设置konva节点到原来的状态
-                    this.ref.setAttrs(this.getAttributeValues());
+                    this.ref.setAttrs(updateAttr);
                 }
             }
         }

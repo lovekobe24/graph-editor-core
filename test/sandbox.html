@@ -370,6 +370,18 @@
       }
     })
     graphEditor.addNode({
+      className: 'CircleNode',
+      attributes: {
+        x: 300,
+        y: 100,
+        radius: 50,
+        strokeWidth: 2,
+        stroke: 'green',
+        fill:'green'
+      }
+    })
+
+    graphEditor.addNode({
       className: 'TextNode',
       attributes: {
         x: 50,
@@ -381,6 +393,18 @@
         fontStyle: "normal",
         fontVariant: "normal",
         text: "中文",
+        strokeWidth: 2,
+        stroke: 'green',
+        draggable: true
+      }
+    })
+    graphEditor.addNode({
+      className: 'StarNode',
+      attributes: {
+        x: 50,
+        y: 50,
+        innerRadius:20,
+        outerRadius:50,
         strokeWidth: 2,
         stroke: 'green',
         draggable: true
@@ -445,14 +469,20 @@
 
     // //添加动画
     selectNodes = graphEditor.getSelection();
+    console.log(graphEditor.getNodes());
    
     graphEditor.getAnimation();
-    graphEditor.setAnimationValue('autoPlay', true, ids[0]);
-    console.log(graphEditor.getAnimationValue('type',ids[0]));
-    graphEditor.setAnimationValue('type', 'none', ids[0]);
-    graphEditor.setAnimation({
+   
+    for(let i=0;i<=6;i++){
+      graphEditor.setAnimationValue('autoPlay', true, ids[i]);
+      graphEditor.setAnimation({
       'type': 'rotateByCenter',
-    }, ids[0]);
+    }, ids[i]);
+    }
+   
+    console.log(graphEditor.getAnimationValue('type',ids[6]));
+    //graphEditor.setAnimationValue('type', 'none', ids[0]);
+   
     let groupArray=new Array(ids[2],ids[3]);
     
    // graphEditor.group(groupArray);
