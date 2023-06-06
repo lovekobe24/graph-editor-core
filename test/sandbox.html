@@ -445,16 +445,14 @@
 
     // //添加动画
     selectNodes = graphEditor.getSelection();
+   
+    graphEditor.getAnimation();
+    graphEditor.setAnimationValue('autoPlay', true, ids[0]);
+    console.log(graphEditor.getAnimationValue('type',ids[0]));
+    graphEditor.setAnimationValue('type', 'none', ids[0]);
     graphEditor.setAnimation({
       'type': 'rotateByCenter',
-
     }, ids[0]);
-    graphEditor.getAnimation();
-   
-    graphEditor.setAnimation({
-      'autoPlay': true
-    }, ids[0]);
-    console.log(graphEditor.getAnimationValue('autoPlay',ids[0]));
     let groupArray=new Array(ids[2],ids[3]);
     
    // graphEditor.group(groupArray);

@@ -6,7 +6,7 @@ export const FN_JS = 'fnjs';
 export const ROTATE_BY_CENTER = 'rotateByCenter';
 export const BLINK = 'blink';
 export const FLOW = 'flow';
-
+export const NONE = 'none';
 
 export const TRANSFORM = 'transform';
 //事件行为
@@ -43,7 +43,7 @@ export const GRAPH_EDITOR_WARNING = "GraphEditor warning ";
 export const GRAPH_EDITOR_INFO = "GraphEditor info ";
 
 
-const supportAnimation = [BLINK, ROTATE_BY_CENTER, FLOW];
+const supportAnimation = [BLINK, ROTATE_BY_CENTER, FLOW,NONE];
 const supportEventType = [MOUSE_CLICK_EVT_TYPE, MOUSE_OUT_EVT_TYPE, MOUSE_MOVE_EVT_TYPE, VALUE_UPDATE_EVT_TYPE];
 const supportEventAction = [EXECUTE_ANIMATION_ACTION, STOP_ANIMATION_ACTION, CHANGE_PROPERTY_ACTION, EXECUTE_SCRIPT_ACTION];
 const animationToDefaultPeriod: any = {

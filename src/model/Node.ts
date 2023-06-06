@@ -30,6 +30,7 @@ export abstract class Node {
     variables: any = {};
     events: any = [];
     animation: any = {
+        'type': 'none',
         'autoPlay':false
     };
     animationObj: any = {};
@@ -191,6 +192,7 @@ export abstract class Node {
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
+                this.destroyAnimation();
             } else {
                 this.destroyAnimation();
                 let period = this.animation.period ? this.animation.period : animationToDefaultPeriod[type];
