@@ -225,6 +225,7 @@ export class DataModel extends TemcEventSource {
         let groupChange = new GroupChange(nodes, true, this);
         let cmd = new Command([groupChange]);
         this.undoRedoManager.execute(cmd);
+       
     }
 
     unGroup(nodes: Array<Node>) {

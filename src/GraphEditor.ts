@@ -1182,6 +1182,16 @@ export default class GraphEditor extends GraphManager {
             }
         }
     }
+    /**
+     * 获取节点所有的变量
+     * @param nodeId 
+     */
+    getVariables(nodeId?: string){
+        let operateNode = this.getOperateNode(nodeId);
+        if(operateNode){
+            return JSON.parse(JSON.stringify(operateNode.getVariables()));
+        }
+    }
 
     /**
      * 删除指定名称的变量
@@ -1244,7 +1254,8 @@ export default class GraphEditor extends GraphManager {
     group(nodeIds?: any) {
         let selectedNodes = this.getOperateNodes(nodeIds);
         if (selectedNodes.length > 1) {
-            this.dataModel.group(selectedNodes);
+             this.dataModel.group(selectedNodes);
+             return this.getSelection()[0]
         }
     }
 
@@ -1576,6 +1587,20 @@ export default class GraphEditor extends GraphManager {
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未找到添加事件的节点")
         }
+    }
+
+    /**
+     * 返回节点的所有事件
+     * @param nodeId 节点id，未指定的情况下，则为当前选中节点
+     */
+    getEvents(nodeId?: string){
+        let operateNode = this.getOperateNode(nodeId);
+        if (operateNode) {
+            return JSON.parse(JSON.stringify(operateNode.getEvents()));
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到添加事件的节点")
+        }
+
     }
 
     /**

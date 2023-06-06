@@ -1,5 +1,6 @@
 import Konva from "konva";
 import type { Node } from "konva/lib/Node";
+import { Util } from "konva/lib/Util";
 
 
 let onlyOneSelfAnchorNodeSelected = function (selectedNodes: any) {
@@ -205,8 +206,10 @@ const fitNodesInto = (node:Konva.Node, oldAttrs:any, newAttrs:any) => {
     // that means that
     // [delta transform] = [new transform] * [old transform inverted]
     const delta = newTr.multiply(oldTr.invert());
-    
+
     const parentTransform = node.getParent().getAbsoluteTransform();
+    // console.log(parentTransform.m);
+    // console.log('roateTransform',parentTransform.getTranslation());
     const localTransform = node.getTransform().copy();
     // skip offset:
     localTransform.translate(node.offsetX(), node.offsetY());
@@ -275,13 +278,24 @@ const getTweenByType = (type: string, konvaNode: any,period:number=5) => {
         case 'rotateByCenter':
             var attrs = konvaNode.getClientRect();
             attrs.rotation = 0;
-            tween = new Konva.Animation(function (frame: any) {
-                // 6s转一圈
-                var angle = 360 * (frame.timeDiff / period);
-                let rad = getRad(angle);
-                let shape = rotateAroundCenter(attrs, rad);
-                fitNodesInto(konvaNode, attrs, shape);
-            });
+            //旋转的图形成组后，如果组元素旋转，则旋转偏离中心
+            // if(konvaNode instanceof Konva.Group){
+            //     tween = new Konva.Animation(function (frame: any) {
+            //         // 6s转一圈
+            //         var angle = 360 * (frame.timeDiff / period);
+            //        let oldAngle=konvaNode.getAttr('rotation');
+            //         konvaNode.setAttr('rotation',90);
+            //     });
+            // }else{
+                tween = new Konva.Animation(function (frame: any) {
+                    // 6s转一圈
+                    var angle = 360 * (frame.timeDiff / period);
+                    let rad = getRad(angle);
+                    let shape = rotateAroundCenter(attrs, rad);
+                    fitNodesInto(konvaNode, attrs, shape);
+                });
+            //}
+           
             break;
         case 'flow':
             tween = new Konva.Animation(function (frame: any) {

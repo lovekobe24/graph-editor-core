@@ -45,6 +45,7 @@ class PenShape extends AbstractShape {
                 if (this.tempLine) {
                     this.tempLine.destroy();
                 }
+                this.firstPoint=null;
                 break;
         }
     }
