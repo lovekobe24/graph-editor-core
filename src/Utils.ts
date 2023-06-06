@@ -318,8 +318,15 @@ const getObjectNodes = (nodes: any) => {
     });
     return nodeObjs;
 }
+
 const isBrowser=()=> {
     return typeof window !== 'undefined' && typeof window.document !== 'undefined'
+}
+const getShouldUpdateAnimation=(attrValues:any)=>{
+    return attrValues.hasOwnProperty('x') || attrValues.hasOwnProperty('x') ||
+    attrValues.hasOwnProperty('width') || attrValues.hasOwnProperty('height') ||
+    attrValues.hasOwnProperty('scaleX') || attrValues.hasOwnProperty('scaleY') 
+   
 }
 
 export default {
@@ -342,5 +349,6 @@ export default {
     rotateAroundCenter,
     getObjectNodes,
     isBrowser,
-    fitNodesInto
+    fitNodesInto,
+    getShouldUpdateAnimation
 };

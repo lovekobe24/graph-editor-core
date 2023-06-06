@@ -362,15 +362,25 @@ export default class GraphEditor extends GraphManager {
         this.transformer.on('dragstart', (e: any) => {
           
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
-            selectNodes.forEach((node: Node) => {
-                let autoPlay = node.getAnimationValue('autoPlay');
-                if (autoPlay) {
-                    //如果正在播放动画，在移动过程中要将动画暂停
-                    if (node.getAnimationObj().obj) {
-                        node.destroyAnimation(true);
+            (function loop(nodes) {
+                for (let node of nodes) {
+                    node.getRef().stopDrag();
+                     let className=node.getClassName();
+
+                    if (className === 'GroupNode') {
+                        loop(node.getMembers());
+                    }else{
+                        let autoPlay = node.getAnimationValue('autoPlay');
+                        if (autoPlay) {
+                            //如果正在播放动画，在移动过程中要将动画暂停
+                            if (node.getAnimationObj().obj) {
+                                node.destroyAnimation(true);
+                            }
+                        }
                     }
+                    node.getRef().startDrag();
                 }
-            });
+            })(selectNodes);
         });
         this.transformer.on('dragend', (e: any) => {
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
@@ -1471,9 +1481,6 @@ export default class GraphEditor extends GraphManager {
         animation[name] = value;
         this.setAnimation(animation, nodeId);
     }
-
-
-
 
     private getOperateNode(nodeId: string) {
         if (nodeId) {

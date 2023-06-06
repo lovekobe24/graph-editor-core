@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { Node, NodeAttrs } from './Node';
+import Utils from '../Utils';
 
 export class ContainerNodeAttrs extends NodeAttrs { }
 
@@ -76,6 +77,23 @@ export abstract class ContainerNode extends Node {
         let konvaNode = new Konva.Group();
         konvaNode.id(this.id);
         this.ref = konvaNode;
+    }
+    updateRefAttrs(attrValues: any) {
+        super.updateRefAttrs(attrValues);
+        (function loop(nodes) {
+            for (let node of nodes) {
+                if (node instanceof ContainerNode) {
+                    loop(node.getMembers());
+                } else {
+                    //如果有动画是正在执行的，则要重新生成动画
+                    let shouldUpdateAnimation = Utils.getShouldUpdateAnimation(attrValues);
+                    let autoPlay = node.getAnimationValue('autoPlay');
+                    if (autoPlay && shouldUpdateAnimation) {
+                      node.updateRefAnimation("updateRefAttrs");
+                    }
+                }
+            }
+        })(this.getMembers());
     }
 
 }

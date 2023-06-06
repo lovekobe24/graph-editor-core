@@ -130,17 +130,12 @@ export abstract class Node {
             this.updateRefAttrs(_attrValues);
         }
     }
-    getShouldUpdateAnimation(attrValues:any){
-        return attrValues.hasOwnProperty('x') || attrValues.hasOwnProperty('x') ||
-        attrValues.hasOwnProperty('width') || attrValues.hasOwnProperty('height') ||
-        attrValues.hasOwnProperty('scaleX') || attrValues.hasOwnProperty('scaleY') 
-       
-    }
+ 
     updateRefAttrs(attrValues: any) {
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
             //如果有动画是正在执行的，则要重新生成动画
-            let shouldUpdateAnimation=this.getShouldUpdateAnimation(attrValues);
+            let shouldUpdateAnimation=Utils.getShouldUpdateAnimation(attrValues);
             let autoPlay = this.getAnimationValue('autoPlay');
             if (autoPlay && shouldUpdateAnimation) {
                 this.updateRefAnimation("updateRefAttrs");
@@ -177,23 +172,14 @@ export abstract class Node {
                 tween.stop();
                 let updateAttr:any={};
                 let nodeAttrValues=this.getAttributeValues();
+              
                 for(let key in nodeAttrValues){
                     if(RESIZE_STYLE.indexOf(key)!=-1){
                         updateAttr[key]=nodeAttrValues[key];
                     }
                 }
-                
-                if (isDragStart) {
-                    this.ref.stopDrag();
-                   
-                    console.log(['outerRadius']);
-                    this.ref.setAttrs(updateAttr);
-                    this.ref.startDrag();
-                } else {
-                  
-                    //手动设置konva节点到原来的状态
-                    this.ref.setAttrs(updateAttr);
-                }
+               //手动设置konva节点到原来的状态
+                this.ref.setAttrs(updateAttr);
             }
         }
     }
