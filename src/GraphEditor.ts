@@ -1459,7 +1459,11 @@ export default class GraphEditor extends GraphManager {
     * @param {Number} animation.period 动画周期，时间s
     * @param nodeId  操作节点id
     * @example
-    * graphEditor.setAnimation({'type'：'blink','autoPlay':true},nodeId);
+    * graphEditor.setAnimation({
+    *   'type'：'blink',
+    *   'autoPlay':true,
+    *   'period':10   //动画周期，单位秒
+    * },nodeId);
     */
      setAnimation(animation: any, nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);

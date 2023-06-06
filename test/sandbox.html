@@ -414,6 +414,19 @@
         draggable: true
       }
     })
+    graphEditor.addNode({
+      className: 'ArcNode',
+      attributes: {
+        x: 152,
+        y: 140,
+        angle: 50,
+        innerRadius: 20,
+        outerRadius: 50,
+        strokeWidth: 2,
+        stroke: 'red',
+        draggable: true
+      }
+    })
 
     let allNodes = graphEditor.getNodes();
 
@@ -477,10 +490,11 @@
 
     graphEditor.getAnimation();
 
-    for (let i = 0; i <= 6; i++) {
+    for (let i = 0; i <= graphEditor.getNodes().length; i++) {
       graphEditor.setAnimationValue('autoPlay', true, ids[i]);
       graphEditor.setAnimation({
         'type': 'rotateByCenter',
+        'period': 10
       }, ids[i]);
     }
 
@@ -593,7 +607,7 @@
       attrDiv.addEventListener('change', (evt) => {
         let strokeColor = attrDiv.value;
 
-        graphEditor.setAttribute(proName, strokeColor);
+        graphEditor.setAttributeValue(proName, strokeColor);
       })
       return compDiv;
     }
