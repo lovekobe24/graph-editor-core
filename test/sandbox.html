@@ -107,7 +107,8 @@
             <div class="layui-form-item">
               <label class="layui-form-label">自动播放</label>
               <div class="layui-input-block">
-                <input type="checkbox" name="open" lay-skin="switch" lay-filter="switchTest" title="ON|OFF">
+                <input type="checkbox" name="open" lay-skin="switch" lay-filter="switchTest" title="ON|OFF"
+                  id="autoPlayCheckBox">
               </div>
             </div>
           </div>
@@ -227,7 +228,15 @@
       console.log(JSON.parse(graphEditor.toJSON()))
     })
 
-
+    document.getElementById('autoPlayCheckBox').addEventListener('click', (e) => {
+      console.log()
+      let checked=document.getElementById('autoPlayCheckBox').checked;
+      if(checked){
+        graphEditor.setAnimationValue('autoPlay',true);
+      }else{
+        graphEditor.setAnimationValue('autoPlay',false);
+      }
+    })
 
 
 
@@ -658,6 +667,20 @@
     }
 
     const initAnimationPanel = (node) => {
+      console.log(node);
+      let autoPlay = node.animation['autoPlay'];
+      let checkboxObj = document.getElementById('autoPlayCheckBox')
+      console.log(autoPlay);
+      if (autoPlay) {
+        var checked = document.createAttribute("checked");
+        checked.nodeValue = "checked"
+        // 为dom对象加入属性
+        checkboxObj.attributes.setNamedItem(checked)
+      } else {
+        document.getElementById('autoPlayCheckBox').value = false
+      }
+
+
 
     }
   </script>

@@ -38,6 +38,7 @@ class GroupChange extends Change {
             for (let node of nodes) {
                 const _nodes = (node as GroupNode).getMembers();
                 for (let _node of _nodes) {
+                    _node.destroyAnimation();
                     const _konvaNode = _node.getRef();
                     const parentTransform = _konvaNode.getParent().getTransform();
                     const newLocalTransform = new Konva.Transform();
@@ -79,8 +80,11 @@ class GroupChange extends Change {
     }
 
     unGroup() {
+        
         this.groups.forEach(item => { item.remove(); });
-        this.members.forEach((item, index) => { this.dataModel.addNode(item, this.memberZIndexs[index]); });
+        this.members.forEach((item, index) => { 
+            this.dataModel.addNode(item, this.memberZIndexs[index]); 
+        });
         const memberIds = this.members.map(item => item.getId());
         this.dataModel.getSelectionManager().setSelection(memberIds, true);
     }
