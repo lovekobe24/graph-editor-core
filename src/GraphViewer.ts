@@ -42,7 +42,7 @@ export default class GraphViewer extends GraphManager {
         this.stage.setAttr("draggable", true);
         this.stage.on('dragstart', (e: any) => {
             this.dataModel?.getNodes().forEach((node: Node) => {
-                let autoPlay = node.getAnimation('autoPlay');
+                let autoPlay = node.getAnimationValue('autoPlay');
                 if (autoPlay) {
                     //如果正在播放动画，在移动过程中要将动画暂停
                     if (node.getAnimationObj().obj) {
@@ -54,7 +54,7 @@ export default class GraphViewer extends GraphManager {
         });
         this.stage.on('dragend', (e: any) => {
             this.dataModel?.getNodes().forEach((node) => {
-                node.updateRefAnimation();
+                node.updateRefAnimation("dragend");
             })
 
         });

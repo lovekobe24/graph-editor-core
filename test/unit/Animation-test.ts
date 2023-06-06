@@ -18,7 +18,7 @@ describe('Animation', function () {
           stroke: 'red'
         }
       })
-      editor.setAnimations({
+      editor.setAnimation({
         'type':'blink',
         'autoPlay':true
       })
@@ -39,7 +39,7 @@ describe('Animation', function () {
             stroke: 'red'
           }
         })
-        editor.setAnimations({
+        editor.setAnimation({
           'type':'rotateByCenter',
           'autoPlay':true
         })
@@ -60,7 +60,7 @@ describe('Animation', function () {
             dash:[5,5]
           }
         })
-        editor.setAnimations({
+        editor.setAnimation({
           'type':'flow',
           'autoPlay':true
         })

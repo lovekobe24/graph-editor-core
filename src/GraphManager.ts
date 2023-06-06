@@ -97,7 +97,7 @@ export abstract class GraphManager {
             }
         }
         this.dataModel?.getNodes().forEach((node:any)=>{
-             node.updateRefAnimation();
+             node.updateRefAnimation("scaleChange");
         });
     }
 

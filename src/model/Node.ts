@@ -29,7 +29,9 @@ export abstract class Node {
     attributes: any = {};
     variables: any = {};
     events: any = [];
-    animation: any = {};
+    animation: any = {
+        'autoPlay':false
+    };
     animationObj: any = {};
     ref: any = null;
     dataModel: any = null;
@@ -126,34 +128,39 @@ export abstract class Node {
             this.updateRefAttrs(_attrValues);
         }
     }
-
+    getShouldUpdateAnimation(attrValues:any){
+        return attrValues.hasOwnProperty('x') || attrValues.hasOwnProperty('x') ||
+        attrValues.hasOwnProperty('width') || attrValues.hasOwnProperty('height') ||
+        attrValues.hasOwnProperty('scaleX') || attrValues.hasOwnProperty('scaleY') 
+       
+    }
     updateRefAttrs(attrValues: any) {
-
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
             //如果有动画是正在执行的，则要重新生成动画
-            let autoPlay = this.getAnimation('autoPlay');
-            if (autoPlay) {
-                this.updateRefAnimation();
+            let shouldUpdateAnimation=this.getShouldUpdateAnimation(attrValues);
+            let autoPlay = this.getAnimationValue('autoPlay');
+            if (autoPlay && shouldUpdateAnimation) {
+                this.updateRefAnimation("updateRefAttrs");
             }
         }
     }
 
-    setAnimation(name: any, value: any) {
+    setAnimationValue(name: any, value: any) {
         let animationChange: any = {};
         this.animation[name] = value;
         animationChange[name] = value;
-        this.setAnimations(animationChange);
+        this.setAnimation(animationChange);
     }
 
-    setAnimations(animation: any) {
+    setAnimation(animation: any) {
         if (animation.type && supportAnimation.indexOf(animation.type) == -1) {
             console.warn(GRAPH_EDITOR_WARNING + "不支持的动画类型")
             return
         }
         this.animation = Utils.combine(this.animation, animation);
         if (this.ref && this.dataModel) {
-            this.updateRefAnimation();
+            this.updateRefAnimation("setAnimation");
         }
     }
     destroyAnimation(isDragStart: boolean = false) {
@@ -180,7 +187,7 @@ export abstract class Node {
     /**
      * 更新konva节点的动画
      */
-    updateRefAnimation(isPreview: boolean = false) {
+    updateRefAnimation(reason:string) {
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
@@ -344,11 +351,14 @@ export abstract class Node {
         this.variables = variables;
     }
 
-    getAnimation(key: string) {
+    getAnimation() {
+        return this.animation;
+    }
+    getAnimationValue(key: string) {
         if (key) {
             return this.animation[key];
         } else {
-            console.warn(GRAPH_EDITOR_WARNING + "getAnimation需要一个key");
+            console.warn(GRAPH_EDITOR_WARNING + "getAnimationValue方法，需要一个key");
         }
 
     }
@@ -418,7 +428,7 @@ export abstract class Node {
         if (id) this.setId(id);
         if (tag) this.setTag(tag);
         if (attributes) this.setAttributeValues(attributes);
-        if (animation) this.setAnimations(animation);
+        if (animation) this.setAnimation(animation);
         if (variables) this.setVariables(variables);
         if (events) this.setEvents(events);
     }

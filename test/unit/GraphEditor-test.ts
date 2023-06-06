@@ -155,10 +155,10 @@ describe('GraphEditor', function () {
     let jsonStr=editor.toJSON();
     console.log(jsonStr);
   })
-  it('setAnimations', function () {
+  it('setAnimation', function () {
     let ids= editor.getNodes().map(item =>item.id);
     console.log(ids);
-    editor.setAnimations({
+    editor.setAnimation({
       type:'blink',
       autoPlay:true
     },ids[0]);

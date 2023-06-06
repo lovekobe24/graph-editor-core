@@ -25,6 +25,7 @@ class GroupChange extends Change {
                 node.setAttributeValue('draggable', false);
                 return node;
             }));
+           
             group.setDataModel(this.dataModel);
             this.groups = [group];
             this.groupZIndexs = [-1];
@@ -61,7 +62,18 @@ class GroupChange extends Change {
 
     group() {
         this.members.forEach(item => { item.remove(); });
-        this.groups.forEach((item, index) => { this.dataModel.addNode(item, this.groupZIndexs[index]); });
+        this.groups.forEach((item, index) => { 
+            this.dataModel.addNode(item, this.groupZIndexs[index]); 
+            //旋转的元素成组后，要添加上子元素的动画，因为在ref是新生成的
+            if(item instanceof GroupNode){
+                item.getMembers().forEach((item:Node)=>{
+                    let autoPlay = item.getAnimationValue('autoPlay');
+                    if(autoPlay){
+                        item.updateRefAnimation("group");
+                    }
+                })
+            }
+        });
         const groupIds = this.groups.map(item => item.getId());
         this.dataModel.getSelectionManager().setSelection(groupIds, true);
     }

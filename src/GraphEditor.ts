@@ -363,7 +363,7 @@ export default class GraphEditor extends GraphManager {
           
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             selectNodes.forEach((node: Node) => {
-                let autoPlay = node.getAnimation('autoPlay');
+                let autoPlay = node.getAnimationValue('autoPlay');
                 if (autoPlay) {
                     //如果正在播放动画，在移动过程中要将动画暂停
                     if (node.getAnimationObj().obj) {
@@ -1284,40 +1284,6 @@ export default class GraphEditor extends GraphManager {
     getConfig() {
         return JSON.parse(JSON.stringify(this.config));
     }
-
-    /**
-    * 设置动画属性
-    * @param animation  动画对象
-    * @param {string} animation.type 动画类型，枚举值：'blink','rotateByCenter','flow'
-    * @param {Boolean} animation.autoPlay 是否自动播放
-    * @param {Number} animation.period 动画周期，时间s
-    * @param nodeId  操作节点id
-    * @example
-    * graphEditor.setAnimation({'type'：'blink','autoPlay':true},nodeId);
-    */
-    setAnimations(animation: any, nodeId?: string) {
-        let operateNode = this.getOperateNode(nodeId);
-        if (operateNode) {
-            this.dataModel.setAnimations(operateNode, animation);
-        }
-
-
-    }
-
-    /**
-     * 设置动画属性
-     * @param name  属性名称
-     * @param value 属性值
-     * @param nodeId  操作节点id
-     * @example
-     * graphEditor.setAnimation('type','blink');
-     */
-    setAnimation(name: any, value: any, nodeId: string) {
-        let animation: any = {};
-        animation[name] = value;
-        this.setAnimations(animation, nodeId);
-    }
-
     private setIsSquare(square: boolean) {
         this.isSquare = square;
     }
@@ -1444,6 +1410,68 @@ export default class GraphEditor extends GraphManager {
             return node.getAttributeValue(attrName)
         }
     }
+
+    /**
+     * 获取节点的所有动画属性
+     * @param nodeId 节点id，未指定的情况下，则为当前选中节点
+     * @returns 节点的所有动画属性
+     * @example
+     * editor.getAnimation();
+     */
+    getAnimation(nodeId?: string){
+        let node = this.getOperateNode(nodeId);
+        if (node) {
+            return JSON.parse(JSON.stringify(node.getAnimation()))
+        }
+    }
+
+    /**
+     * 获取节点的指定动画属性值
+     * @param key 动画属性名称
+     * @param nodeId  节点id，未指定的情况下，则为当前选中节点
+     * @returns 节点的指定动画属性值
+     * @example
+     * editor.getAnimationValue('autoPlay');
+     * editor.getAnimationValue('type');
+     */
+    getAnimationValue(key:string,nodeId?: string){
+        let node = this.getOperateNode(nodeId);
+        if (node) {
+            return node.getAnimationValue(key);
+        }
+    }
+
+     /**
+    * 设置动画属性
+    * @param animation  动画对象
+    * @param {string} animation.type 动画类型，枚举值：'blink','rotateByCenter','flow'
+    * @param {Boolean} animation.autoPlay 是否自动播放
+    * @param {Number} animation.period 动画周期，时间s
+    * @param nodeId  操作节点id
+    * @example
+    * graphEditor.setAnimation({'type'：'blink','autoPlay':true},nodeId);
+    */
+     setAnimation(animation: any, nodeId?: string) {
+        let operateNode = this.getOperateNode(nodeId);
+        if (operateNode) {
+            this.dataModel.setAnimation(operateNode, animation);
+        }
+    }
+
+    /**
+     * 设置动画属性值
+     * @param name  属性名称
+     * @param value 属性值
+     * @param nodeId  操作节点id
+     * @example
+     * graphEditor.setAnimationValue('type','blink');
+     */
+    setAnimationValue(name: any, value: any, nodeId: string) {
+        let animation: any = {};
+        animation[name] = value;
+        this.setAnimation(animation, nodeId);
+    }
+
 
 
 

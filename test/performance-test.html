@@ -44,7 +44,7 @@
           if (e.target.checked) {
             //开启动画
             ids.forEach((id) => {
-              graphEditor.setAnimations({
+              graphEditor.setAnimation({
                 'type': 'blink',
                 'autoPlay': true
               }, id);
@@ -52,7 +52,7 @@
           }else{
             let ids = graphEditor.getNodes().map(item => item.id);
             ids.forEach((id) => {
-              graphEditor.setAnimations({
+              graphEditor.setAnimation({
                 'autoPlay': false
               }, id);
             })

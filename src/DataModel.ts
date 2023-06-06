@@ -80,7 +80,7 @@ export class DataModel extends TemcEventSource {
 
         this.fireEvent(new EventObject(EVENT_TYPE.ADD_KONVA_NODE, 'node', node.getRef(), 'zIndex', index ? index : -1), null);
         //对于Tween动画来说，必须将konva节点加入到Layer后，才能调用动画
-        node.updateRefAnimation(this.isPreview);
+        node.updateRefAnimation('addNode');
     }
 
 
@@ -334,8 +334,8 @@ export class DataModel extends TemcEventSource {
         node.setTag(tag);
         this.fireEvent(new EventObject(EVENT_TYPE.NODE_PROPERTY_CHANGE, 'node', this, 'tag', tag), null);
     }
-    setAnimations(node: any, animation: any) {
-        node.setAnimations(animation);
+    setAnimation(node: any, animation: any) {
+        node.setAnimation(animation);
         //通知外部style的变化
         this.fireEvent(new EventObject(EVENT_TYPE.NODE_ANIMATION_CHANGE, 'node', this, 'animation', animation), null);
     }

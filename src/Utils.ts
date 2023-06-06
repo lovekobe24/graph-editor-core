@@ -187,7 +187,7 @@ const getRad = (degree: any) => {
 
 
 
-const fitNodesInto = (node:Node, oldAttrs:any, newAttrs:any) => {
+const fitNodesInto = (node:Konva.Node, oldAttrs:any, newAttrs:any) => {
   
     const baseSize = 10000000;
     const oldTr = new Konva.Transform();
@@ -205,7 +205,7 @@ const fitNodesInto = (node:Node, oldAttrs:any, newAttrs:any) => {
     // that means that
     // [delta transform] = [new transform] * [old transform inverted]
     const delta = newTr.multiply(oldTr.invert());
-   // console.log( node.getParent().getTransform())
+    
     const parentTransform = node.getParent().getAbsoluteTransform();
     const localTransform = node.getTransform().copy();
     // skip offset:
