@@ -15,9 +15,10 @@ export const STOP_ANIMATION_ACTION = "stopAnimation";
 export const CHANGE_PROPERTY_ACTION = 'changeProperty';
 export const EXECUTE_SCRIPT_ACTION = 'executeScript';
 
-export const MOUSE_OUT_EVT_TYPE = 'mouseout';
-export const MOUSE_MOVE_EVT_TYPE = 'mouseover';
+export const MOUSE_LEAVE_EVT_TYPE = 'mouseleave';
+export const MOUSE_ENTER_EVT_TYPE = 'mouseenter';
 export const MOUSE_CLICK_EVT_TYPE = 'click';
+export const MOUSE_DBL_CLICK_EVT_TYPE = 'dblclick';
 export const VALUE_UPDATE_EVT_TYPE = 'valueUpdate';
 
 
@@ -44,7 +45,7 @@ export const GRAPH_EDITOR_INFO = "GraphEditor info ";
 
 
 const supportAnimation = [BLINK, ROTATE_BY_CENTER, FLOW,NONE];
-const supportEventType = [MOUSE_CLICK_EVT_TYPE, MOUSE_OUT_EVT_TYPE, MOUSE_MOVE_EVT_TYPE, VALUE_UPDATE_EVT_TYPE];
+const supportEventType = [MOUSE_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE,MOUSE_DBL_CLICK_EVT_TYPE, VALUE_UPDATE_EVT_TYPE];
 const supportEventAction = [EXECUTE_ANIMATION_ACTION, STOP_ANIMATION_ACTION, CHANGE_PROPERTY_ACTION, EXECUTE_SCRIPT_ACTION];
 const animationToDefaultPeriod: any = {
     'blink': 1,
