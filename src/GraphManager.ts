@@ -96,15 +96,15 @@ export abstract class GraphManager {
                 this.stage.setAttr('height', this.height * scale);
             }
         }
-        this.dataModel?.getNodes().forEach((node:any)=>{
-             node.updateRefAnimation("scaleChange");
+        this.dataModel?.getNodes().forEach((node: any) => {
+            node.updateRefAnimation("scaleChange");
         });
     }
 
     /**
      * 获取当前画布的显示比例
      */
-    getScale(){
+    getScale() {
         return this.stage?.getAttr('scaleX');
     }
 
@@ -160,14 +160,25 @@ export abstract class GraphManager {
         this.dataModel?.destroy();
         delete this.dataModel;
     }
+
+    /**
+  * 获取画布上所有的节点
+  */
+    getNodes() {
+        let nodes: any = [];
+        this.dataModel?.getNodes().forEach((element: any) => {
+            nodes.push(element.toObject());
+        });
+        return nodes;
+    }
     setNodesAttributes(nodes: Array<Node>, attrValues: any, toHistory: boolean = true) {
         let undoRedoManager = this.dataModel?.getUndoRedoManager();
         if (attrValues.hasOwnProperty('rotation')) {
             //如果是手动修改rotation，则需要改变x,y
             nodes.forEach((node) => {
                 let attrs = node.getRef().getClientRect();
-                attrs.rotation=0;
-                let diff=attrValues['rotation']-node.getRef().getAttr('rotation');
+                attrs.rotation = 0;
+                let diff = attrValues['rotation'] - node.getRef().getAttr('rotation');
                 let rad = Utils.getRad(diff);
                 const shape = Utils.rotateAroundCenter(attrs, rad);
                 Utils.fitNodesInto(node.getRef(), attrs, shape);

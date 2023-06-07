@@ -142,7 +142,7 @@ export default class GraphViewer extends GraphManager {
       * @param node 
       * @returns 
       */
-    getVariableJson(variables: any) {
+    private getVariableJson(variables: any) {
         let variableJson: any = {};
         for (let key in variables) {
             variableJson[key] = variables[key].defaultVal;
@@ -154,7 +154,7 @@ export default class GraphViewer extends GraphManager {
      * @param where 条件
      * @returns 
      */
-    getFnByWhere(where: any) {
+    private getFnByWhere(where: any) {
         let type = where.type;
         let fn;
         switch (type) {
@@ -178,7 +178,7 @@ export default class GraphViewer extends GraphManager {
      * @param comparison 运算符号
      * @param value 值
      */
-    getCompStr(key: string, comparison: string, value: any) {
+    private getCompStr(key: string, comparison: string, value: any) {
         let compStr;
         switch (comparison) {
             case "=":
@@ -207,7 +207,7 @@ export default class GraphViewer extends GraphManager {
     * 启动动画
     * @param tween 动画对象
     */
-    executeTween(tween: any) {
+    private executeTween(tween: any) {
         if (tween.node) {
             tween?.play();
         } else {
@@ -220,7 +220,7 @@ export default class GraphViewer extends GraphManager {
      * 停止动画
      * @param tween 动画对象
      */
-    stopTween(tween: any) {
+    private stopTween(tween: any) {
         if (tween.node) {
             tween?.reset();
         } else {
@@ -240,15 +240,15 @@ export default class GraphViewer extends GraphManager {
   * 设置节点的属性
   * @param attrValues 
   */
-    setAttribute(node: any, attrValues: any) {
+    private setAttribute(node: any, attrValues: any) {
         this.setNodesAttributes([node], attrValues, false);
     }
-    setNodeAttribute(node: any, proName: string, proValue: any) {
+    private setNodeAttribute(node: any, proName: string, proValue: any) {
         let jsonObj: any = {};
         jsonObj[proName] = proValue;
         this.setAttribute(node, jsonObj);
     }
-    operateNodeByAction(event: any, node: any, isSuccess: boolean, variableJson: any) {
+    private operateNodeByAction(event: any, node: any, isSuccess: boolean, variableJson: any) {
         //如果条件成立，则执行事件
         let action = event.action;
         //如果事件类型是值变化
@@ -301,11 +301,12 @@ export default class GraphViewer extends GraphManager {
 
     }
 
-    changeNodeByEventOnce(node: any, variableJson: any, ownVariable: boolean) {
+    private changeNodeByEventOnce(node: any, variableJson: any, ownVariable: boolean) {
         let _this = this;
-        if (ownVariable) {
-            variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
-        }
+        //是不是可以不用
+        // if (ownVariable) {
+        //     variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
+        // }
         let events = node.getEvents();
         events.forEach((event: any) => {
             //查找条件
@@ -336,7 +337,7 @@ export default class GraphViewer extends GraphManager {
      * @param variableJson 节点变化依据的变量数据
      * @param ownVariable 是否使用自身的变量，对于组元素，子孙节点使用自身的变量，对于图元元素，子孙节点使用图元的变量
      */
-    changeNodeByEvent(node: any, variableJson: any, ownVariable: boolean) {
+    private changeNodeByEvent(node: any, variableJson: any, ownVariable: boolean) {
         let _this = this;
         let clName = node.getClassName();
         //先要执行元素上本身的事件，然后到递归子元素，响应子元素事件,如果没有这个操作，则ContainerNode的事件不会响应
@@ -349,7 +350,12 @@ export default class GraphViewer extends GraphManager {
             });
         } else if (clName == 'SymbolNode') {
             //如果节点类型为Symbol，则此时要获取一下SymbolNode的变量作为参数
-            variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
+            if(realTimeVariableJson.hasOwnProperty(node.getId())){
+                variableJson=realTimeVariableJson[node.getId()];
+            }else{
+                variableJson=this.getVariableJson(Utils.deepCopy(node.getVariables()));
+            }
+            //variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             let symbolMembers = node.getMembers() ? node.getMembers() : [];
             symbolMembers.forEach((element: any) => {
                 //使用图元的变量，无论是图元中的任何元素（基础图形或组）都以图元变量为准，自己的变量将不生效
@@ -359,35 +365,49 @@ export default class GraphViewer extends GraphManager {
     }
 
 
-    /**
-     * 预览
-     * @remarks
-     * 
-     * @returns 
-     *
-     * @beta
-     */
-    refreshGraph() {
+   /**
+    * 刷新图形
+    * @param realTimeVariableJson 传入的变量值JSON对象，如没有，则运行态变量取值为defaultValue的值
+    * @example
+    * viewer.refreshGraph({
+    *    nodeId:{
+    *       state1:4,
+    *       state2:5
+    *    },
+    *    nodeId:{
+    *       temperature:36,
+    *       humidity:0.3
+    *    }
+    * })
+    */
+    refreshGraph(realTimeVariableJson?:any) {
+        this.realTimeVariableJson=realTimeVariableJson;
         if (this.dataModel) {
             if (this.firstPreview) {
                 this.parseMouseEventNode();
                 this.firstPreview = false;
             }
             this.dataModel.nodes.forEach((node: any) => {
-                let variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
+                let variableJson={};
+                if(realTimeVariableJson.hasOwnProperty(node.getId())){
+                    variableJson=realTimeVariableJson[node.getId()];
+                }else{
+                    variableJson=this.getVariableJson(Utils.deepCopy(node.getVariables()));
+                }
+               
                 this.changeNodeByEvent(node, variableJson, true);
             })
         }
 
     }
-    isMouseEvent(type: string) {
+    private isMouseEvent(type: string) {
         if (type == MOUSE_CLICK_EVT_TYPE || type == MOUSE_MOVE_EVT_TYPE || type == MOUSE_OUT_EVT_TYPE) {
             return true;
         } else {
             return false;
         }
     }
-    bindEventToNode(node: any) {
+    private bindEventToNode(node: any) {
         let _this = this;
         let events = node.getEvents();
         events.forEach((event: any) => {
@@ -409,7 +429,7 @@ export default class GraphViewer extends GraphManager {
      * 绑定事件到具体的节点上
      * @param node 需要绑定事件的节点
      */
-    bindMouseEventToNode(node: any) {
+    private bindMouseEventToNode(node: any) {
         this.bindEventToNode(node);
         if (node instanceof ContainerNode) {
             let members = node.getMembers();
@@ -426,7 +446,7 @@ export default class GraphViewer extends GraphManager {
     /**
      * 解析模型中的鼠标事件绑定
      */
-    parseMouseEventNode() {
+    private parseMouseEventNode() {
         let _this = this;
         this.dataModel.nodes.forEach((node: any) => {
             _this.bindMouseEventToNode(node);

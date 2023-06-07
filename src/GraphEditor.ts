@@ -1313,16 +1313,7 @@ export default class GraphEditor extends GraphManager {
         return this.isSquare;
     }
 
-    /**
-     * 获取画布上所有的节点
-     */
-    getNodes() {
-        let nodes: any = [];
-        this.dataModel.getNodes().forEach((element: any) => {
-            nodes.push(element.toObject());
-        });
-        return nodes;
-    }
+ 
 
     /**
      * 选中画布上所有节点
