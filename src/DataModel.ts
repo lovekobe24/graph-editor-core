@@ -235,11 +235,21 @@ export class DataModel extends TemcEventSource {
     }
 
     clear() {
+        
         for (let i = this.nodes.length - 1; i >= 0; i--) {
             let node = this.nodes[i];
             node.destroy();
         }
         this.selectionManager.setSelection([], true)
+    }
+    /**
+     * 销毁所有节点
+     */
+    destroy(){
+        for (let i = this.nodes.length - 1; i >= 0; i--) {
+            let node = this.nodes[i];
+            node.destroy();
+        }
     }
 
 

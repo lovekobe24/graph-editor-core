@@ -404,16 +404,20 @@ export abstract class Node {
         let index = this.getZIndex();
         if (index !== -1) {
             this.dataModel.nodes.splice(index, 1);
-            if (this.ref !== null) this.ref.remove();
             if (this.ref) this.destroyAnimation()
+            if (this.ref !== null) this.ref.remove();
+           
         }
     }
+    /**
+     * 销毁节点
+     */
     destroy() {
         let index = this.getZIndex();
         if (index !== -1) {
             this.dataModel.nodes.splice(index, 1);
-            if (this.ref !== null) this.ref.destroy();
             this.destroyAnimation();
+            if (this.ref !== null) this.ref.destroy();
         }
     }
 

@@ -207,6 +207,7 @@ const fitNodesInto = (node:Konva.Node, oldAttrs:any, newAttrs:any) => {
     // [delta transform] = [new transform] * [old transform inverted]
     const delta = newTr.multiply(oldTr.invert());
 
+
     const parentTransform = node.getParent().getAbsoluteTransform();
     // console.log(parentTransform.m);
     // console.log('roateTransform',parentTransform.getTranslation());

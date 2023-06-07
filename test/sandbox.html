@@ -255,7 +255,7 @@
       // });
     })
     document.getElementById("clear").addEventListener('click', () => {
-      graphEditor.destroy();
+      graphEditor.clear();
     })
 
 
@@ -274,6 +274,7 @@
 
       if (target.innerHTML == '预览') {
         let currentGraph = graphEditor.toJSON();
+      
         let scale = graphEditor.getScale();
         graphEditor.destroy();
         graphView = new GraphViewer(
@@ -284,7 +285,7 @@
         );
         graphView.setScale(scale);
         //   graphView.setGraph(currentGraph);
-        graphView.refreshGraph();
+      //  graphView.refreshGraph();
         target.innerHTML = '退出预览'
       } else {
         let currentGraph = graphView.config.graph;
@@ -307,7 +308,20 @@
 
     }
     let existGraph = localStorage.getItem('graph');
-    let graphEditor = new GraphEditor(
+    let graphEditor;
+    const initGraphViewer=()=>{
+      console.log(existGraph);
+      graphView = new GraphViewer(
+          {
+            container: document.getElementById('editor'),
+            graph: existGraph,
+          }
+        );
+        graphView.setScale(1.2);
+        graphView.refreshGraph()
+    }
+    const initGraphEditor=()=>{
+      graphEditor= new GraphEditor(
       {
         container: document.getElementById('editor'),
         // graph: existGraph,
@@ -505,8 +519,8 @@
    
 
     graphEditor.getAnimation();
-
-    for (let i = 0; i <= graphEditor.getNodes().length; i++) {
+    let length=graphEditor.getNodes().length;
+    for (let i = 0; i <= 1; i++) {
       graphEditor.setAnimationValue('autoPlay', true, ids[i]);
       graphEditor.setAnimation({
         'type': 'rotateByCenter',
@@ -514,14 +528,14 @@
       }, ids[i]);
     }
 
-    console.log(graphEditor.getAnimationValue('type', ids[6]));
+
     //graphEditor.setAnimationValue('type', 'none', ids[0]);
 
-    let groupArray = new Array(ids[2], ids[0]);
+    // let groupArray = new Array(ids[2], ids[0]);
 
-    let groupNode=graphEditor.group(groupArray);
-    console.log(graphEditor.getNodes());
-    graphEditor.setAttributeValue('rotation',60, groupNode.id)
+    // let groupNode=graphEditor.group(groupArray);
+    // console.log(graphEditor.getNodes());
+    // graphEditor.setAttributeValue('rotation',60, groupNode.id)
    
     // graphEditor.setAnimation({
     //     'type': 'rotateByCenter',
@@ -615,6 +629,9 @@
         console.log("节点的属性变化了", event.getProperty('tag'));
       }
     });
+    }
+    
+
     const getColorDiv = (proName, value) => {
       let compDiv = document.createElement('div');
       compDiv.style.display = 'flex';
@@ -698,6 +715,8 @@
 
 
     }
+    initGraphEditor()
+   // initGraphViewer()
   </script>
 </body>
 
