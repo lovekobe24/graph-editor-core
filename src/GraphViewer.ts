@@ -2,7 +2,7 @@
 import Konva from "konva";
 
 import EVENT_TYPE from './constants/EventType';
-import { COMPARISON, CUSTOM_SCRIPT, EXECUTE_ANIMATION_ACTION, EXECUTE_SCRIPT_ACTION, FN_JS, STOP_ANIMATION_ACTION, MOUSE_MOVE_EVT_TYPE, MOUSE_CLICK_EVT_TYPE, CHANGE_PROPERTY_ACTION, MOUSE_OUT_EVT_TYPE, GRAPH_EDITOR_WARNING } from './constants/TemcConstants';
+import { COMPARISON, CUSTOM_SCRIPT, EXECUTE_ANIMATION_ACTION, EXECUTE_SCRIPT_ACTION, FN_JS, STOP_ANIMATION_ACTION,MOUSE_CLICK_EVT_TYPE, CHANGE_PROPERTY_ACTION, MOUSE_OUT_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE } from './constants/TemcConstants';
 import { DataModel } from './DataModel';
 import { ContainerNode, ContainerNodeAttrs } from './model/ContainerNode';
 
@@ -291,7 +291,8 @@ export default class GraphViewer extends GraphManager {
                 }
                 break;
             case EXECUTE_SCRIPT_ACTION:
-                let val = event['value'];
+                //为防止混淆，将原来的脚本的值改为fnjs
+                let val = event['fnjs'];
 
                 //执行脚本需要传递node和data两个参数
                 let executeFn = new Function('node', 'data', 'viewer', val);
@@ -401,7 +402,7 @@ export default class GraphViewer extends GraphManager {
 
     }
     private isMouseEvent(type: string) {
-        if (type == MOUSE_CLICK_EVT_TYPE || type == MOUSE_MOVE_EVT_TYPE || type == MOUSE_OUT_EVT_TYPE) {
+        if (type == MOUSE_CLICK_EVT_TYPE || type == MOUSE_ENTER_EVT_TYPE || type == MOUSE_LEAVE_EVT_TYPE ||type ==MOUSE_DBL_CLICK_EVT_TYPE) {
             return true;
         } else {
             return false;

@@ -16,6 +16,7 @@ export class RectNode extends ShapeNode {
 
     createRef() {
         let konvaNode = new Konva.Rect();
+        console.log("createRef",this.id)
         konvaNode.id(this.id);
         this.ref = konvaNode;
     }

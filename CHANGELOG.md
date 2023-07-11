@@ -1,3 +1,15 @@
+## 1.0.42  2023-06-13
+### Fixed 
+1 将保存变量saveVariable拆分为addVariable和updateVariable方法
+
+## 1.0.41  2023-06-12
+### Fixed 
+1 事件中改变属性和执行脚本用不同的属性来表示，执行脚本用fnJs来存储
+
+## 1.0.40  2023-06-12
+### Added 
+1 解决某些情况下，updateEvent导致的value为空的问题
+
 ## 1.0.39  2023-06-07
 ### Added 
 1 GraphViewer中的refreshGraph添加传参设置

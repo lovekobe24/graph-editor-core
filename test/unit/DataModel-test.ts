@@ -79,10 +79,10 @@ describe('DataModel', function () {
   })
   it('unGroup', function () {
     let nodes = editor?.getDataModel()?.getNodes();
-    if(nodes?.length){
+    if (nodes?.length) {
       editor?.getDataModel()?.unGroup([nodes[0]]);
     }
-  
+
     assert.equal(nodes?.length, 2);
   })
   it('saveVariable', function () {
@@ -113,7 +113,7 @@ describe('DataModel', function () {
     assert.equal(rectNode.getAttributeValue('fill'), 'yellow');
   })
   it('addEvent', function () {
-    editor?.getDataModel()?.addEvent(rectNode,{
+    editor?.getDataModel()?.addEvent(rectNode, {
       type: 'valueUpdate',
       action: 'changeProperty',
       value: [],
@@ -124,20 +124,22 @@ describe('DataModel', function () {
     assert.equal(rectNode.getEvents()[0].type, 'valueUpdate');
   })
   it('updateEvent', function () {
-    editor?.getDataModel()?.updateEvent(rectNode,{
+    editor?.getDataModel()?.updateEvent(rectNode, {
       value: [
-        {'fill':'red'},
-        {'fill':'black'}
+        {
+          name: 'fill',
+          val: 'red'
+        }
       ],
-    },0);
+    }, 0);
     assert.equal(rectNode.getEvents()[0].value.length, 2);
   })
   it('deleteEvent', function () {
-    editor?.getDataModel()?.deleteEvent(rectNode,0);
+    editor?.getDataModel()?.deleteEvent(rectNode, 0);
     assert.equal(rectNode.getEvents().length, 0);
   })
   it('setNodeTag', function () {
-    editor?.getDataModel()?.setNodeTag(rectNode,"矩形");
+    editor?.getDataModel()?.setNodeTag(rectNode, "矩形");
     assert.equal(rectNode.getTag(), "矩形");
   })
 })

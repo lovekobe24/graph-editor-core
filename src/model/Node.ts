@@ -32,7 +32,7 @@ export abstract class Node {
     events: any = [];
     animation: any = {
         'type': 'none',
-        'autoPlay':false
+        'autoPlay': false
     };
     animationObj: any = {};
     ref: any = null;
@@ -130,12 +130,12 @@ export abstract class Node {
             this.updateRefAttrs(_attrValues);
         }
     }
- 
+
     updateRefAttrs(attrValues: any) {
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
             //如果有动画是正在执行的，则要重新生成动画
-            let shouldUpdateAnimation=Utils.getShouldUpdateAnimation(attrValues);
+            let shouldUpdateAnimation = Utils.getShouldUpdateAnimation(attrValues);
             let autoPlay = this.getAnimationValue('autoPlay');
             if (autoPlay && shouldUpdateAnimation) {
                 this.updateRefAnimation("updateRefAttrs");
@@ -170,15 +170,15 @@ export abstract class Node {
                 tween.destroy();
             } else {
                 tween.stop();
-                let updateAttr:any={};
-                let nodeAttrValues=this.getAttributeValues();
-              
-                for(let key in nodeAttrValues){
-                    if(RESIZE_STYLE.indexOf(key)!=-1){
-                        updateAttr[key]=nodeAttrValues[key];
+                let updateAttr: any = {};
+                let nodeAttrValues = this.getAttributeValues();
+
+                for (let key in nodeAttrValues) {
+                    if (RESIZE_STYLE.indexOf(key) != -1) {
+                        updateAttr[key] = nodeAttrValues[key];
                     }
                 }
-               //手动设置konva节点到原来的状态
+                //手动设置konva节点到原来的状态
                 this.ref.setAttrs(updateAttr);
             }
         }
@@ -186,7 +186,7 @@ export abstract class Node {
     /**
      * 更新konva节点的动画
      */
-    updateRefAnimation(reason:string) {
+    updateRefAnimation(reason: string) {
         let type = this.animation.type;
         if (type) {
             if (type == 'none') {
@@ -228,11 +228,52 @@ export abstract class Node {
                     console.warn(GRAPH_EDITOR_WARNING + "已经有此变量名称存在，添加变量失败");
                 } else {
                     this.variables[name] = variable;
-                    this.dataModel.fireEvent(new EventObject(EVENT_TYPE.NODE_VARIABLE_CHANGE, 'type', 'add', 'variable', variable, 'name', name), null);
+
                 }
             }
         }
     }
+
+    /**
+     * 修改节点的指定变量
+     * @param name 变量名称
+     * @param variable 变量值
+     * @param oldName 要修改的变量名称，如果只修改变量值，则此处可以省略
+     */
+    updateVariable(name: string, variable: any, oldName?: string) {
+
+        if (oldName) {
+            delete this.variables[oldName]
+            this.variables[name] = variable;
+            this.dataModel.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'update', 'variable', variable, 'name', name, 'oldName', oldName), null);
+        } else {
+            //如果没有原来的名字
+            if (this.variables.hasOwnProperty(name)) {
+                this.variables[name] = Utils.combine(this.variables[name], variable);
+            } else {
+                console.warn(GRAPH_EDITOR_WARNING + "未找到该变量，更新变量失败");
+            }
+
+        }
+    }
+
+    /**
+     * 为节点添加变量
+     * @param name 变量名称
+     * @param variable 变量值
+     */
+    addVariable(name: string, variable: any) {
+        if (this.variables.hasOwnProperty(name)) {
+            console.warn(GRAPH_EDITOR_WARNING + "已经有此变量名称存在，添加变量失败");
+        } else {
+            let emptyVariable = {};
+            this.variables[name] = variable ? variable : emptyVariable;
+            this.dataModel.fireEvent(new EventObject(EVENT_TYPE.NODE_VARIABLE_CHANGE, 'type', 'add', 'variable', variable, 'name', name), null);
+        }
+
+    }
+
+
 
     /*
        删除指定名称的变量对象
@@ -302,14 +343,6 @@ export abstract class Node {
     * @param evtIndex 事件的索引
     */
     updateEvent(event: any, evtIndex: number) {
-        for (let key in event) {
-            let val = event[key];
-            if (val == EXECUTE_SCRIPT_ACTION) {
-                event['value'] = '';
-            } else if (val == 'changeProperty') {
-                event['value'] = [];
-            }
-        }
         this.events[evtIndex] = Utils.combine(this.events[evtIndex], event);
     }
 
@@ -406,7 +439,7 @@ export abstract class Node {
             this.dataModel.nodes.splice(index, 1);
             if (this.ref) this.destroyAnimation()
             if (this.ref !== null) this.ref.remove();
-           
+
         }
     }
     /**
@@ -422,6 +455,7 @@ export abstract class Node {
     }
 
     fromObject(obj: any) {
+        console.log("fromObject", obj);
 
         let id, tag, attributes, animation, variables, events;
         if (obj instanceof Array) {

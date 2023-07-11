@@ -544,21 +544,23 @@
       graphEditor.setBackgroundColor("#00ff00");
 
       // //添加变量
-      graphEditor.saveVariable('state', {
+      graphEditor.addVariable('state', {
         type: 'integer',
         defaultVal: 1
-      }, false, null, ids[0]);
-      graphEditor.saveVariable('变量3', {
+      }, false,ids[0]);
+    
+      graphEditor.addVariable('变量3', {
         type: 'integer',
         defaultVal: 0
-      }, false, null, ids[0]);
+      }, false);
+      console.log(graphEditor.getVariables());
       //修改变量
-      graphEditor.saveVariable('变量2', {
-        type: 'integer',
-        defaultVal: 0
-      }, false, '变量3', ids[0]);
-
-      graphEditor.deleteVariable('变量2', false, ids[0]);
+      graphEditor.updateVariable('变量3', {
+        type: 'string',
+        defaultVal: 6
+      }, false);
+      console.log(graphEditor.getVariables());
+    //  graphEditor.deleteVariable('变量2', false, ids[0]);
 
       // //设置属性
       graphEditor.setAttributeValues({
@@ -579,13 +581,13 @@
 
       graphEditor.getAnimation();
       let length = graphEditor.getNodes().length;
-      for (let i = 0; i <= 1; i++) {
-        graphEditor.setAnimationValue('autoPlay', true, ids[i]);
-        graphEditor.setAnimation({
-          'type': 'rotateByCenter',
-          'period': 2
-        }, ids[i]);
-      }
+      // for (let i = 0; i <= 1; i++) {
+      //   graphEditor.setAnimationValue('autoPlay', true, ids[i]);
+      //   graphEditor.setAnimation({
+      //     'type': 'rotateByCenter',
+      //     'period': 2
+      //   }, ids[i]);
+      // }
 
 
       //graphEditor.setAnimationValue('type', 'none', ids[0]);
@@ -623,6 +625,11 @@
         }
       }, ids[0])
       graphEditor.addEvent({
+        type: 'click',
+        action: 'executeScript',
+        fnjs: 'console.log("world,balalabalabanabbl")'
+      }, ids[0])
+      graphEditor.addEvent({
         type: 'valueUpdate',
         action: 'changeProperty',
         value: [{
@@ -635,6 +642,7 @@
           comparison: "!="
         }
       }, ids[0])
+     // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
       //点击启动动画
       // graphEditor.addEvent({
       //   type: 'click',
@@ -787,8 +795,8 @@
 
 
     }
-    initGraphEditor()
-   // initGraphViewer()
+   initGraphEditor()
+  // initGraphViewer()
   </script>
 </body>
 

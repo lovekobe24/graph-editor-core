@@ -1157,37 +1157,64 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
-     * 设置变量
+     * 添加变量
      * @param name 变量名称
      * @param variable 变量对象
      * @param toModel 是否为整个数据模型设置变量，为true，则变量绑定到整个模型，为false则将变量绑定到当前选中节点
-     * @param oldVariableName 旧的变量名称，如果存在，则更新变量，否则添加变量
      * @example
      * var variable =
      * {
      *    defaultVal:'变量默认值',//必填
      *    type:'integer'//可选
      * };
-     * graphEditor.saveVariable('变量1',variable,false)
+     * graphEditor.addVariable('变量1',variable,false)
      */
-    saveVariable(name: string, variable: any, toModel: boolean = false, oldVariableName?: string, nodeId?: string) {
+     addVariable(name: string, variable: any, toModel: boolean = false,nodeId?: string) {
         if (toModel) {
-            this.dataModel.saveVariable(name, variable, oldVariableName);
+            this.dataModel.addVariable(name, variable);
         } else {
             let operateNode = this.getOperateNode(nodeId);
             if (operateNode) {
-                operateNode.saveVariable(name, variable, oldVariableName);
+                operateNode.addVariable(name, variable);
             } else {
                 console.log(GRAPH_EDITOR_WARNING + '未找到设置变量的节点');
             }
         }
     }
     /**
+     * 更新变量
+     * @param name 新的变量名称
+     * @param variable 变量值
+     * @param toModel 是否为整个数据模型设置变量，为true，则变量绑定到整个模型，为false则将变量绑定到当前选中节点
+     * @param oldVariableName 原来的变量名称
+     * @param nodeId 需要更新变量的节点
+     * @example
+     *  graphEditor.updateVariable('变量2', {
+     *      type: 'string',
+     *      defaultVal: 6
+     *   }, false,'变量3');
+     * 
+     */
+    updateVariable(name: string, variable: any, toModel: boolean = false, oldVariableName?: string, nodeId?: string) {
+        if (toModel) {
+            this.dataModel.updateVariable(name, variable, oldVariableName);
+        } else {
+            let operateNode = this.getOperateNode(nodeId);
+            if (operateNode) {
+                operateNode.updateVariable(name, variable, oldVariableName);
+            } else {
+                console.log(GRAPH_EDITOR_WARNING + '未找到设置变量的节点');
+            }
+        }
+    }
+
+    /**
      * 获取节点所有的变量
      * @param nodeId 
      */
     getVariables(nodeId?: string){
         let operateNode = this.getOperateNode(nodeId);
+        console.log(this.dataModel.getSelectionManager().getSelection());
         if(operateNode){
             return JSON.parse(JSON.stringify(operateNode.getVariables()));
         }
@@ -1559,17 +1586,27 @@ export default class GraphEditor extends GraphManager {
      * @example
      *  graphEditor.addEvent({
      *   type:'valueUpdate',
-     *  action:'changeProperty',
-     *  value:[{
-     *    'fill':'green'
-     *   }],
-     *  where:{
-     *    type:'comparison',
-     *   value: 1,
-     *    key: "变量2",
-     *   comparison: "="
-     * }
+     *   action:'changeProperty',
+     *   value:[{
+     *     name:'fill'
+     *     val:'green'
+     *    }],
+     *   where:{
+     *      type:'comparison',
+     *      value: 1,
+     *      key: "变量2",
+     *      comparison: "="
+     *   }
      *  },nodeId)
+     *  graphEditor.addEvent({
+     *     type:'valueUpdate',
+     *     action:'executeScript',
+     *     fnjs: 'console.log("world")',
+     *     where:{
+     *        fnjs:'return data.state==1',
+     *        type:'customScript'
+     *     }
+     *  })  
      */
     addEvent(event: Event, nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);

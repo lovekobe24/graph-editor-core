@@ -101,7 +101,7 @@ describe('GraphEditor', function () {
   })
   it('onModelChanged', function () {
     editor.onModelChanged(function (sender, event) {
-      console.log("onModelChanged", event);
+      //console.log("onModelChanged", event);
     });
   })
   it('group', function () {
@@ -136,15 +136,35 @@ describe('GraphEditor', function () {
     },ids[0]);
     assert.equal(editor.getNodes()[0].events[0].action, 'changeProperty');
   })
+  // it('addEvent', function () {
+  //   let ids= editor.getNodes().map(item =>item.id);
+  //   editor.addEvent({
+  //     type:'valueUpdate',
+  //     action:'executeScript',
+  //     fnjs: 'console.log("world")',
+  //     where: {
+  //       type: 'none'
+  //     }
+  //   },ids[0]);
+  //   assert.equal(editor.getNodes()[0].events[0].action, 'changeProperty');
+  // })
   it('updateEvent', function () {
     let ids= editor.getNodes().map(item =>item.id);
     editor.updateEvent({
+      type: 'valueUpdate',
+      action: 'changeProperty',
       value: [
-        {'fill':'red'},
-        {'fill':'black'}
+        {name:'x',val:'23'}
       ],
+      where: {
+        type:"comparison",
+        key:"变量1",
+        comparison:"=",
+        value:1
+      }
     },0,ids[0]);
-    assert.equal(editor.getNodes()[0].events[0].value.length, 2);
+    console.log("event is",editor.getNodes()[0].events[0]);
+    assert.equal(editor.getNodes()[0].events[0].value.length, 1);
   })
   it('deleteEvent', function () {
     let ids= editor.getNodes().map(item =>item.id);
@@ -153,11 +173,11 @@ describe('GraphEditor', function () {
   })
   it('toJSON', function () {
     let jsonStr=editor.toJSON();
-    console.log(jsonStr);
+    //console.log(jsonStr);
   })
   it('setAnimation', function () {
     let ids= editor.getNodes().map(item =>item.id);
-    console.log(ids);
+    //console.log(ids);
     editor.setAnimation({
       type:'blink',
       autoPlay:true
