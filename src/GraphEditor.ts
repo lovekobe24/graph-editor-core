@@ -374,7 +374,6 @@ export default class GraphEditor extends GraphManager {
      */
     private initNodeMove() {
         this.transformer.on('dragstart', (e: any) => {
-
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             (function loop(nodes) {
                 for (let node of nodes) {
@@ -1051,7 +1050,8 @@ export default class GraphEditor extends GraphManager {
         let shape = this.getShapeModule(shapeName);
         if (shape) {
             this.drawingShape = shape;
-            this.currentMode = DRAWING_MODE;
+            this.setMode(DRAWING_MODE);
+           
         }
 
     }
@@ -1081,6 +1081,11 @@ export default class GraphEditor extends GraphManager {
      */
     private setMode(mode: string) {
         this.currentMode = mode;
+        if(mode==DRAWING_MODE){
+           this.nodeLayer.listening(false)
+        }else{
+            this.nodeLayer.listening(true)
+        }
     }
 
 
