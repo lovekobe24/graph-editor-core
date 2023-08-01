@@ -9,8 +9,12 @@ class LineShape extends BaseLineShape {
     }
 
     createElement(firstPoint: any, point: any, graphEditor: any) {
+        if (firstPoint.x == point.x && firstPoint.y == point.y) {
+            return
+        }
         let lineNode: any = new LineNode();
         let defaultStyleConfig = graphEditor.getConfig().style;
+
         let lineStyle = {
             'x': 0,
             'y': 0,
@@ -22,6 +26,8 @@ class LineShape extends BaseLineShape {
         let style = { ...lineStyle, ...defaultStyleConfig };
         lineNode.setAttributeValues(style);
         return lineNode;
+
+
     }
 
 }

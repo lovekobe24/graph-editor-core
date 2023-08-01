@@ -50,7 +50,10 @@ abstract class BaseLineShape extends AbstractShape {
                     }
                     let node = this.createElement(this.firstPoint, point, graphEditor);
                     this.tempLine.destroy();
-                    this.insertShapeElement(graphEditor.getDataModel(), node);
+                    if(node){
+                        this.insertShapeElement(graphEditor.getDataModel(), node);
+                    }
+                   
                 }
                 if (this.tempLine) {
                     this.tempLine.destroy();
