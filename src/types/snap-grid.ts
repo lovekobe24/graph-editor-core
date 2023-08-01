@@ -1,7 +1,7 @@
 export type Orientation = 'vertical' | 'horizontal'
 export type Snap = 'start' | 'end' | 'center'
 
-export type LineStops = Record<Orientation, number[]>
+export type LineStops = Record<Orientation, number[]> | null
 
 export interface NodeEdgeBound {
   guide: number

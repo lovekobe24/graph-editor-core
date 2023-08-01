@@ -366,17 +366,15 @@ export default class GraphEditor extends GraphManager {
                 for (let node of nodes) {
                     node.getRef().stopDrag();
                      let className=node.getClassName();
-
+                     let autoPlay = node.getAnimationValue('autoPlay');
+                     if (autoPlay) {
+                         //如果正在播放动画，在移动过程中要将动画暂停,否则会引起坐标的混乱
+                         if (node.getAnimationObj().obj) {
+                             node.destroyAnimation(true);
+                         }
+                     }
                     if (className === 'GroupNode') {
                         loop(node.getMembers());
-                    }else{
-                        let autoPlay = node.getAnimationValue('autoPlay');
-                        if (autoPlay) {
-                            //如果正在播放动画，在移动过程中要将动画暂停
-                            if (node.getAnimationObj().obj) {
-                                node.destroyAnimation(true);
-                            }
-                        }
                     }
                     node.getRef().startDrag();
                 }

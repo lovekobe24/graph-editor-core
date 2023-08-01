@@ -26,6 +26,7 @@ export class SnapGrid {
   private options?: Nullable<Konva.LineConfig> = {}
   private active = false
   stage: any
+  private lineGuideStops: LineStops;
 
   /**
    * 构造函数
@@ -50,15 +51,16 @@ export class SnapGrid {
   /**
    * Creates list of line stops to find guide lines
    *
-   * @param node the dragging node
+   * @param konvaNode the dragging node
    * @returns the list of line stops
    */
-  private getLineGuideStops(node: Konva.Shape): LineStops {
+  private getLineGuideStops(konvaNode: Konva.Shape): LineStops {
     var vertical = [0, this.stage.width() / 2, this.stage.width()];
     var horizontal = [0, this.stage.height() / 2, this.stage.height()];
 
     this.editor.getDataModel()?.getNodes().forEach((shape: any) => {
-      if (shape.getRef() === node) {
+
+      if (shape.getRef() === konvaNode) {
         return
       }
 
@@ -80,7 +82,6 @@ export class SnapGrid {
   private getObjectSnappingEdges(node: any) {
     var box = node.getClientRect();
     var absPos = node.absolutePosition();
-
     return {
       vertical: [
         {
@@ -126,12 +127,12 @@ export class SnapGrid {
    * @param nodeEdgeBounds the node edge bounds
    * @returns the list of guide lines
    */
-  private getGuides(lineGuideStops:any, itemBounds:any):GuideLine[] {
-    var resultV:any= [];
-    var resultH:any = [];
+  private getGuides(lineGuideStops: any, itemBounds: any): GuideLine[] {
+    var resultV: any = [];
+    var resultH: any = [];
 
-    lineGuideStops.vertical.forEach((lineGuide:number) => {
-      itemBounds.vertical.forEach((itemBound:any) => {
+    lineGuideStops.vertical.forEach((lineGuide: number) => {
+      itemBounds.vertical.forEach((itemBound: any) => {
         var diff = Math.abs(lineGuide - itemBound.guide);
         // if the distance between guild line and object snap point is close we can consider this for snapping
         if (diff < this.GUIDELINE_OFFSET) {
@@ -145,8 +146,8 @@ export class SnapGrid {
       });
     });
 
-    lineGuideStops.horizontal.forEach((lineGuide:number) => {
-      itemBounds.horizontal.forEach((itemBound:any) => {
+    lineGuideStops.horizontal.forEach((lineGuide: number) => {
+      itemBounds.horizontal.forEach((itemBound: any) => {
         var diff = Math.abs(lineGuide - itemBound.guide);
         if (diff < this.GUIDELINE_OFFSET) {
           resultH.push({
@@ -159,11 +160,11 @@ export class SnapGrid {
       });
     });
 
-    var guides:GuideLine[] = [];
+    var guides: GuideLine[] = [];
 
     // find closest snap
-    var minV = resultV.sort((a:any, b:any) => a.diff - b.diff)[0];
-    var minH = resultH.sort((a:any, b:any) => a.diff - b.diff)[0];
+    var minV = resultV.sort((a: any, b: any) => a.diff - b.diff)[0];
+    var minH = resultH.sort((a: any, b: any) => a.diff - b.diff)[0];
     if (minV) {
       guides.push({
         stop: minV.lineGuide,
@@ -208,17 +209,23 @@ export class SnapGrid {
       }
 
       const line = new Konva.Line(options)
-
+      //考虑line受stage的transform的影响
+      const stageTransform = this.stage?.getAbsoluteTransform().copy();
+      stageTransform?.invert();
       if (guideLine.orientation === 'vertical') {
-        line.absolutePosition({
+
+        let translateFactor = stageTransform?.point({
           x: guideLine.stop,
           y: 0
-        })
+        });
+        line.absolutePosition(translateFactor);
+
       } else if (guideLine.orientation === 'horizontal') {
-        line.absolutePosition({
+        let translateFactor = stageTransform?.point({
           x: 0,
           y: guideLine.stop
-        })
+        });
+        line.absolutePosition(translateFactor)
       }
 
       this.editor.getHelpLayer().add(line)
@@ -256,18 +263,18 @@ export class SnapGrid {
     const node = transformer.nodes().length == 1 ? (transformer.nodes()[0] as Konva.Shape) : event.target as Konva.Shape
     this.destroy()
     // find possible snapping lines
-    var lineGuideStops = this.getLineGuideStops(node);
+    if (!this.lineGuideStops) {
+      this.lineGuideStops = this.getLineGuideStops(node);
+    }
+
     // find snapping points of current object
     var itemBounds = this.getObjectSnappingEdges(node);
-
     // now find where can we snap current object
-    var guides = this.getGuides(lineGuideStops, itemBounds);
-
+    var guides = this.getGuides(this.lineGuideStops, itemBounds);
     // do nothing of no snapping
     if (!guides.length) {
       return;
     }
-
     this.drawGuides(guides);
     this.setNodePosition(node, guides)
   }
@@ -276,6 +283,7 @@ export class SnapGrid {
   * 移动结束后
   */
   private onDragEnd() {
+    this.lineGuideStops =null;
     this.destroy()
   }
 

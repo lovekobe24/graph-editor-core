@@ -79,6 +79,7 @@ let getUnionRect = (rectBounds: any) => {
     }
 }
 
+
 // let moveItemInArray=function(arr:any,index:number,tindex:number){  
 //     //如果当前元素在拖动目标位置的下方，先将当前元素从数组拿出，数组长度-1，我们直接给数组拖动目标位置的地方新增一个和当前元素值一样的元素，  
 //     //我们再把数组之前的那个拖动的元素删除掉，所以要len+1  

@@ -455,7 +455,7 @@ export abstract class Node {
     }
 
     fromObject(obj: any) {
-        console.log("fromObject", obj);
+      
 
         let id, tag, attributes, animation, variables, events;
         if (obj instanceof Array) {

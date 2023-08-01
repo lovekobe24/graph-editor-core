@@ -249,10 +249,8 @@
     //动画面板
     document.getElementById('animationType').addEventListener('change', (e) => {
       console.log(e.target.value);
-      // let animationType = e.target.value;
-      // graphEditor.setAnimations({
-      //   'type': animationType
-      // });
+      let animationType = e.target.value;
+      graphEditor.setAnimationValue('type',animationType);
     })
     document.getElementById("clear").addEventListener('click', () => {
       graphEditor.clear();
@@ -490,31 +488,31 @@
           draggable: true
         }
       })
-      graphEditor.addNode({
-        className: 'StarNode',
-        attributes: {
-          x: 50,
-          y: 50,
-          innerRadius: 20,
-          outerRadius: 50,
-          strokeWidth: 2,
-          stroke: 'green',
-          draggable: true
-        }
-      })
-      graphEditor.addNode({
-        className: 'ArcNode',
-        attributes: {
-          x: 152,
-          y: 140,
-          angle: 50,
-          innerRadius: 20,
-          outerRadius: 50,
-          strokeWidth: 2,
-          stroke: 'red',
-          draggable: true
-        }
-      })
+      // graphEditor.addNode({
+      //   className: 'StarNode',
+      //   attributes: {
+      //     x: 50,
+      //     y: 50,
+      //     innerRadius: 20,
+      //     outerRadius: 50,
+      //     strokeWidth: 2,
+      //     stroke: 'green',
+      //     draggable: true
+      //   }
+      // })
+      // graphEditor.addNode({
+      //   className: 'ArcNode',
+      //   attributes: {
+      //     x: 152,
+      //     y: 140,
+      //     angle: 50,
+      //     innerRadius: 20,
+      //     outerRadius: 50,
+      //     strokeWidth: 2,
+      //     stroke: 'red',
+      //     draggable: true
+      //   }
+      // })
 
       let allNodes = graphEditor.getNodes();
 
@@ -537,7 +535,7 @@
       // graphEditor.align('top');
 
       // //调整显示比例
-      graphEditor.setScale(1.2);
+      //  graphEditor.setScale(1.2);
 
       graphEditor.setSize(500, 600);
       //设置背景色
@@ -570,7 +568,7 @@
       //   'rotation': 30
       // },ids);
       // graphEditor.setAttribute('fill','orange',ids);
-      // graphEditor.group(ids);
+      graphEditor.group(ids);
       // let selectNodes=graphEditor.getSelection();
       // graphEditor.unGroup(selectNodes[0].id);
       // console.log('当前配置',graphEditor.getConfig());
