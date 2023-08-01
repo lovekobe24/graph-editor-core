@@ -29,6 +29,7 @@ export const defaultConfig:EditorConfig = {
             anchorSize: 8,
             rotateAnchorOffset: 30,
             anchorStroke: 'rgb(0, 161, 255)',
+            anchorStrokeWidth:1,
             anchorFill: 'white',
             borderStroke: 'rgb(0, 161, 255)',
             borderWidth: 5

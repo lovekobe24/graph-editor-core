@@ -342,6 +342,20 @@ export default class GraphEditor extends GraphManager {
      * 监听鼠标事件，节点变换时，同步模型
      */
     private initNodeResize() {
+        let _this = this;
+        // 设置 Transformer 控件旋转操作时的鼠标样式,未能成功，即使使用了 anchor.off('mouseenter')也只能在第二次生效
+        this.transformer.on('mouseenter', function (e) {
+            // 处理鼠标进入事件
+            _this.transformer.setAttrs({
+                anchorStrokeWidth: parseInt(_this.config.selection.transformer.anchorStrokeWidth)+1, // 锚点边框宽度
+            });
+        });
+        this.transformer.on('mouseleave', function () {
+            // 处理鼠标进入事件
+            _this.transformer.setAttrs({
+                anchorStrokeWidth: _this.config.selection.transformer.anchorStrokeWidth,
+            });
+        });
         this.transformer.on('transformstart', () => {
             //如果resize开始，则停止绘制自动切换到普通模式
             this.setMode(REGULAR_MODE);
@@ -360,19 +374,19 @@ export default class GraphEditor extends GraphManager {
      */
     private initNodeMove() {
         this.transformer.on('dragstart', (e: any) => {
-          
+
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             (function loop(nodes) {
                 for (let node of nodes) {
                     node.getRef().stopDrag();
-                     let className=node.getClassName();
-                     let autoPlay = node.getAnimationValue('autoPlay');
-                     if (autoPlay) {
-                         //如果正在播放动画，在移动过程中要将动画暂停,否则会引起坐标的混乱
-                         if (node.getAnimationObj().obj) {
-                             node.destroyAnimation(true);
-                         }
-                     }
+                    let className = node.getClassName();
+                    let autoPlay = node.getAnimationValue('autoPlay');
+                    if (autoPlay) {
+                        //如果正在播放动画，在移动过程中要将动画暂停,否则会引起坐标的混乱
+                        if (node.getAnimationObj().obj) {
+                            node.destroyAnimation(true);
+                        }
+                    }
                     if (className === 'GroupNode') {
                         loop(node.getMembers());
                     }
@@ -1167,7 +1181,7 @@ export default class GraphEditor extends GraphManager {
      * };
      * graphEditor.addVariable('变量1',variable,false)
      */
-     addVariable(name: string, variable: any, toModel: boolean = false,nodeId?: string) {
+    addVariable(name: string, variable: any, toModel: boolean = false, nodeId?: string) {
         if (toModel) {
             this.dataModel.addVariable(name, variable);
         } else {
@@ -1210,10 +1224,10 @@ export default class GraphEditor extends GraphManager {
      * 获取节点所有的变量
      * @param nodeId 
      */
-    getVariables(nodeId?: string){
+    getVariables(nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);
         console.log(this.dataModel.getSelectionManager().getSelection());
-        if(operateNode){
+        if (operateNode) {
             return JSON.parse(JSON.stringify(operateNode.getVariables()));
         }
     }
@@ -1279,8 +1293,8 @@ export default class GraphEditor extends GraphManager {
     group(nodeIds?: any) {
         let selectedNodes = this.getOperateNodes(nodeIds);
         if (selectedNodes.length > 1) {
-             this.dataModel.group(selectedNodes);
-             return this.getSelection()[0]
+            this.dataModel.group(selectedNodes);
+            return this.getSelection()[0]
         }
     }
 
@@ -1338,7 +1352,7 @@ export default class GraphEditor extends GraphManager {
         return this.isSquare;
     }
 
- 
+
 
     /**
      * 选中画布上所有节点
@@ -1455,7 +1469,7 @@ export default class GraphEditor extends GraphManager {
      * @example
      * editor.getAnimation();
      */
-    getAnimation(nodeId?: string){
+    getAnimation(nodeId?: string) {
         let node = this.getOperateNode(nodeId);
         if (node) {
             return JSON.parse(JSON.stringify(node.getAnimation()))
@@ -1471,28 +1485,28 @@ export default class GraphEditor extends GraphManager {
      * editor.getAnimationValue('autoPlay');
      * editor.getAnimationValue('type');
      */
-    getAnimationValue(key:string,nodeId?: string){
+    getAnimationValue(key: string, nodeId?: string) {
         let node = this.getOperateNode(nodeId);
         if (node) {
             return node.getAnimationValue(key);
         }
     }
 
-     /**
-    * 设置动画属性
-    * @param animation  动画对象
-    * @param {string} animation.type 动画类型，枚举值：'blink','rotateByCenter','flow'
-    * @param {Boolean} animation.autoPlay 是否自动播放
-    * @param {Number} animation.period 动画周期，时间s
-    * @param nodeId  操作节点id
-    * @example
-    * graphEditor.setAnimation({
-    *   'type'：'blink',
-    *   'autoPlay':true,
-    *   'period':10   //动画周期，单位秒
-    * },nodeId);
-    */
-     setAnimation(animation: any, nodeId?: string) {
+    /**
+   * 设置动画属性
+   * @param animation  动画对象
+   * @param {string} animation.type 动画类型，枚举值：'blink','rotateByCenter','flow'
+   * @param {Boolean} animation.autoPlay 是否自动播放
+   * @param {Number} animation.period 动画周期，时间s
+   * @param nodeId  操作节点id
+   * @example
+   * graphEditor.setAnimation({
+   *   'type'：'blink',
+   *   'autoPlay':true,
+   *   'period':10   //动画周期，单位秒
+   * },nodeId);
+   */
+    setAnimation(animation: any, nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             this.dataModel.setAnimation(operateNode, animation);
@@ -1619,7 +1633,7 @@ export default class GraphEditor extends GraphManager {
      * 返回节点的所有事件
      * @param nodeId 节点id，未指定的情况下，则为当前选中节点
      */
-    getEvents(nodeId?: string){
+    getEvents(nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             return JSON.parse(JSON.stringify(operateNode.getEvents()));
