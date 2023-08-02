@@ -45,6 +45,7 @@ export default class GraphEditor extends GraphManager {
     operateNodes: any[] = [];
     pasteCount: number = 1;
     copyNodes: any[] = [];
+    private  clipboardContent:Node[]=[];
     /**
      * 
      * @param container 画布所在的div容器
@@ -618,17 +619,36 @@ export default class GraphEditor extends GraphManager {
 
     /**
      * 复制操作
-     * @param nodes 需要复制的节点id数组，如为空，则为当前画布选中节点
+     * @param nodeIds 需要复制的节点id数组，如为空，则为当前画布选中节点
      */
     copy(nodeIds?: any) {
+        this.clearClipboard()
         let operateNodes = this.getOperateNodes(nodeIds);
         if (operateNodes.length == 0) {
             console.warn(GRAPH_EDITOR_WARNING + "未找到要操作的节点,不能执行copy操作")
         } else {
             this.pasteCount = 1;
             this.copyNodes = operateNodes;
+            this.copyNodes.forEach((item: any) => {
+                let cloneNode = item.clone();
+                this.clipboardContent.push(cloneNode);
+            })
         }
-
+    }
+    /**
+     * 清空剪切板
+     */
+    private clearClipboard(){
+        this.clipboardContent=[];
+    }
+    /**
+     * 剪切
+     * @param nodeIds 需要复制的节点id数组，如为空，则为当前画布选中节点
+     */
+    cut(nodeIds?: any){
+        this.copy(nodeIds);
+        this.deleteNodes(nodeIds);
+      
     }
 
     private getOperateNodes(nodeIds: any) {
@@ -641,7 +661,7 @@ export default class GraphEditor extends GraphManager {
     paste() {
         this.pasteCount = this.pasteCount + 1;
         let pasteNodes: any = [];
-        this.copyNodes.forEach((item: any) => {
+        this.clipboardContent.forEach((item: any) => {
             let cloneNode = item.clone(true);
             cloneNode.setAttributeValues({
                 x: parseInt(item.getAttributeValue('x')) + 10 * this.pasteCount,

@@ -422,6 +422,11 @@ export abstract class Node {
         return this.dataModel;
     }
 
+    /**
+     * 克隆节点
+     * @param unique 如果为true，则会创建新的id给新节点
+     * @returns 节点副本
+     */
     clone(unique = false) {
         let obj: any = this.toObject();
         if (unique) obj.id = Utils.generateId();
