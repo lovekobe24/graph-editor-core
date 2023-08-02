@@ -79,16 +79,16 @@ describe('GraphEditor', function () {
   it('saveVariable', function () {
     let allNodes:Array<any>= editor.getNodes();
     let ids= allNodes.map(item =>item.id);
-    editor.saveVariable('变量1',{
+    editor.addVariable('变量1',{
       type:'integer',
       defaultVal:0
-    },false,'',ids[0]);
-    editor.saveVariable('变量3',{
+    },false,ids[0]);
+    editor.addVariable('变量3',{
       type:'integer',
       defaultVal:0
-    },false,'',ids[0]);
+    },false,ids[0]);
      //修改变量
-     editor.saveVariable('变量2',{
+     editor.updateVariable('变量2',{
       type:'integer',
       defaultVal:0
     },false,'变量1',ids[0]);

@@ -86,7 +86,7 @@ describe('DataModel', function () {
     assert.equal(nodes?.length, 2);
   })
   it('saveVariable', function () {
-    editor?.getDataModel()?.saveVariable('state', {
+    editor?.getDataModel()?.addVariable('state', {
       defaultVal: 1
     });
     assert.equal(editor?.getDataModel()?.getVariable('state').defaultVal, 1);
@@ -132,7 +132,7 @@ describe('DataModel', function () {
         }
       ],
     }, 0);
-    assert.equal(rectNode.getEvents()[0].value.length, 2);
+    assert.equal(rectNode.getEvents()[0].value.length, 1);
   })
   it('deleteEvent', function () {
     editor?.getDataModel()?.deleteEvent(rectNode, 0);

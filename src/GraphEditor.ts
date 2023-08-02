@@ -322,17 +322,20 @@ export default class GraphEditor extends GraphManager {
      */
     private initNodeDraw() {
         this.stage.on('mousedown', (e: any) => {
+            if (e.evt.button === 2) return 
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_DOWN, e.evt.button);
             }
         });
         this.stage.on('mousemove', (e: any) => {
+            if (e.evt.button === 2) return 
             if (this.currentMode === DRAWING_MODE) {
                 this.setIsSquare(e.evt.shiftKey);
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_MOVE)
             }
         });
         this.stage.on('mouseup', (e: any) => {
+            if (e.evt.button === 2) return 
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_UP, e.evt.button);
             }
@@ -404,22 +407,20 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
-     * 监听鼠标事件，完成自定义菜单功能
+     * 注册右键菜单事件，完成自定义菜单功能
      */
     registerContextMenu(callbackFn) {
-        let _this = this;
+        let _this=this;
         this.stage.on('contextmenu', (e: any) => {
             e.evt.preventDefault();
-            let map = new Map();
-            map.set('copy', () => {
-                _this.copy();
-            })
-            map.set('delete', () => {
-                _this.deleteNodes();
-            })
-            callbackFn(e.evt, map);
+            _this.setMode(REGULAR_MODE);
+            callbackFn(e.evt);
         });
     }
+    /**
+     * 
+     * @returns 获取功能函数map
+     */
     getFnMap() {
         let _this = this;
         let fnMap = new Map();
@@ -428,6 +429,12 @@ export default class GraphEditor extends GraphManager {
         });
         fnMap.set('redo', () => {
             _this.undo()
+        });
+        fnMap.set('orderTop', () => {
+            _this.order('top')
+        });
+        fnMap.set('orderBottom', () => {
+            _this.order('bottom')
         });
         fnMap.set('copy', () => {
             _this.copy()
@@ -449,15 +456,19 @@ export default class GraphEditor extends GraphManager {
             _this.unGroup()
         });
         return fnMap;
-
-
     }
+    /**
+     * 
+     * @returns 获取功能状态map
+     */
     getFnState() {
         let _this = this;
         let undoRedoManager = this.dataModel?.undoRedoManager;
         let fnMap = new Map();
         fnMap.set('undo', undoRedoManager.canUndo() ? true : false);
         fnMap.set('redo', undoRedoManager.canRedo() ? true : false);
+        fnMap.set('orderTop', _this.getSelection().length > 0 ? true : false);
+        fnMap.set('orderBottom', _this.getSelection().length > 0 ? true : false);
         fnMap.set('copy', _this.getSelection().length > 0 ? true : false);
         fnMap.set('cut', _this.getSelection().length > 0 ? true : false);
         fnMap.set('paste', _this.copyNodes.length > 0 ? true : false);
@@ -1124,11 +1135,13 @@ export default class GraphEditor extends GraphManager {
      */
     order(direction: any, nodeId: string) {
         let undoRedoManager = this.dataModel.getUndoRedoManager();
-        let selectNodes = this.getOperateNode(nodeId);
-        if (selectNodes.length == 1) {
-            let orderChange = new OrderChange(selectNodes[0], direction, this.getDataModel());
+        let selectNode = this.getOperateNode(nodeId);
+        if (selectNode) {
+            let orderChange = new OrderChange(selectNode, direction, this.getDataModel());
             let cmd = new Command([orderChange]);
             undoRedoManager.execute(cmd);
+        }else{
+            console.warn(GRAPH_EDITOR_WARNING+"未找到要调整层序的节点")
         }
     }
 
@@ -1329,9 +1342,10 @@ export default class GraphEditor extends GraphManager {
      */
     getVariables(nodeId?: string) {
         let operateNode = this.getOperateNode(nodeId);
-        console.log(this.dataModel.getSelectionManager().getSelection());
         if (operateNode) {
             return JSON.parse(JSON.stringify(operateNode.getVariables()));
+        }else{
+            console.log(GRAPH_EDITOR_WARNING + '未找到要获取变量的节点');
         }
     }
 
