@@ -37,12 +37,17 @@ class PenShape extends AbstractShape {
                 }
                 break;
             case DRAWING_MOUSE_UP:
+                console.log('DRAWING_MOUSE_UP');
                 if (this.firstPoint) {
                     let node = this.createElement(this.tempLine.points(), graphEditor);
                     this.tempLine.destroy();
-                    this.insertShapeElement(graphEditor.getDataModel(), node);
+                    if(node){
+                        this.insertShapeElement(graphEditor.getDataModel(), node);
+                    }
+                    
                 }
                 if (this.tempLine) {
+                    console.log('destory this.tempLine');
                     this.tempLine.destroy();
                 }
                 this.firstPoint=null;
@@ -51,6 +56,8 @@ class PenShape extends AbstractShape {
     }
 
     createElement(points: any, graphEditor: any) {
+        if(points.length==2)
+        return
         let polyline = new PenNode();
         let style = Object.assign({ points }, graphEditor.getConfig().style);
         polyline.setAttributeValues({ ...style });

@@ -118,6 +118,9 @@
       </div>
     </div>
   </div>
+  <div id="menu" style="display: none;flex-direction: column;">
+
+  </div>
 
   <script type="module">
     import GraphEditor from '../src/GraphEditor';
@@ -250,14 +253,14 @@
     document.getElementById('animationType').addEventListener('change', (e) => {
       console.log(e.target.value);
       let animationType = e.target.value;
-      graphEditor.setAnimationValue('type',animationType);
+      graphEditor.setAnimationValue('type', animationType);
     })
     document.getElementById("clear").addEventListener('click', () => {
       graphEditor.clear();
     })
 
-    
-    
+
+
     let tempDiv = document.createElement('div')
     tempDiv.setAttribute('id', 'temp')
     tempDiv.style.position = 'absolute'
@@ -265,7 +268,7 @@
     tempDiv.style.padding = '10px'
     tempDiv.style.background = '#303133'
     document.getElementById("previewPanel").appendChild(tempDiv)
-    
+
 
 
 
@@ -294,6 +297,7 @@
           }
         );
         graphView.setScale(scale);
+
         //注册鼠标事件
         graphView.registerNodeMouseEvent({
           'mouseover': function (evt) {
@@ -413,6 +417,48 @@
         let selectedNodes = event.getProperty('nodes');
         console.log("onSelectionChanged", selectedNodes);
       })
+      var menuNode = document.getElementById('menu');
+      let map = graphEditor.getFnMap();
+      createMenu(map);
+      graphEditor.registerContextMenu((e) => {
+        // alert("ok")
+        let fnState = graphEditor.getFnState();
+        const buttons = menuNode.getElementsByTagName('button');
+
+        for (let i = 0; i < buttons.length; i++) {
+         
+          let innerHTML=buttons[i].innerHTML;
+          console.log(fnState.has(innerHTML));
+          if(fnState.has(innerHTML)){
+            let state=fnState.get(innerHTML);
+            if(state){
+              buttons[i].removeAttribute('disabled');
+            }else{
+              buttons[i].setAttribute('disabled',true);
+            }
+          }
+        }
+        menuNode.style.border = "1px solid red";
+        menuNode.style.display = 'flex';
+        menuNode.style.left = e.clientX + "px";
+        menuNode.style.top = e.clientY + "px";
+        menuNode.style.position = "absolute";
+      })
+      function createMenu(map) {
+        menuNode.innerHTML = '';
+        map.forEach((value, key) => {
+          console.log(key, value);
+          let divElement = document.createElement('button');
+          divElement.innerHTML = key;
+          divElement.addEventListener('click', () => {
+            value();
+            menuNode.style.display = 'none';
+          })
+          menuNode.append(divElement);
+        });
+
+
+      }
 
       graphEditor.addNode({
         className: 'RectNode',
@@ -535,7 +581,7 @@
       // graphEditor.align('top');
 
       // //调整显示比例
-        graphEditor.setScale(1.2);
+      graphEditor.setScale(1.2);
 
       graphEditor.setSize(500, 600);
       //设置背景色
@@ -545,8 +591,8 @@
       graphEditor.addVariable('state', {
         type: 'integer',
         defaultVal: 1
-      }, false,ids[0]);
-    
+      }, false, ids[0]);
+
       graphEditor.addVariable('变量3', {
         type: 'integer',
         defaultVal: 0
@@ -558,7 +604,7 @@
         defaultVal: 6
       }, false);
       console.log(graphEditor.getVariables());
-    //  graphEditor.deleteVariable('变量2', false, ids[0]);
+      //  graphEditor.deleteVariable('变量2', false, ids[0]);
 
       // //设置属性
       graphEditor.setAttributeValues({
@@ -640,7 +686,7 @@
           comparison: "!="
         }
       }, ids[0])
-     // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
+      // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
       //点击启动动画
       // graphEditor.addEvent({
       //   type: 'click',
@@ -657,6 +703,7 @@
 
       // let json = graphEditor.toJSON();
       graphEditor.onSelectionChanged((sender, event) => {
+        menuNode.style.display = 'none';
         let selectedNodes = event.getProperty('nodes');
 
         if (selectedNodes.length > 0) {
@@ -793,7 +840,7 @@
 
 
     }
-   initGraphEditor()
+    initGraphEditor()
   // initGraphViewer()
   </script>
 </body>

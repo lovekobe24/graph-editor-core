@@ -123,7 +123,7 @@ export default class GraphEditor extends GraphManager {
         this.initNodeDraw();
         this.initNodeResize();
         this.initNodeMove();
-        this.initContextMenu();
+
         this.initShapeModule();
 
         if (Utils.isBrowser()) {
@@ -347,7 +347,7 @@ export default class GraphEditor extends GraphManager {
         this.transformer.on('mouseenter', function (e) {
             // 处理鼠标进入事件
             _this.transformer.setAttrs({
-                anchorStrokeWidth: parseInt(_this.config.selection.transformer.anchorStrokeWidth)+1, // 锚点边框宽度
+                anchorStrokeWidth: parseInt(_this.config.selection.transformer.anchorStrokeWidth) + 1, // 锚点边框宽度
             });
         });
         this.transformer.on('mouseleave', function () {
@@ -405,8 +405,81 @@ export default class GraphEditor extends GraphManager {
     /**
      * 监听鼠标事件，完成自定义菜单功能
      */
-    private initContextMenu() {
-        this.stage.on('contextmenu', (e: any) => { e.evt.preventDefault(); });
+    registerContextMenu(callbackFn) {
+        let _this = this;
+        this.stage.on('contextmenu', (e: any) => {
+            e.evt.preventDefault();
+            let map = new Map();
+            map.set('copy', () => {
+                _this.copy();
+            })
+            map.set('delete', () => {
+                _this.deleteNodes();
+            })
+            callbackFn(e.evt, map);
+        });
+    }
+    getFnMap() {
+        let _this = this;
+        let fnMap = new Map();
+        fnMap.set('undo', () => {
+            _this.undo()
+        });
+        fnMap.set('redo', () => {
+            _this.undo()
+        });
+        fnMap.set('copy', () => {
+            _this.copy()
+        });
+        fnMap.set('cut', () => {
+            _this.cut()
+        });
+        fnMap.set('paste', () => {
+            _this.paste()
+        });
+
+        fnMap.set('delete', () => {
+            _this.deleteNodes()
+        });
+        fnMap.set('group', () => {
+            _this.group()
+        });
+        fnMap.set('unGroup', () => {
+            _this.unGroup()
+        });
+        return fnMap;
+
+
+    }
+    getFnState() {
+        let _this = this;
+        let undoRedoManager = this.dataModel?.undoRedoManager;
+        let fnMap = new Map();
+        fnMap.set('undo', undoRedoManager.canUndo() ? true : false);
+        fnMap.set('redo', undoRedoManager.canRedo() ? true : false);
+        fnMap.set('copy', _this.getSelection().length > 0 ? true : false);
+        fnMap.set('cut', _this.getSelection().length > 0 ? true : false);
+        fnMap.set('paste', _this.copyNodes.length > 0 ? true : false);
+        fnMap.set('delete', _this.getSelection().length > 0 ? true : false);
+        fnMap.set('group', _this.getSelection().length > 1 ? true : false);
+        fnMap.set('unGroup', _this.canUnGroup() ? true : false);
+        return fnMap;
+    }
+
+    /**
+     * 当前是否可以解组
+     */
+    private canUnGroup() {
+        if (this.getSelection().length == 1) {
+            let selected = this.getSelection()[0];
+            if (selected.className == "GroupNode") {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -549,8 +622,13 @@ export default class GraphEditor extends GraphManager {
      */
     copy(nodeIds?: any) {
         let operateNodes = this.getOperateNodes(nodeIds);
-        this.pasteCount = 1;
-        this.copyNodes = operateNodes;
+        if (operateNodes.length == 0) {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到要操作的节点,不能执行copy操作")
+        } else {
+            this.pasteCount = 1;
+            this.copyNodes = operateNodes;
+        }
+
     }
 
     private getOperateNodes(nodeIds: any) {
@@ -1051,7 +1129,7 @@ export default class GraphEditor extends GraphManager {
         if (shape) {
             this.drawingShape = shape;
             this.setMode(DRAWING_MODE);
-           
+
         }
 
     }
@@ -1081,9 +1159,9 @@ export default class GraphEditor extends GraphManager {
      */
     private setMode(mode: string) {
         this.currentMode = mode;
-        if(mode==DRAWING_MODE){
-           this.nodeLayer.listening(false)
-        }else{
+        if (mode == DRAWING_MODE) {
+            this.nodeLayer.listening(false)
+        } else {
             this.nodeLayer.listening(true)
         }
     }
