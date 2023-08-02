@@ -48,30 +48,30 @@ export abstract class GraphManager {
         if (Utils.isBrowser() && !config.container) {
             throw new Error(GRAPH_EDITOR_WARNING + 'It needs to have a container element')
         }
-        this.registerNodeClass();
+        //this.registerNodeClass();
     }
 
     registerNodeClass() {
 
-        RectNode.register();
-        EllipseNode.register();
-        ArcNode.register();
-        CircleNode.register();
-        GroupNode.register();
-        ImageNode.register();
-        LabelNode.register();
-        LineArrowNode.register();
-        LineNode.register();
-        PathNode.register();
-        PenNode.register();
-        PolylineArrowNode.register();
-        PolylineNode.register()
-        RegularPolygonNode.register();
-        RingNode.register();
-        StarNode.register();
-        SymbolNode.register();
-        TextNode.register();
-        WedgeNode.register();
+        // RectNode.register();
+        // EllipseNode.register();
+        // ArcNode.register();
+        // CircleNode.register();
+        // GroupNode.register();
+        // ImageNode.register();
+        // LabelNode.register();
+        // LineArrowNode.register();
+        // LineNode.register();
+        // PathNode.register();
+        // PenNode.register();
+        // PolylineArrowNode.register();
+        // PolylineNode.register()
+        // RegularPolygonNode.register();
+        // RingNode.register();
+        // StarNode.register();
+        // SymbolNode.register();
+        // TextNode.register();
+        // WedgeNode.register();
     }
 
 

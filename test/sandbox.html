@@ -20,7 +20,7 @@
     href="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.css?spm=a313x.7781069.1998910419.52&file=font_3759154_f4x5ab2inh5.css">
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
-
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.js"></script>
   <!-- <script src="../umd/GraphEditor.js"></script> -->
   <!-- <script src="../umd/GraphViewer.js"></script> -->
   <!-- <script src="https://unpkg.com/graph-editor-core/umd/GraphEditor.js"></script> -->
@@ -72,14 +72,33 @@
     <button id="showJson" class="layui-btn layui-btn-sm layui-btn-primary">显示JSON</button>
     <button id="clear" class="layui-btn layui-btn-sm layui-btn-primary">清空画布</button>
     <button title="预览" id="preview" class="layui-btn layui-btn-sm layui-btn-primary">预览</button>
-    <button title="预设" id="styleConfig" class="layui-btn layui-btn-sm layui-btn-primary">预设线色为黄色</button>
+    <button title="预设" id="styleConfig" class="layui-btn layui-btn-sm layui-btn-primary">预设线色</button>
     <button title="修改网格" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
     <button title="显示比例" id="zoom" class="layui-btn layui-btn-sm layui-btn-primary">150%</button>
+    <button title="组成图元" id="makeSymbol" class="layui-btn layui-btn-sm layui-btn-primary">组成图元</button>
   </div>
   <div style="display: flex;">
-    <div id="leftPanel"
-      style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
+    <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
+      <ul class="layui-tab-title">
+        <li class="layui-this" lay-id="11">基本图形</li>
+        <li lay-id="22">图元</li>
+      </ul>
+      <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+          <div id="leftPanel" style="border:1px solid gray;width: 260px;padding: 5px;display: flex;flex-wrap: wrap;">
+
+          </div>
+        </div>
+        <div class="layui-tab-item">
+          <div id="symbolPanel" style="border:1px solid gray;width: 260px;padding: 5px;display: flex;flex-wrap: wrap;">
+
+          </div>
+        </div>
+      </div>
     </div>
+    <!-- <div id="leftPanel"
+      style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
+    </div> -->
     <div id="editor" style="background-color: bisque;border:1px solid gray;"></div>
     <div id="previewPanel" style="background-color: bisque;border:1px solid gray;"></div>
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
@@ -126,15 +145,19 @@
     import GraphEditor from '../src/GraphEditor';
     import GraphViewer from '../src/GraphViewer';
     import basicShapeList from "./shape/basic";
+    import Utils from "../src/Utils"
     document.getElementById("editor").addEventListener('dragover', (event) => {
       event.preventDefault();
     })
     document.getElementById("editor").addEventListener('drop', (event) => {
       console.log("drop........");
       console.log(event.dataTransfer.getData("dropData"));
-      let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
-      console.log(event);
-      graphEditor.dropShape(event, shape);
+      if (event.dataTransfer.getData("dropData")) {
+        let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
+        console.log(event);
+        graphEditor.dropShape(event, shape);
+      }
+
     })
 
 
@@ -165,6 +188,42 @@
       shapeDiv.appendChild(labelDiv);
       document.getElementById("leftPanel").appendChild(shapeDiv);
     })
+    const initSymbolPanel = (symbols) => {
+      symbols.forEach((symbol) => {
+        let shapeDiv = document.createElement("div");
+        shapeDiv.style.width = "60px";
+        shapeDiv.style.height = "60px";
+        shapeDiv.style.display = "flex";
+        shapeDiv.style.border = "1px solid grey";
+        shapeDiv.style.margin = "2px";
+        shapeDiv.style.flexDirection = "column";
+        shapeDiv.setAttribute("draggable", true);
+        shapeDiv.addEventListener('dragstart', (event) => {
+
+          // event.dataTransfer.setData(
+          //   "dropData",
+          //   JSON.stringify({ type: 'shape', content: shape })
+          // );
+
+        });
+
+        let topDiv = document.createElement("div");
+        Utils.convertSymbolToImage(symbol, (img) => {
+          console.log(img);
+          img.style.width = '30px';
+          img.style.height = '30px';
+          topDiv.appendChild(img);
+        })
+
+        //  topDiv.innerHTML = shape.path;
+        let labelDiv = document.createElement("div");
+        labelDiv.innerHTML = symbol.symbolName;
+        shapeDiv.appendChild(topDiv);
+        shapeDiv.appendChild(labelDiv);
+        document.getElementById("symbolPanel").appendChild(shapeDiv);
+      })
+
+    }
 
     let graphViewer;
     document.getElementById('toRegularMode').addEventListener('click', () => {
@@ -239,13 +298,50 @@
     })
 
     document.getElementById('autoPlayCheckBox').addEventListener('click', (e) => {
-   
+
       let checked = document.getElementById('autoPlayCheckBox').checked;
       if (checked) {
         graphEditor.setAnimationValue('autoPlay', true);
       } else {
         graphEditor.setAnimationValue('autoPlay', false);
       }
+    })
+    let localSymbol = localStorage.getItem('symbol');
+    if (localSymbol) {
+      let symbols = JSON.parse(localSymbol);
+      initSymbolPanel(symbols);
+    }
+    document.getElementById('makeSymbol').addEventListener('click', (e) => {
+      layer.open({
+        type: 1,
+        title: '输入内容',
+        content: '<input type="text" id="inputText">',
+        btn: ['确认', '取消'],
+        yes: function (index, layero) {
+          var inputValue = $('#inputText').val(); // 获取输入框的值
+          // 处理输入框中的内容
+          console.log("输入的内容是：" + inputValue);
+          let symbolObj = graphEditor.makeSymbol(inputValue);
+          if (symbolObj) {
+            if (localSymbol) {
+              let symbols = JSON.parse(localSymbol);
+              symbols.push(symbolObj);
+              localStorage.setItem('symbol', JSON.stringify(symbols))
+            } else {
+              let symbols = [];
+              symbols.push(symbolObj);
+              localStorage.setItem('symbol', JSON.stringify(symbols))
+            }
+          }
+          layer.close(index); // 关闭弹窗
+        },
+        btn2: function (index, layero) {
+          // 点击取消按钮的回调函数
+        }
+      });
+
+
+
     })
 
 
@@ -427,15 +523,15 @@
         const buttons = menuNode.getElementsByTagName('button');
 
         for (let i = 0; i < buttons.length; i++) {
-         
-          let innerHTML=buttons[i].innerHTML;
+
+          let innerHTML = buttons[i].innerHTML;
           console.log(fnState.has(innerHTML));
-          if(fnState.has(innerHTML)){
-            let state=fnState.get(innerHTML);
-            if(state){
+          if (fnState.has(innerHTML)) {
+            let state = fnState.get(innerHTML);
+            if (state) {
               buttons[i].removeAttribute('disabled');
-            }else{
-              buttons[i].setAttribute('disabled',true);
+            } else {
+              buttons[i].setAttribute('disabled', true);
             }
           }
         }
@@ -448,7 +544,7 @@
       function createMenu(map) {
         menuNode.innerHTML = '';
         map.forEach((value, key) => {
-       
+
           let divElement = document.createElement('button');
           divElement.innerHTML = key;
           divElement.addEventListener('click', () => {
@@ -615,7 +711,7 @@
       //   'rotation': 30
       // },ids);
       // graphEditor.setAttribute('fill','orange',ids);
-     // graphEditor.group(ids);
+      // graphEditor.group(ids);
       // let selectNodes=graphEditor.getSelection();
       // graphEditor.unGroup(selectNodes[0].id);
       // console.log('当前配置',graphEditor.getConfig());
@@ -687,6 +783,7 @@
           comparison: "!="
         }
       }, ids[0])
+      graphEditor.order('top');
       // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
       //点击启动动画
       // graphEditor.addEvent({
@@ -794,7 +891,7 @@
       })
       return compDiv;
     }
-    const getStrDiv=(proName,value)=>{
+    const getStrDiv = (proName, value) => {
       let compDiv = document.createElement('div');
       compDiv.style.display = 'flex';
       compDiv.style.padding = '5px';
@@ -809,7 +906,7 @@
 
     }
     const initPropertyPanel = (node) => {
-     
+
 
       document.getElementById('property').innerHTML = '';
       let idDiv = getStrDiv('id', node.id);
@@ -842,7 +939,7 @@
     }
 
     const initAnimationPanel = (node) => {
-    
+
       let autoPlay = node.animation['autoPlay'];
       let checkboxObj = document.getElementById('autoPlayCheckBox')
       if (autoPlay) {

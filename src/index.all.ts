@@ -2,10 +2,51 @@
 
 import GraphEditor from './GraphEditor';
 import GraphViewer from './GraphViewer';
+import Utils from './Utils' ;
+import { SymbolNode } from './model/SymbolNode';
+import { RectNode } from './model/RectNode';
+import { EllipseNode } from './model/EllipseNode';
+import { CircleNode } from './model/CircleNode';
+import { ImageNode } from './model/ImageNode';
+import { StarNode } from "./model/StarNode";
+import { RegularPolygonNode } from './model/RegularPolygonNode';
+import { ArcNode } from "./model/ArcNode";
+import { PathNode } from "./model/PathNode";
+import { TextNode } from "./model/TextNode";
+import { RingNode } from './model/RingNode';
+import { WedgeNode } from './model/WedgeNode';
+import { LabelNode } from "./model/LabelNode";
+import { GroupNode } from "./model/GroupNode";
+import { LineArrowNode } from "./model/LineArrowNode";
+import { LineNode } from "./model/LineNode";
+import { PenNode } from "./model/PenNode";
+import { PolylineNode } from "./model/PolylineNode";
+import { PolylineArrowNode } from "./model/PolylineArrowNode";
 
+
+RectNode.register();
+EllipseNode.register();
+ArcNode.register();
+CircleNode.register();
+GroupNode.register();
+ImageNode.register();
+LabelNode.register();
+LineArrowNode.register();
+LineNode.register();
+PathNode.register();
+PenNode.register();
+PolylineArrowNode.register();
+PolylineNode.register()
+RegularPolygonNode.register();
+RingNode.register();
+StarNode.register();
+SymbolNode.register();
+TextNode.register();
+WedgeNode.register();
 
 export { GraphEditor }
 export { GraphViewer }
+
 export { DataModel }  from './DataModel';
 export { Node }  from './model/Node';
 export { RectNode }  from './model/RectNode';
@@ -31,6 +72,5 @@ export {GridConfig} from './types/config';
 export {StyleConfig} from './types/config';
 export {AlignDirection} from './types/common'
 export {Event,EventType,EventAction,EventWhereType} from './types/common'
-
 
 export default GraphEditor;

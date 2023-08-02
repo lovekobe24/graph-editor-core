@@ -512,6 +512,7 @@ export abstract class Node {
 
 
     static create(json: any) {
+        
 
         if (typeof json === 'string') json = JSON.parse(json);
         let className = json instanceof Array ? json[2] : json.className;

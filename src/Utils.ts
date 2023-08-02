@@ -1,7 +1,9 @@
 import Konva from "konva";
-import type { Node } from "konva/lib/Node";
+
 import { Util } from "konva/lib/Util";
 
+import {Node} from "./model/Node"
+import { SymbolNode } from "./index.all";
 
 let onlyOneSelfAnchorNodeSelected = function (selectedNodes: any) {
     let onlyOneLine = false;
@@ -344,6 +346,16 @@ const getShouldUpdateAnimation=(attrValues:any)=>{
     attrValues.hasOwnProperty('scaleX') || attrValues.hasOwnProperty('scaleY') 
    
 }
+const convertSymbolToImage=(symbol:any,callbackFn:any)=>{
+    console.log(symbol);
+    let symbolNode=new SymbolNode(symbol);
+    console.log(symbolNode);
+    symbolNode.getRef().toImage({
+        callback(img: any) {
+            callbackFn.apply(this, [img]);
+        }
+    });
+}
 
 export default {
 
@@ -366,5 +378,6 @@ export default {
     getObjectNodes,
     isBrowser,
     fitNodesInto,
-    getShouldUpdateAnimation
+    getShouldUpdateAnimation,
+    convertSymbolToImage
 };

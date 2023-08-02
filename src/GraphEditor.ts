@@ -29,7 +29,8 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import type { AlignDirection, Dimensions, EditorConfig, GridConfig, MoveDirection, NodeConfig, StyleConfig } from "./types";
+import { orderDirection, type AlignDirection, type Dimensions, type EditorConfig, type GridConfig, type MoveDirection, type NodeConfig, type OrderDirection, type StyleConfig } from "./types";
+import { SymbolNode } from "./index.all";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -45,7 +46,7 @@ export default class GraphEditor extends GraphManager {
     operateNodes: any[] = [];
     pasteCount: number = 1;
     copyNodes: any[] = [];
-    private  clipboardContent:Node[]=[];
+    private clipboardContent: Node[] = [];
     /**
      * 
      * @param container 画布所在的div容器
@@ -322,20 +323,20 @@ export default class GraphEditor extends GraphManager {
      */
     private initNodeDraw() {
         this.stage.on('mousedown', (e: any) => {
-            if (e.evt.button === 2) return 
+            if (e.evt.button === 2) return
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_DOWN, e.evt.button);
             }
         });
         this.stage.on('mousemove', (e: any) => {
-            if (e.evt.button === 2) return 
+            if (e.evt.button === 2) return
             if (this.currentMode === DRAWING_MODE) {
                 this.setIsSquare(e.evt.shiftKey);
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_MOVE)
             }
         });
         this.stage.on('mouseup', (e: any) => {
-            if (e.evt.button === 2) return 
+            if (e.evt.button === 2) return
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_UP, e.evt.button);
             }
@@ -410,7 +411,7 @@ export default class GraphEditor extends GraphManager {
      * 注册右键菜单事件，完成自定义菜单功能
      */
     registerContextMenu(callbackFn) {
-        let _this=this;
+        let _this = this;
         this.stage.on('contextmenu', (e: any) => {
             e.evt.preventDefault();
             _this.setMode(REGULAR_MODE);
@@ -649,17 +650,17 @@ export default class GraphEditor extends GraphManager {
     /**
      * 清空剪切板
      */
-    private clearClipboard(){
-        this.clipboardContent=[];
+    private clearClipboard() {
+        this.clipboardContent = [];
     }
     /**
      * 剪切
      * @param nodeIds 需要复制的节点id数组，如为空，则为当前画布选中节点
      */
-    cut(nodeIds?: any){
+    cut(nodeIds?: any) {
         this.copy(nodeIds);
         this.deleteNodes(nodeIds);
-      
+
     }
 
     private getOperateNodes(nodeIds: any) {
@@ -1133,15 +1134,20 @@ export default class GraphEditor extends GraphManager {
      *    'top':顶层
      *    'bottom'：底层
      */
-    order(direction: any, nodeId: string) {
+    order(direction: OrderDirection, nodeId: string) {
         let undoRedoManager = this.dataModel.getUndoRedoManager();
         let selectNode = this.getOperateNode(nodeId);
         if (selectNode) {
-            let orderChange = new OrderChange(selectNode, direction, this.getDataModel());
-            let cmd = new Command([orderChange]);
-            undoRedoManager.execute(cmd);
-        }else{
-            console.warn(GRAPH_EDITOR_WARNING+"未找到要调整层序的节点")
+            if (orderDirection.includes(direction)) {
+                let orderChange = new OrderChange(selectNode, direction, this.getDataModel());
+                let cmd = new Command([orderChange]);
+                undoRedoManager.execute(cmd);
+            } else {
+                console.warn(GRAPH_EDITOR_WARNING + "不识别的层序设置")
+            }
+
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到要调整层序的节点")
         }
     }
 
@@ -1269,6 +1275,7 @@ export default class GraphEditor extends GraphManager {
         });
     }
 
+
     /**
      * 设置图的名称
      * @param name 名称
@@ -1344,7 +1351,7 @@ export default class GraphEditor extends GraphManager {
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             return JSON.parse(JSON.stringify(operateNode.getVariables()));
-        }else{
+        } else {
             console.log(GRAPH_EDITOR_WARNING + '未找到要获取变量的节点');
         }
     }
@@ -1806,8 +1813,34 @@ export default class GraphEditor extends GraphManager {
             this.dataModel.setNodeTag(operateNode, tag);
         }
     }
-    checkId():boolean{
+    checkId(): boolean {
         return this.dataModel.checkId();
+    }
+    /**
+     * 组成图元
+     * @param symbolName 图元名称
+     */
+    makeSymbol(symbolName: string) {
+        let selectedNodes = this.getOperateNodes();
+        if (selectedNodes.length > 0) {
+            let symbolNode = new SymbolNode(
+                {
+                    attributes: {
+                        draggable: true
+                    }
+                }
+            );
+            symbolNode.setMembers(selectedNodes.map((item: any) => {
+                let node = item.clone(true);
+                node.setAttributeValue('draggable', false);
+                return node;
+            }));
+            symbolNode.setSymbolName(symbolName);
+            this.dataModel.removeNodes(selectedNodes);
+            this.dataModel.addNode(symbolNode);
+            return symbolNode.toObject();
+        }
+
     }
 
 

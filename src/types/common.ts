@@ -8,6 +8,8 @@ export interface UnknownObject {
 }
 export type AlignDirection = 'left'| 'right'| 'top' | 'bottom' | 'horizontal' | 'vertical'
 export type MoveDirection = 'left'| 'right'| 'up' | 'down'
+export type OrderDirection = 'top'| 'bottom'| 'up' | 'down'
+export const orderDirection = ["top", "bottom", "up", "down"];
 export type EventType = 'click' | 'valueUpdate'| 'mousemove' | 'mouseout'
 export type EventAction = 'changeProperty' | 'executeAnimation'| 'stopAnimation' | 'executeScript'
 export type EventWhereType = 'customScript'|'comparison'|'none'
