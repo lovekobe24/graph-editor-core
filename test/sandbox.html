@@ -234,11 +234,12 @@
       console.log(oldScaleX);
     })
     document.getElementById('showJson').addEventListener('click', (e) => {
+      console.log(graphEditor.checkId());
       console.log(JSON.parse(graphEditor.toJSON()))
     })
 
     document.getElementById('autoPlayCheckBox').addEventListener('click', (e) => {
-      console.log()
+   
       let checked = document.getElementById('autoPlayCheckBox').checked;
       if (checked) {
         graphEditor.setAnimationValue('autoPlay', true);
@@ -447,7 +448,7 @@
       function createMenu(map) {
         menuNode.innerHTML = '';
         map.forEach((value, key) => {
-          console.log(key, value);
+       
           let divElement = document.createElement('button');
           divElement.innerHTML = key;
           divElement.addEventListener('click', () => {
@@ -793,9 +794,26 @@
       })
       return compDiv;
     }
+    const getStrDiv=(proName,value)=>{
+      let compDiv = document.createElement('div');
+      compDiv.style.display = 'flex';
+      compDiv.style.padding = '5px';
+      let strokeLabel = document.createElement('div');
+      strokeLabel.innerHTML = proName;
+      strokeLabel.style.marginRight = '4px';
+      let attrDiv = document.createElement('textArea')
+      attrDiv.value = value;
+      compDiv.appendChild(strokeLabel);
+      compDiv.appendChild(attrDiv);
+      return compDiv;
+
+    }
     const initPropertyPanel = (node) => {
+     
 
       document.getElementById('property').innerHTML = '';
+      let idDiv = getStrDiv('id', node.id);
+      document.getElementById('property').appendChild(idDiv);
       for (let key in node.attributes) {
 
         switch (key) {
@@ -824,10 +842,9 @@
     }
 
     const initAnimationPanel = (node) => {
-      console.log(node);
+    
       let autoPlay = node.animation['autoPlay'];
       let checkboxObj = document.getElementById('autoPlayCheckBox')
-      console.log(autoPlay);
       if (autoPlay) {
         var checked = document.createAttribute("checked");
         checked.nodeValue = "checked"
@@ -836,9 +853,6 @@
       } else {
         document.getElementById('autoPlayCheckBox').value = false
       }
-
-
-
     }
     initGraphEditor()
   // initGraphViewer()

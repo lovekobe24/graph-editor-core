@@ -428,8 +428,7 @@ export abstract class Node {
      * @returns 节点副本
      */
     clone(unique = false) {
-        let obj: any = this.toObject();
-        if (unique) obj.id = Utils.generateId();
+        let obj: any = this.toObject(false,true,unique);
         return Node.create(obj);
     }
 
@@ -476,8 +475,15 @@ export abstract class Node {
         if (events) this.setEvents(events);
     }
 
-    toObject(isArray: boolean = false, distinct: boolean = true) {
-        let id = this.id, tag = this.tag, className = this.getClassName();
+    /**
+     * 将节点转成JSON对象
+     * @param isArray 是否去掉key，转成数组，节省空间
+     * @param distinct 是否过滤掉属性值为默认值的属性
+     * @param unique 是否id唯一，如果为true，则会重新生成id
+     * @returns 
+     */
+    toObject(isArray: boolean = false, distinct: boolean = true,unique:boolean=false) {
+        let id = unique?Utils.generateId():this.id, tag = this.tag, className = this.getClassName();
         let attributes = this.getAttributeValues(distinct);
         let animation = JSON.parse(JSON.stringify(this.animation));
         let variables = JSON.parse(JSON.stringify(this.variables));

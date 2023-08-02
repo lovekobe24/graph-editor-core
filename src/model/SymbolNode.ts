@@ -33,8 +33,8 @@ export class SymbolNode extends ContainerNode {
         if (symbolName) this.setSymbolName(symbolName);
     }
 
-    toObject(isArray: boolean = false) {
-        let obj: any = super.toObject(isArray);
+    toObject(isArray: boolean = false, distinct: boolean = true,unique:boolean=false) {
+        let obj: any = super.toObject(isArray,distinct,unique);
         let symbolName = this.getSymbolName();
         if (isArray) {
             obj.push(symbolName);

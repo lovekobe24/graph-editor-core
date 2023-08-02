@@ -62,9 +62,9 @@ export abstract class ContainerNode extends Node {
         if (members) this.setMembers(members.map((item: any) => Node.create(item)));
     }
 
-    toObject(isArray: boolean = false) {
-        let obj: any = super.toObject(isArray);
-        let members = this.getMembers().map((item: any) => item.toObject(isArray));
+    toObject(isArray: boolean = false, distinct: boolean = true,unique:boolean=false) {
+        let obj: any = super.toObject(isArray,distinct,unique);
+        let members = this.getMembers().map((item: any) => item.toObject(isArray,distinct,unique));
         if (isArray) {
             obj.push(members);
         } else {

@@ -357,4 +357,28 @@ export class DataModel extends TemcEventSource {
         //通知外部style的变化
         this.fireEvent(new EventObject(EVENT_TYPE.NODE_ANIMATION_CHANGE, 'node', this, 'animation', animation), null);
     }
+    /**
+     * 检查是否有重复id
+     */
+    checkId(){
+        let existRepeatId=false;
+        let alreadyId:string[]=[];
+        (function loop(nodes) {
+            for (let node of nodes) {
+              
+                let curId=node.id;
+                if(alreadyId.indexOf(curId)==-1){
+                    alreadyId.push(curId);
+                }else{
+                    existRepeatId=true;
+                    console.warn(GRAPH_EDITOR_WARNING+"存在重复id"+curId);
+                }
+                if (node instanceof ContainerNode) {
+                    loop(node.getMembers());
+                }
+            }
+        })(this.nodes);
+      return existRepeatId;
+      
+    }
 }

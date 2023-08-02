@@ -1792,6 +1792,9 @@ export default class GraphEditor extends GraphManager {
             this.dataModel.setNodeTag(operateNode, tag);
         }
     }
+    checkId():boolean{
+        return this.dataModel.checkId();
+    }
 
 
 }
