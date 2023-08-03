@@ -153,9 +153,14 @@
       console.log("drop........");
       console.log(event.dataTransfer.getData("dropData"));
       if (event.dataTransfer.getData("dropData")) {
+        let type = JSON.parse(event.dataTransfer.getData("dropData")).type;
         let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
-        console.log(event);
-        graphEditor.dropShape(event, shape);
+        if (type == 'shape') {
+          graphEditor.dropShape(event, shape);
+        }else{
+          graphEditor.dropSymbol(event, shape);
+        }
+
       }
 
     })
@@ -200,10 +205,10 @@
         shapeDiv.setAttribute("draggable", true);
         shapeDiv.addEventListener('dragstart', (event) => {
 
-          // event.dataTransfer.setData(
-          //   "dropData",
-          //   JSON.stringify({ type: 'shape', content: shape })
-          // );
+          event.dataTransfer.setData(
+            "dropData",
+            JSON.stringify({ type: 'symbol', content: symbol })
+          );
 
         });
 

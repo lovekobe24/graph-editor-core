@@ -793,6 +793,7 @@ export default class GraphEditor extends GraphManager {
      * })
      */
     addNode(opt: NodeConfig) {
+
         let defaultStyleConfig = this.config.style;
         let wholeStyle = { ...defaultStyleConfig, ...opt.attributes };
         opt.attributes = wholeStyle;
@@ -804,6 +805,24 @@ export default class GraphEditor extends GraphManager {
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未找到对应的形状");
         }
+
+    }
+    /**
+     * 实例化图元到数据模型
+     * @param opt 图元的json信息
+     */
+    addSymbolNode(opt: NodeConfig) {
+    
+        let node = Node.create(opt);
+        let cloneNode=node.clone(true);
+        if (cloneNode) {
+            let nodeChange = new NodeChange([cloneNode], 'add', this.dataModel);
+            let cmd = new Command([nodeChange]);
+            this.dataModel.undoRedoManager.execute(cmd);
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到对应的图元");
+        }
+
 
     }
 
@@ -840,6 +859,28 @@ export default class GraphEditor extends GraphManager {
                 }
             }
             this.addNode(node);
+        }
+    }
+
+    dropSymbol(e: DragEvent, node: NodeConfig) {
+        e.preventDefault();
+        //将屏幕坐标转为文档坐标
+        this.stage.setPointersPositions(e);
+        let dropPos = this.getStageScalePoint();
+        let offsetX = Utils.toDecimal(dropPos.x);
+        let offsetY = Utils.toDecimal(dropPos.y);
+        if (node) {
+            if (node.attributes) {
+                node.attributes.x = offsetX;
+                node.attributes.y = offsetY;
+            } else {
+                node.attributes = {
+                    x: offsetX,
+                    y: offsetY
+                }
+            }
+
+            this.addSymbolNode(node);
         }
     }
 

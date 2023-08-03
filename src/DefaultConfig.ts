@@ -63,6 +63,7 @@ export const defaultConfig:EditorConfig = {
         strokeScaleEnabled: false,
         hitStrokeWidth: 2
     },
+    
     history:{
        keyboard:{
           enabled:true
