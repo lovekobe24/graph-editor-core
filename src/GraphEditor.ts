@@ -871,15 +871,14 @@ export default class GraphEditor extends GraphManager {
         let offsetY = Utils.toDecimal(dropPos.y);
         if (node) {
             if (node.attributes) {
-                node.attributes.x = offsetX;
-                node.attributes.y = offsetY;
+                node.attributes.x = node.attributes.x?offsetX+node.attributes.x:offsetX;
+                node.attributes.y = node.attributes.y?offsetY+node.attributes.y:offsetY;
             } else {
                 node.attributes = {
                     x: offsetX,
                     y: offsetY
                 }
             }
-
             this.addSymbolNode(node);
         }
     }
@@ -1879,7 +1878,13 @@ export default class GraphEditor extends GraphManager {
             symbolNode.setSymbolName(symbolName);
             this.dataModel.removeNodes(selectedNodes);
             this.dataModel.addNode(symbolNode);
-            return symbolNode.toObject();
+            let bounds=symbolNode.getRef().getClientRect({ skipTransform: true});
+            let cloneSymbolNode=symbolNode.clone(true);
+            cloneSymbolNode.setAttributeValues({
+               x:-bounds.x,
+               y:-bounds.y
+            })
+            return cloneSymbolNode.toObject();
         }
 
     }
