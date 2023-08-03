@@ -28,7 +28,7 @@
   <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
 </head>
 
-<body>
+<body oncontextmenu="return false;">
   <div style="padding: 0px 2px">
 
     <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="toRegularMode"><i
@@ -76,6 +76,7 @@
     <button title="修改网格" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
     <button title="显示比例" id="zoom" class="layui-btn layui-btn-sm layui-btn-primary">150%</button>
     <button title="组成图元" id="makeSymbol" class="layui-btn layui-btn-sm layui-btn-primary">组成图元</button>
+    <button title="编辑图元" id="editSymbol" class="layui-btn layui-btn-sm layui-btn-primary">编辑图元</button>
   </div>
   <div style="display: flex;">
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
@@ -140,6 +141,15 @@
   <div id="menu" style="display: none;flex-direction: column;">
 
   </div>
+  <!-- 定义一个上下文菜单 -->
+  <div id="myContextMenu" style="display: none;position: absolute;background-color: gray;">
+    <ul>
+      <li ac="addVariable">添加变量</li>
+      <li ac="editSymbol">编辑</li>
+      <li ac="delSymbol">删除</li>
+    </ul>
+  </div>
+
 
   <script type="module">
     import GraphEditor from '../src/GraphEditor';
@@ -157,7 +167,7 @@
         let shape = JSON.parse(event.dataTransfer.getData("dropData")).content
         if (type == 'shape') {
           graphEditor.dropShape(event, shape);
-        }else{
+        } else {
           graphEditor.dropSymbol(event, shape);
         }
 
@@ -193,8 +203,52 @@
       shapeDiv.appendChild(labelDiv);
       document.getElementById("leftPanel").appendChild(shapeDiv);
     })
+    let curSymbol;
+    let curSymbolIndex;
+    myContextMenu.addEventListener('click', (e) => {
+      console.log(e.target);
+      let ac = $(e.target).attr('ac')
+      if (ac == 'addVariable') {
+        console.log('添加变量')
+        if (curSymbol) {
+          layer.open({
+            type: 1,
+            title: '输入内容',
+            content: '<input type="text" id="inputText">',
+            btn: ['确认', '取消'],
+            yes: function (index, layero) {
+              var inputValue = $('#inputText').val(); // 获取输入框的值
+              // 处理输入框中的内容
+              console.log("输入的内容是：" + inputValue);
+              let symbols = JSON.parse(localStorage.getItem('symbol'));
+          
+              let symbolObj = graphEditor.addSymbolVariable(curSymbol, 'state', {
+                type: 'integer',
+                defaultVal: 1
+              });
+              if (symbolObj) {
+                if(curSymbolIndex!=-1){
+                  console.log('添加变量成功',curSymbolIndex)
+                  symbols[curSymbolIndex] = symbolObj;
+                  localStorage.setItem('symbol', JSON.stringify(symbols))
+                }else{
+                  console.log("未找到symbol")
+                }
+             
+              }
+              layer.close(index); // 关闭弹窗
+            },
+            btn2: function (index, layero) {
+              // 点击取消按钮的回调函数
+            }
+          });
+        }
+        myContextMenu.style.display = 'none';
+      }
+    })
+   
     const initSymbolPanel = (symbols) => {
-      symbols.forEach((symbol) => {
+      symbols.forEach((symbol,index) => {
         let shapeDiv = document.createElement("div");
         shapeDiv.style.width = "60px";
         shapeDiv.style.height = "60px";
@@ -210,6 +264,16 @@
             JSON.stringify({ type: 'symbol', content: symbol })
           );
 
+        });
+        // 显示上下文菜单
+        shapeDiv.addEventListener('mousedown', function (e) {
+          if (e.button === 2) {
+            myContextMenu.style.display = 'block';
+            myContextMenu.style.left = e.clientX + 'px';
+            myContextMenu.style.top = e.clientY + 'px';
+            curSymbol = symbol
+            curSymbolIndex=index
+          }
         });
 
         let topDiv = document.createElement("div");
@@ -234,6 +298,14 @@
     document.getElementById('toRegularMode').addEventListener('click', () => {
       graphEditor.stopDrawing();
     })
+    let oldVariables;
+    document.getElementById('editSymbol').addEventListener('click', () => {
+      let selection=graphEditor.getSelection();
+      console.log(selection)
+      oldVariables=selection.variables
+      graphEditor.editSymbol();
+    })
+    
     document.getElementById('line').addEventListener('click', () => {
       graphEditor.drawShape('line');
     })
@@ -326,18 +398,24 @@
           var inputValue = $('#inputText').val(); // 获取输入框的值
           // 处理输入框中的内容
           console.log("输入的内容是：" + inputValue);
-          let symbolObj = graphEditor.makeSymbol(inputValue);
+          let symbolObj = graphEditor.makeSymbol(inputValue,oldVariables);
           if (symbolObj) {
             if (localSymbol) {
               let symbols = JSON.parse(localSymbol);
+              let sameNameSymbol = symbols.filter((item) => item.symbolName == inputValue);
+              //if(sameNameSymbol.length>0){
+
               symbols.push(symbolObj);
               localStorage.setItem('symbol', JSON.stringify(symbols))
+              //  }
+
             } else {
               let symbols = [];
               symbols.push(symbolObj);
               localStorage.setItem('symbol', JSON.stringify(symbols))
             }
           }
+          oldVariables=null;
           layer.close(index); // 关闭弹窗
         },
         btn2: function (index, layero) {
@@ -698,7 +776,7 @@
       graphEditor.addVariable('变量3', {
         type: 'integer',
         defaultVal: 0
-      }, false);
+      }, false,ids[0]);
       console.log(graphEditor.getVariables());
       //修改变量
       graphEditor.updateVariable('变量3', {

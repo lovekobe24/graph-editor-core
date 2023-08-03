@@ -2,6 +2,7 @@ import type { Node } from '../model/Node';
 import { GroupNode } from '../model/GroupNode';
 import Change from './Change';
 import Konva from 'konva';
+import { ContainerNode } from '../model/ContainerNode';
 
 class GroupChange extends Change {
 
@@ -32,7 +33,7 @@ class GroupChange extends Change {
             this.members = nodes;
             this.memberZIndexs = nodes.map((item: any) => item.getZIndex());
         } else {
-            nodes = nodes.filter((item: Node) => item instanceof GroupNode);
+            nodes = nodes.filter((item: Node) => item instanceof ContainerNode);
             this.groups = nodes;
             this.groupZIndexs = nodes.map((item: any) => item.getZIndex());
             for (let node of nodes) {

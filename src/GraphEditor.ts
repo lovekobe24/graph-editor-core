@@ -30,7 +30,7 @@ import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
 import { orderDirection, type AlignDirection, type Dimensions, type EditorConfig, type GridConfig, type MoveDirection, type NodeConfig, type OrderDirection, type StyleConfig } from "./types";
-import { SymbolNode } from "./index.all";
+import { GroupNode, SymbolNode } from "./index.all";
 
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
@@ -1862,7 +1862,31 @@ export default class GraphEditor extends GraphManager {
      */
     makeSymbol(symbolName: string) {
         let selectedNodes = this.getOperateNodes();
+
         if (selectedNodes.length > 0) {
+          
+            //遍历提取子元素的variable
+            let symbolVariables={};
+            let validatedOk=true;
+            (function loop(nodes) {
+                for (let node of nodes) {
+                  
+                    let nodeVariables=node.getVariables();
+                    for(let key in nodeVariables){
+                        if(!symbolVariables.hasOwnProperty(key)){
+                            symbolVariables[key]=nodeVariables[key];
+                        }
+                    }
+                    
+                    if (node instanceof SymbolNode) {
+                        loop(node.getMembers());
+                        validatedOk=false;
+                    }else if(node instanceof GroupNode){
+                        loop(node.getMembers());
+                    }
+                }
+            })(selectedNodes);
+            if(!validatedOk) return 
             let symbolNode = new SymbolNode(
                 {
                     attributes: {
@@ -1870,6 +1894,7 @@ export default class GraphEditor extends GraphManager {
                     }
                 }
             );
+
             symbolNode.setMembers(selectedNodes.map((item: any) => {
                 let node = item.clone(true);
                 node.setAttributeValue('draggable', false);
@@ -1887,6 +1912,26 @@ export default class GraphEditor extends GraphManager {
             return cloneSymbolNode.toObject();
         }
 
+    }
+
+    /**
+     * 
+     * @param symbolJson 
+     * @param variable 
+     */
+    addSymbolVariable(symbolJson:any,variableName:any,variable:any){
+        if(symbolJson.variables){
+            symbolJson.variables[variableName]=variable
+        }else{
+            var addObj={};
+            addObj[variableName]=variable;
+            symbolJson.variables=addObj
+        }
+        return symbolJson;
+        
+    }
+    editSymbol(){
+        this.unGroup();
     }
 
 
