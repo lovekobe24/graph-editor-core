@@ -18,9 +18,15 @@
     src="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.js?spm=a313x.7781069.1998910419.53&file=font_3759154_f4x5ab2inh5.js"></script>
   <link rel="stylesheet"
     href="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.css?spm=a313x.7781069.1998910419.52&file=font_3759154_f4x5ab2inh5.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.css"
+    integrity="sha512-/JghmMAi5bleEgj1BT7h7Jm2+o4I4AbJYRVaY3eGGfdyTzV+yW3n0IedWH4ysbws5zpNK1beCqVJh0MSZxvNaA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"
+    integrity="sha512-jhDajNRbXZ4gJ8SVzcuWTHbgSX66Dh98CwmAkhBHWVuEYVgY8G35rbZuRlQwrOcwEB6z5aYzxUptsSjgTGlCbA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <!-- <script src="../umd/GraphEditor.js"></script> -->
   <!-- <script src="../umd/GraphViewer.js"></script> -->
   <!-- <script src="https://unpkg.com/graph-editor-core/umd/GraphEditor.js"></script> -->
@@ -106,6 +112,7 @@
       <ul class="layui-tab-title">
         <li class="layui-this" lay-id="11">属性</li>
         <li lay-id="22">动画</li>
+        <li lay-id="22">变量</li>
       </ul>
       <div class="layui-tab-content">
         <div class="layui-tab-item layui-show">
@@ -135,6 +142,9 @@
             </div>
           </div>
         </div>
+        <div class="layui-tab-item">
+          <div id="jsonEditor" style="width: 300px; height: 400px;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -156,6 +166,9 @@
     import GraphViewer from '../src/GraphViewer';
     import basicShapeList from "./shape/basic";
     import Utils from "../src/Utils"
+    const container = document.getElementById("jsonEditor")
+    const options = {}
+    const editor = new JSONEditor(container, options)
     document.getElementById("editor").addEventListener('dragover', (event) => {
       event.preventDefault();
     })
@@ -208,6 +221,7 @@
     myContextMenu.addEventListener('click', (e) => {
       console.log(e.target);
       let ac = $(e.target).attr('ac')
+      let symbols = JSON.parse(localStorage.getItem('symbol'));
       if (ac == 'addVariable') {
         console.log('添加变量')
         if (curSymbol) {
@@ -220,21 +234,21 @@
               var inputValue = $('#inputText').val(); // 获取输入框的值
               // 处理输入框中的内容
               console.log("输入的内容是：" + inputValue);
-              let symbols = JSON.parse(localStorage.getItem('symbol'));
-          
+             
+
               let symbolObj = graphEditor.addSymbolVariable(curSymbol, 'state', {
                 type: 'integer',
                 defaultVal: 1
               });
               if (symbolObj) {
-                if(curSymbolIndex!=-1){
-                  console.log('添加变量成功',curSymbolIndex)
+                if (curSymbolIndex != -1) {
+                  console.log('添加变量成功', curSymbolIndex)
                   symbols[curSymbolIndex] = symbolObj;
                   localStorage.setItem('symbol', JSON.stringify(symbols))
-                }else{
+                } else {
                   console.log("未找到symbol")
                 }
-             
+
               }
               layer.close(index); // 关闭弹窗
             },
@@ -244,11 +258,19 @@
           });
         }
         myContextMenu.style.display = 'none';
+      } else if (ac == 'delSymbol') {
+        if (curSymbolIndex != -1) {
+          symbols.splice(curSymbolIndex,1);
+          localStorage.setItem('symbol', JSON.stringify(symbols))
+          console.log('删除成功')
+        } else {
+          console.log("未找到要删除的symbol")
+        }
       }
     })
-   
+
     const initSymbolPanel = (symbols) => {
-      symbols.forEach((symbol,index) => {
+      symbols.forEach((symbol, index) => {
         let shapeDiv = document.createElement("div");
         shapeDiv.style.width = "60px";
         shapeDiv.style.height = "60px";
@@ -272,7 +294,7 @@
             myContextMenu.style.left = e.clientX + 'px';
             myContextMenu.style.top = e.clientY + 'px';
             curSymbol = symbol
-            curSymbolIndex=index
+            curSymbolIndex = index
           }
         });
 
@@ -300,12 +322,12 @@
     })
     let oldVariables;
     document.getElementById('editSymbol').addEventListener('click', () => {
-      let selection=graphEditor.getSelection();
+      let selection = graphEditor.getSelection();
       console.log(selection)
-      oldVariables=selection.variables
+      oldVariables = selection.variables
       graphEditor.editSymbol();
     })
-    
+
     document.getElementById('line').addEventListener('click', () => {
       graphEditor.drawShape('line');
     })
@@ -398,7 +420,7 @@
           var inputValue = $('#inputText').val(); // 获取输入框的值
           // 处理输入框中的内容
           console.log("输入的内容是：" + inputValue);
-          let symbolObj = graphEditor.makeSymbol(inputValue,oldVariables);
+          let symbolObj = graphEditor.makeSymbol(inputValue, oldVariables);
           if (symbolObj) {
             if (localSymbol) {
               let symbols = JSON.parse(localSymbol);
@@ -415,7 +437,7 @@
               localStorage.setItem('symbol', JSON.stringify(symbols))
             }
           }
-          oldVariables=null;
+          oldVariables = null;
           layer.close(index); // 关闭弹窗
         },
         btn2: function (index, layero) {
@@ -776,7 +798,7 @@
       graphEditor.addVariable('变量3', {
         type: 'integer',
         defaultVal: 0
-      }, false,ids[0]);
+      }, false, ids[0]);
       console.log(graphEditor.getVariables());
       //修改变量
       graphEditor.updateVariable('变量3', {
@@ -891,6 +913,7 @@
           initPropertyPanel(selectedNodes[0])
           if (selectedNodes.length == 1) {
             initAnimationPanel(selectedNodes[0])
+            initVariablePanel(selectedNodes[0])
           }
 
         }
@@ -1020,7 +1043,13 @@
 
       }
     }
+    const initVariablePanel = (node) => {
+      let variables = node.variables;
+      if (variables) {
+        editor.set(variables)
+      }
 
+    }
     const initAnimationPanel = (node) => {
 
       let autoPlay = node.animation['autoPlay'];
