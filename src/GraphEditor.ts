@@ -32,6 +32,7 @@ import { defaultConfig } from "./DefaultConfig";
 import { orderDirection, type AlignDirection, type Dimensions, type EditorConfig, type GridConfig, type MoveDirection, type NodeConfig, type OrderDirection, type StyleConfig } from "./types";
 import { GroupNode, SymbolNode } from "./index.all";
 
+
 export default class GraphEditor extends GraphManager {
     private gridLayer: Layer = new Konva.Layer({ listening: false });
     private helpLayer: Layer = new Konva.Layer();
@@ -812,9 +813,9 @@ export default class GraphEditor extends GraphManager {
      * @param opt 图元的json信息
      */
     addSymbolNode(opt: NodeConfig) {
-    
+
         let node = Node.create(opt);
-        let cloneNode=node.clone(true);
+        let cloneNode = node.clone(true);
         if (cloneNode) {
             let nodeChange = new NodeChange([cloneNode], 'add', this.dataModel);
             let cmd = new Command([nodeChange]);
@@ -862,6 +863,11 @@ export default class GraphEditor extends GraphManager {
         }
     }
 
+    /**
+     * 根据鼠标的位置，实例化图元加入到模型
+     * @param e 拖拽事件
+     * @param node symbol的json数据
+     */
     dropSymbol(e: DragEvent, node: NodeConfig) {
         e.preventDefault();
         //将屏幕坐标转为文档坐标
@@ -871,14 +877,15 @@ export default class GraphEditor extends GraphManager {
         let offsetY = Utils.toDecimal(dropPos.y);
         if (node) {
             if (node.attributes) {
-                node.attributes.x = node.attributes.x?offsetX+node.attributes.x:offsetX;
-                node.attributes.y = node.attributes.y?offsetY+node.attributes.y:offsetY;
+                node.attributes.x = node.attributes.x ? offsetX + node.attributes.x : offsetX;
+                node.attributes.y = node.attributes.y ? offsetY + node.attributes.y : offsetY;
             } else {
                 node.attributes = {
                     x: offsetX,
                     y: offsetY
                 }
             }
+
             this.addSymbolNode(node);
         }
     }
@@ -1857,36 +1864,41 @@ export default class GraphEditor extends GraphManager {
         return this.dataModel.checkId();
     }
     /**
-     * 组成图元
-     * @param symbolName 图元名称
+     * 对当前选中元素提取变量
      */
-    makeSymbol(symbolName: string) {
+    extractVariables() {
         let selectedNodes = this.getOperateNodes();
-
         if (selectedNodes.length > 0) {
-          
             //遍历提取子元素的variable
-            let symbolVariables={};
-            let validatedOk=true;
+            let symbolVariables = {};
             (function loop(nodes) {
                 for (let node of nodes) {
-                  
-                    let nodeVariables=node.getVariables();
-                    for(let key in nodeVariables){
-                        if(!symbolVariables.hasOwnProperty(key)){
-                            symbolVariables[key]=nodeVariables[key];
+                    let nodeVariables = node.getVariables();
+                    for (let key in nodeVariables) {
+                        if (!symbolVariables.hasOwnProperty(key)) {
+                            symbolVariables[key] = nodeVariables[key];
                         }
                     }
-                    
                     if (node instanceof SymbolNode) {
                         loop(node.getMembers());
-                        validatedOk=false;
-                    }else if(node instanceof GroupNode){
+                    } else if (node instanceof GroupNode) {
                         loop(node.getMembers());
                     }
                 }
             })(selectedNodes);
-            if(!validatedOk) return 
+            return symbolVariables;
+        }
+    }
+    /**
+     * 组成图元
+     * @param symbolName 图元名称
+     */
+    makeSymbol(symbolName: string) {
+
+        if (!symbolName) throw new Error("名称不能为空");
+        let selectedNodes = this.getOperateNodes();
+
+        if (selectedNodes.length > 0) {
             let symbolNode = new SymbolNode(
                 {
                     attributes: {
@@ -1894,7 +1906,6 @@ export default class GraphEditor extends GraphManager {
                     }
                 }
             );
-
             symbolNode.setMembers(selectedNodes.map((item: any) => {
                 let node = item.clone(true);
                 node.setAttributeValue('draggable', false);
@@ -1902,13 +1913,46 @@ export default class GraphEditor extends GraphManager {
             }));
             symbolNode.setSymbolName(symbolName);
             this.dataModel.removeNodes(selectedNodes);
-            this.dataModel.addNode(symbolNode);
-            let bounds=symbolNode.getRef().getClientRect({ skipTransform: true});
-            let cloneSymbolNode=symbolNode.clone(true);
+            let bounds = symbolNode.getRef().getClientRect({ skipTransform: true });
+            let cloneSymbolNode = symbolNode.clone(true);
             cloneSymbolNode.setAttributeValues({
-               x:-bounds.x,
-               y:-bounds.y
+                x: -bounds.x,
+                y: -bounds.y
             })
+            //遍历提取子元素的variable
+            let symbolVariables = {};
+            (function loop(node, path) {
+                let nodeIndex='node_' + path.join('_');
+                let nodeVariables = node.getVariables();
+                for (let key in nodeVariables) {
+                    if (!symbolVariables.hasOwnProperty(key)) {
+                        let jsonContent = nodeVariables[key];
+                        jsonContent['from'] = [nodeIndex]
+                        symbolVariables[key] = nodeVariables[key];
+                    } else {
+                        //如果已经提取过这个变量了
+                        let jsonContent = symbolVariables[key];
+                        jsonContent['from'].push(nodeIndex)
+                    }
+                }
+                node.setVariables(null);
+                if (node instanceof SymbolNode || node instanceof GroupNode) {
+                    node.getMembers().forEach((member,index)=>{
+                        const childPath = path.concat(index); // 将当前节点索引添加到路径中
+                        loop(member,childPath);
+                    })
+                } 
+
+            })(cloneSymbolNode, []);
+            cloneSymbolNode.setVariables(symbolVariables);
+            let variableWithoutFrom = {};
+            for (let key in symbolVariables) {
+                let symbolContent = JSON.parse(JSON.stringify(symbolVariables[key]));
+                delete symbolContent.from;
+                variableWithoutFrom[key] = symbolContent;
+            }
+            symbolNode.setVariables(variableWithoutFrom);
+            this.dataModel.addNode(symbolNode);
             return cloneSymbolNode.toObject();
         }
 
@@ -1919,19 +1963,60 @@ export default class GraphEditor extends GraphManager {
      * @param symbolJson 
      * @param variable 
      */
-    addSymbolVariable(symbolJson:any,variableName:any,variable:any){
-        if(symbolJson.variables){
-            symbolJson.variables[variableName]=variable
-        }else{
-            var addObj={};
-            addObj[variableName]=variable;
-            symbolJson.variables=addObj
+    addSymbolVariable(symbolJson: any, variableName: any, variable: any) {
+        if (symbolJson.variables) {
+            symbolJson.variables[variableName] = variable
+        } else {
+            var addObj = {};
+            addObj[variableName] = variable;
+            symbolJson.variables = addObj
         }
         return symbolJson;
-        
+
     }
-    editSymbol(){
-        this.unGroup();
+    editSymbol() {
+        let selectedNode = this.getOperateNode();
+        if (selectedNode instanceof SymbolNode) {
+            let variables = selectedNode.getVariables();
+            let nodeToVariableMap = new Map();
+            for (let key in variables) {
+                let from = variables[key]['from'];
+                from.forEach((nodeIndex) => {
+                    if (nodeToVariableMap.has(nodeIndex)) {
+                        nodeToVariableMap.get(nodeIndex).push(key);
+                    } else {
+                        nodeToVariableMap.set(nodeIndex, [key])
+                    }
+                })
+            }
+            //将变量都塞回到原来的节点
+             (function loop(node:Node, path:Array) {
+                 let nodeIndex='node_' + path.join('_');
+                 if(nodeToVariableMap.has(nodeIndex)){
+                     let keys=nodeToVariableMap.get(nodeIndex);
+                     let addedVariables={};
+                     for(let variableName of keys){
+                        addedVariables[variableName]={
+                            'defaultVal':variables[variableName].defaultVal,
+                            'type':variables[variableName].type
+                        }
+                     }
+                     node.setVariables(addedVariables);
+                 }
+                 if (node instanceof SymbolNode || node instanceof GroupNode) {
+                     node.getMembers().forEach((member,index)=>{
+                         const childPath = path.concat(index); // 将当前节点索引添加到路径中
+                         loop(member,childPath);
+                     })
+                 } 
+ 
+             })(selectedNode, []);
+             this.unGroup();
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未选择图元")
+        }
+
+      
     }
 
 

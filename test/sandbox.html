@@ -144,6 +144,7 @@
         </div>
         <div class="layui-tab-item">
           <div id="jsonEditor" style="width: 300px; height: 400px;"></div>
+          <button id="addVarBtn">添加变量</button>
         </div>
       </div>
     </div>
@@ -158,6 +159,24 @@
       <li ac="editSymbol">编辑</li>
       <li ac="delSymbol">删除</li>
     </ul>
+  </div>
+  <div id="generateSymbolVaribles" style="display: flex;flex-direction: column;width: 400px;height: 500px;">
+    <div>
+      <label>名称</label>
+      <input type="text" id="inputText">
+    </div>
+
+    <table id="variableTable" style="border: 1px solid black;">
+      <thead>
+        <tr>
+          <th>变量名</th>
+          <th>类型</th>
+
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
   </div>
 
 
@@ -228,13 +247,17 @@
           layer.open({
             type: 1,
             title: '输入内容',
-            content: '<input type="text" id="inputText">',
+            content: $("#generateSymbolVaribles"),
             btn: ['确认', '取消'],
+            success: function (index, layero) {
+              let tBody = $("#variableTable").find('tbody')[0];
+              console.log(tBody);
+            },
             yes: function (index, layero) {
               var inputValue = $('#inputText').val(); // 获取输入框的值
               // 处理输入框中的内容
               console.log("输入的内容是：" + inputValue);
-             
+
 
               let symbolObj = graphEditor.addSymbolVariable(curSymbol, 'state', {
                 type: 'integer',
@@ -260,7 +283,7 @@
         myContextMenu.style.display = 'none';
       } else if (ac == 'delSymbol') {
         if (curSymbolIndex != -1) {
-          symbols.splice(curSymbolIndex,1);
+          symbols.splice(curSymbolIndex, 1);
           localStorage.setItem('symbol', JSON.stringify(symbols))
           console.log('删除成功')
         } else {
@@ -410,17 +433,58 @@
       let symbols = JSON.parse(localSymbol);
       initSymbolPanel(symbols);
     }
+
+    $("#addVarBtn").on('click', () => {
+      //给当前选中元素添加变量
+      layer.open({
+        type: 1,
+        title: '输入内容',
+        content: '<input type="text" id="varName">',
+        btn: ['确认', '取消'],
+        yes: function (index, layero) {
+          var inputValue = $('#varName').val(); // 获取输入框的值
+          // 处理输入框中的内容
+          console.log("输入的内容是：" + inputValue);
+          graphEditor.addVariable(inputValue,{
+            'type':'integer',
+            'defaultVal':0
+          })
+          layer.close(index); // 关闭弹窗
+        },
+        btn2: function (index, layero) {
+          // 点击取消按钮的回调函数
+        }
+      });
+    })
     document.getElementById('makeSymbol').addEventListener('click', (e) => {
       layer.open({
         type: 1,
         title: '输入内容',
-        content: '<input type="text" id="inputText">',
+        content: $("#generateSymbolVaribles"),
         btn: ['确认', '取消'],
+        success: function (index, layero) {
+          let tBody = $("#variableTable").find('tbody:first');
+          let variables = graphEditor.extractVariables();
+          console.log(variables);
+          if (variables) {
+            for (let key in variables) {
+              let trDiv = document.createElement('tr');
+              let tdDiv = document.createElement('td');
+              trDiv.appendChild(tdDiv);
+              tdDiv.style.textAlign = "center"
+              tdDiv.innerHTML = key;
+              tBody.append(trDiv);
+              let hrDiv = document.createElement('hr');
+              tBody.append(hrDiv);
+            }
+          }
+        },
         yes: function (index, layero) {
           var inputValue = $('#inputText').val(); // 获取输入框的值
           // 处理输入框中的内容
-          console.log("输入的内容是：" + inputValue);
+
           let symbolObj = graphEditor.makeSymbol(inputValue, oldVariables);
+          console.log("组成的图元是：", symbolObj);
           if (symbolObj) {
             if (localSymbol) {
               let symbols = JSON.parse(localSymbol);

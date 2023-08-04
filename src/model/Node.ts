@@ -381,7 +381,11 @@ export abstract class Node {
     }
 
     setVariables(variables: any): void {
-        this.variables = variables;
+        if(variables){
+            this.variables = variables
+        }else{
+             this.variables={};
+        }
     }
 
     getAnimation() {

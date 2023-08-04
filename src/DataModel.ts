@@ -303,7 +303,12 @@ export class DataModel extends TemcEventSource {
     }
 
     setVariables(obj: any) {
-        this.variables = obj
+        if(obj){
+            this.variables = obj
+        }else{
+            this.variables={};
+        }
+       
     }
 
     deleteVariable(name: string) {
