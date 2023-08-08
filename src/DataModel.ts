@@ -5,7 +5,7 @@ import { SelectionManager } from "./SelectionManager";
 import TemcEventSource from "./TemcEventSource";
 import Command from "./command/Command";
 import GroupChange from './command/GroupChange';
-import Utils from "./Utils";
+import {Utils} from "./Utils";
 import EventObject from "./EventObject";
 import { GroupNode } from './model/GroupNode';
 import { LineNode } from './model/LineNode';
@@ -255,66 +255,66 @@ export class DataModel extends TemcEventSource {
 
 
     /*
-       设置整个模型的变量对象（可用于图元）
+       设置整个模型的变量对象（可用于图元）, 暂时不用此方法
    */
-    updateVariable(name: string, variable: any, oldName?: string) {
+    // updateVariable(name: string, variable: any, oldName?: string) {
        
-        if (oldName) {
-            delete this.variables[oldName]
-            this.variables[name] = variable;
-            this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'update', 'variable', variable, 'name', name, 'oldName', oldName), null);
-        } else {
-           //如果没有原来的名字
-           if (this.variables.hasOwnProperty(name)) {
-              this.variables[name] =  Utils.combine(this.variables[name] , variable);
-           }else{
-            console.warn(GRAPH_EDITOR_WARNING + "未找到该变量，更新变量失败");
-           }
+    //     if (oldName) {
+    //         delete this.variables[oldName]
+    //         this.variables[name] = variable;
+    //         this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'update', 'variable', variable, 'name', name, 'oldName', oldName), null);
+    //     } else {
+    //        //如果没有原来的名字
+    //        if (this.variables.hasOwnProperty(name)) {
+    //           this.variables[name] =  Utils.combine(this.variables[name] , variable);
+    //        }else{
+    //         console.warn(GRAPH_EDITOR_WARNING + "未找到该变量，更新变量失败");
+    //        }
          
-        }
-    }
+    //     }
+    // }
     
 
-    addVariable(name: string, variable: any){
-        if (this.variables.hasOwnProperty(name)) {
-            console.warn(GRAPH_EDITOR_WARNING + "已经有此变量名称存在，添加变量失败");
-        } else {
-            let emptyVariable={};
-            this.variables[name] = variable?variable:emptyVariable;
-            this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'add', 'variable', variable, 'name', name), null);
-        }
+    // addVariable(name: string, variable: any){
+    //     if (this.variables.hasOwnProperty(name)) {
+    //         console.warn(GRAPH_EDITOR_WARNING + "已经有此变量名称存在，添加变量失败");
+    //     } else {
+    //         let emptyVariable={};
+    //         this.variables[name] = variable?variable:emptyVariable;
+    //         this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'add', 'variable', variable, 'name', name), null);
+    //     }
+    // }
 
-    }
     /**
      * 查找指定变量
      * @param name 变量名称
      * @returns 指定变量名称的变量
      */
-    getVariable(name:string) {
-        if (this.variables.hasOwnProperty(name)) {
-            return this.variables[name] 
-        } else {
-            console.warn(GRAPH_EDITOR_WARNING + "已经有此变量名称存在，添加变量失败");
-        }
-    }
+    // getVariable(name:string) {
+    //     if (this.variables.hasOwnProperty(name)) {
+    //         return this.variables[name] 
+    //     } else {
+    //         console.warn(GRAPH_EDITOR_WARNING + "已经有此变量名称存在，添加变量失败");
+    //     }
+    // }
 
-    getVariables() {
-        return this.variables;
-    }
+    // getVariables() {
+    //     return this.variables;
+    // }
 
-    setVariables(obj: any) {
-        if(obj){
-            this.variables = obj
-        }else{
-            this.variables={};
-        }
+    // setVariables(obj: any) {
+    //     if(obj){
+    //         this.variables = obj
+    //     }else{
+    //         this.variables={};
+    //     }
        
-    }
+    // }
 
-    deleteVariable(name: string) {
-        delete this.variables[name];
-        this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'delete', 'name', name), null);
-    }
+    // deleteVariable(name: string) {
+    //     delete this.variables[name];
+    //     this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'delete', 'name', name), null);
+    // }
 
     setAttributeValues(attrValuesMap: any) {
         let map = new Map();

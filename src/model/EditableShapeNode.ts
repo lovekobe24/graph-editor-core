@@ -1,4 +1,4 @@
-import Utils from '../Utils';
+import {Utils} from '../Utils';
 import { ShapeNode, ShapeNodeAttrs } from './ShapeNode';
 
 export abstract class EditableShapeNodeAttrs extends ShapeNodeAttrs { }

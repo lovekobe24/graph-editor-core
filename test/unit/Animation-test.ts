@@ -67,4 +67,25 @@ describe('Animation', function () {
         assert.equal(editor.getSelection().length, 1);
         assert.equal(editor.getSelection()[0].animation.type, 'flow');
       })
+      it('add path rotate node to editor', function () {
+    
+        editor.addNode({
+          className: 'LineNode',
+          attributes: {
+            x1: 10,
+            y1: 10,
+            x2: 200,
+            y2: 10,
+            strokeWidth: 2,
+            stroke: 'red',
+            dash:[5,5]
+          }
+        })
+        editor.setAnimation({
+          'type':'rotateByCenter',
+          'autoPlay':true
+        })
+        assert.equal(editor.getSelection().length, 1);
+        assert.equal(editor.getSelection()[0].animation.type, 'flow');
+      })
   })

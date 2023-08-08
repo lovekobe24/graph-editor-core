@@ -2,7 +2,7 @@ import type { DataModel } from "./DataModel";
 import EVENT_TYPE from './constants/EventType';
 import EventObject from './EventObject';
 import { Util } from "konva/lib/Util";
-import Utils from "./Utils";
+import {Utils} from "./Utils";
 
 export class SelectionManager {
 

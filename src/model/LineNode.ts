@@ -3,7 +3,7 @@ import Konva from 'konva';
 import { EditableShapeNode, EditableShapeNodeAttrs } from './EditableShapeNode';
 import Command from '../command/Command';
 import AttributeChange from '../command/AttributeChange';
-import Utils from '../Utils';
+import {Utils} from '../Utils';
 
 export class LineNodeAttrs extends EditableShapeNodeAttrs {
     x1 = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };

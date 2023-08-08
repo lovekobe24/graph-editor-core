@@ -4,9 +4,9 @@ import type { Stage } from "konva/lib/Stage";
 import { DataModel } from "./DataModel";
 import EVENT_TYPE from "./constants/EventType";
 import { Node } from './model/Node';
-import Utils from "./Utils";
+import { Utils } from "./Utils";
 import TemcEventSource from "./TemcEventSource";
-import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO } from './constants/TemcConstants';
+import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO } from './constants/TemcConstants';
 
 import Command from "./command/Command";
 
@@ -130,9 +130,14 @@ export default class GraphEditor extends GraphManager {
         this.initShapeModule();
 
         if (Utils.isBrowser()) {
-            window.addEventListener('keydown', this.onKeyDown.bind(this))
+            var container = this.stage.container();
+            // make it focusable
+            container.tabIndex = 1;
+            // focus it
+            // also stage will be in focus on its click
+            container.focus();
+            container.addEventListener('keydown', this.onKeyDown.bind(this))
         }
-
 
     }
 
@@ -327,6 +332,11 @@ export default class GraphEditor extends GraphManager {
             if (e.evt.button === 2) return
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_DOWN, e.evt.button);
+            }
+        });
+        this.stage.on('dblclick', (e: any) => {
+            if (this.currentMode === DRAWING_MODE) {
+                this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_DBL_CLICK, e.evt.button);
             }
         });
         this.stage.on('mousemove', (e: any) => {
@@ -1349,11 +1359,11 @@ export default class GraphEditor extends GraphManager {
      *    defaultVal:'变量默认值',//必填
      *    type:'integer'//可选
      * };
-     * graphEditor.addVariable('变量1',variable,false)
+     * graphEditor.addVariable('变量1',variable)
      */
-    addVariable(name: string, variable: any, toModel: boolean = false, nodeId?: string) {
+    addVariable(name: string, variable: any, nodeId?: string,toModel: boolean = false,) {
         if (toModel) {
-            this.dataModel.addVariable(name, variable);
+            //this.dataModel.addVariable(name, variable);
         } else {
             let operateNode = this.getOperateNode(nodeId);
             if (operateNode) {
@@ -1374,12 +1384,12 @@ export default class GraphEditor extends GraphManager {
      *  graphEditor.updateVariable('变量2', {
      *      type: 'string',
      *      defaultVal: 6
-     *   }, false,'变量3');
+     *   }, '变量3');
      * 
      */
-    updateVariable(name: string, variable: any, toModel: boolean = false, oldVariableName?: string, nodeId?: string) {
+    updateVariable(name: string,variable: any,  oldVariableName?: string, nodeId?: string,toModel: boolean = false) {
         if (toModel) {
-            this.dataModel.updateVariable(name, variable, oldVariableName);
+           // this.dataModel.updateVariable(name, variable, oldVariableName);
         } else {
             let operateNode = this.getOperateNode(nodeId);
             if (operateNode) {
@@ -1404,14 +1414,30 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
+     * 获取节点指定的变量
+     * @param name 变量名称
+     * @param nodeId 节点的id
+     */
+    getVariable(name:string,nodeId?: string){
+        let operateNode = this.getOperateNode(nodeId);
+        if (operateNode) {
+            if(operateNode.getVariable(name)){
+                return JSON.parse(JSON.stringify(operateNode.getVariable(name)));
+            }
+        } else {
+            console.log(GRAPH_EDITOR_WARNING + '未找到要获取变量的节点');
+        }
+    }
+
+    /**
      * 删除指定名称的变量
      * @param name 变量名称
      * @param toModel 是否是删除模型上的变量
      * @param nodeId 需要操作的节点
      */
-    deleteVariable(name: string, toModel: boolean, nodeId: string) {
+    deleteVariable(name: string,  nodeId: string,toModel: boolean) {
         if (toModel) {
-            this.dataModel.deleteVariable(name);
+           // this.dataModel.deleteVariable(name);
         } else {
             let operateNode = this.getOperateNode(nodeId);
             if (operateNode) {
@@ -1922,7 +1948,7 @@ export default class GraphEditor extends GraphManager {
             //遍历提取子元素的variable
             let symbolVariables = {};
             (function loop(node, path) {
-                let nodeIndex='node_' + path.join('_');
+                let nodeIndex = 'node_' + path.join('_');
                 let nodeVariables = node.getVariables();
                 for (let key in nodeVariables) {
                     if (!symbolVariables.hasOwnProperty(key)) {
@@ -1937,11 +1963,11 @@ export default class GraphEditor extends GraphManager {
                 }
                 node.setVariables(null);
                 if (node instanceof SymbolNode || node instanceof GroupNode) {
-                    node.getMembers().forEach((member,index)=>{
+                    node.getMembers().forEach((member, index) => {
                         const childPath = path.concat(index); // 将当前节点索引添加到路径中
-                        loop(member,childPath);
+                        loop(member, childPath);
                     })
-                } 
+                }
 
             })(cloneSymbolNode, []);
             cloneSymbolNode.setVariables(symbolVariables);
@@ -1954,12 +1980,14 @@ export default class GraphEditor extends GraphManager {
             symbolNode.setVariables(variableWithoutFrom);
             this.dataModel.addNode(symbolNode);
             return cloneSymbolNode.toObject();
+        }else{
+            console.warn(GRAPH_EDITOR_WARNING + "未选择任何形状，不能组成图元")
         }
 
     }
 
     /**
-     * 
+     * 暂时不使用此方法
      * @param symbolJson 
      * @param variable 
      */
@@ -1974,6 +2002,9 @@ export default class GraphEditor extends GraphManager {
         return symbolJson;
 
     }
+    /**
+     * 编辑图元，对当前选中的图元进行编辑
+     */
     editSymbol() {
         let selectedNode = this.getOperateNode();
         if (selectedNode instanceof SymbolNode) {
@@ -1981,7 +2012,7 @@ export default class GraphEditor extends GraphManager {
             let nodeToVariableMap = new Map();
             for (let key in variables) {
                 let from = variables[key]['from'];
-                from.forEach((nodeIndex) => {
+                from?.forEach((nodeIndex) => {
                     if (nodeToVariableMap.has(nodeIndex)) {
                         nodeToVariableMap.get(nodeIndex).push(key);
                     } else {
@@ -1990,34 +2021,30 @@ export default class GraphEditor extends GraphManager {
                 })
             }
             //将变量都塞回到原来的节点
-             (function loop(node:Node, path:Array) {
-                 let nodeIndex='node_' + path.join('_');
-                 if(nodeToVariableMap.has(nodeIndex)){
-                     let keys=nodeToVariableMap.get(nodeIndex);
-                     let addedVariables={};
-                     for(let variableName of keys){
-                        addedVariables[variableName]={
-                            'defaultVal':variables[variableName].defaultVal,
-                            'type':variables[variableName].type
+            (function loop(node: Node, path: Array) {
+                let nodeIndex = 'node_' + path.join('_');
+                if (nodeToVariableMap.has(nodeIndex)) {
+                    let keys = nodeToVariableMap.get(nodeIndex);
+                    let addedVariables = {};
+                    for (let variableName of keys) {
+                        addedVariables[variableName] = {
+                            'defaultVal': variables[variableName].defaultVal,
+                            'type': variables[variableName].type
                         }
-                     }
-                     node.setVariables(addedVariables);
-                 }
-                 if (node instanceof SymbolNode || node instanceof GroupNode) {
-                     node.getMembers().forEach((member,index)=>{
-                         const childPath = path.concat(index); // 将当前节点索引添加到路径中
-                         loop(member,childPath);
-                     })
-                 } 
- 
-             })(selectedNode, []);
-             this.unGroup();
+                    }
+                    node.setVariables(addedVariables);
+                }
+                if (node instanceof SymbolNode || node instanceof GroupNode) {
+                    node.getMembers().forEach((member, index) => {
+                        const childPath = path.concat(index); // 将当前节点索引添加到路径中
+                        loop(member, childPath);
+                    })
+                }
+
+            })(selectedNode, []);
+            this.unGroup();
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未选择图元")
         }
-
-      
     }
-
-
 }

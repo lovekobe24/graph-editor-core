@@ -7,10 +7,10 @@ import { DataModel } from './DataModel';
 import { ContainerNode, ContainerNodeAttrs } from './model/ContainerNode';
 
 import { Node } from './model/Node';
-import Utils from './Utils';
+import {Utils} from './Utils';
 import { GraphManager } from "./GraphManager";
 import type { ViewerConfig } from "./types";
-
+import { GroupNode, SymbolNode } from "./index.all";
 
 export default class GraphViewer extends GraphManager {
     firstPreview: boolean = true;
@@ -343,16 +343,18 @@ export default class GraphViewer extends GraphManager {
         let clName = node.getClassName();
         //先要执行元素上本身的事件，然后到递归子元素，响应子元素事件,如果没有这个操作，则ContainerNode的事件不会响应
         this.changeNodeByEventOnce(node, variableJson, ownVariable);
-        if (clName == 'GroupNode') {
+        if (node instanceof GroupNode) {
             let groupMembers = node.getMembers() ? node.getMembers() : [];
             groupMembers.forEach((element: any) => {
+                let id=element.getId();
                 //使用自身的变量
+                variableJson=_this.realTimeVariableJson.hasOwnProperty(id)?_this.realTimeVariableJson[id]:this.getVariableJson(Utils.deepCopy(element.getVariables()));
                 this.changeNodeByEvent(element, variableJson, true);
             });
-        } else if (clName == 'SymbolNode') {
+        } else if (node instanceof SymbolNode) {
             //如果节点类型为Symbol，则此时要获取一下SymbolNode的变量作为参数
-            if(realTimeVariableJson.hasOwnProperty(node.getId())){
-                variableJson=realTimeVariableJson[node.getId()];
+            if(_this.realTimeVariableJson.hasOwnProperty(node.getId())){
+                variableJson=_this.realTimeVariableJson[node.getId()];
             }else{
                 variableJson=this.getVariableJson(Utils.deepCopy(node.getVariables()));
             }
@@ -382,7 +384,7 @@ export default class GraphViewer extends GraphManager {
     * })
     */
     refreshGraph(realTimeVariableJson?:any) {
-        this.realTimeVariableJson=realTimeVariableJson;
+        this.realTimeVariableJson=realTimeVariableJson?realTimeVariableJson:{};
         if (this.dataModel) {
             if (this.firstPreview) {
                 this.parseMouseEventNode();
@@ -390,8 +392,8 @@ export default class GraphViewer extends GraphManager {
             }
             this.dataModel.nodes.forEach((node: any) => {
                 let variableJson={};
-                if(realTimeVariableJson.hasOwnProperty(node.getId())){
-                    variableJson=realTimeVariableJson[node.getId()];
+                if(this.realTimeVariableJson.hasOwnProperty(node.getId())){
+                    variableJson=this.realTimeVariableJson[node.getId()];
                 }else{
                     variableJson=this.getVariableJson(Utils.deepCopy(node.getVariables()));
                 }

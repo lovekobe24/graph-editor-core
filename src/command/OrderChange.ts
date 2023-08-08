@@ -3,7 +3,7 @@
 import EVENT_TYPE from "../constants/EventType";
 import { MOVE_STYLE } from "../constants/StyleMap";
 
-import Utils from "../Utils";
+import {Utils} from "../Utils";
 import EventObject from "../EventObject";
 class OrderChange {
     previousValue: any;

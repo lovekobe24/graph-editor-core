@@ -37,7 +37,6 @@ class PenShape extends AbstractShape {
                 }
                 break;
             case DRAWING_MOUSE_UP:
-                console.log('DRAWING_MOUSE_UP');
                 if (this.firstPoint) {
                     let node = this.createElement(this.tempLine.points(), graphEditor);
                     this.tempLine.destroy();
@@ -47,7 +46,7 @@ class PenShape extends AbstractShape {
                     
                 }
                 if (this.tempLine) {
-                    console.log('destory this.tempLine');
+                   
                     this.tempLine.destroy();
                 }
                 this.firstPoint=null;

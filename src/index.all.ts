@@ -2,7 +2,7 @@
 
 import GraphEditor from './GraphEditor';
 import GraphViewer from './GraphViewer';
-import Utils from './Utils' ;
+
 import { SymbolNode } from './model/SymbolNode';
 import { RectNode } from './model/RectNode';
 import { EllipseNode } from './model/EllipseNode';
@@ -22,6 +22,8 @@ import { LineNode } from "./model/LineNode";
 import { PenNode } from "./model/PenNode";
 import { PolylineNode } from "./model/PolylineNode";
 import { PolylineArrowNode } from "./model/PolylineArrowNode";
+import { Utils } from './Utils';
+
 
 
 RectNode.register();
@@ -46,6 +48,7 @@ WedgeNode.register();
 
 export { GraphEditor }
 export { GraphViewer }
+
 
 export { DataModel }  from './DataModel';
 export { Node }  from './model/Node';
@@ -73,4 +76,6 @@ export {StyleConfig} from './types/config';
 export {AlignDirection} from './types/common'
 export {Event,EventType,EventAction,EventWhereType} from './types/common'
 
-export default GraphEditor;
+export {Utils};
+  
+

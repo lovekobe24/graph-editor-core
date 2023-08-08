@@ -1,5 +1,5 @@
 import assert from "assert";
-import Utils from "../../src/Utils";
+import {Utils} from "../../src/Utils";
 
 describe('Util', function () {
   it('getRad', function () {

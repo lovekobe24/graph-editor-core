@@ -1,5 +1,5 @@
 import type { GraphManager } from "../GraphManager";
-import Utils from "../Utils";
+import {Utils} from "../Utils";
 
 import type Command from "./Command";
 

@@ -1,7 +1,7 @@
 import type { Stage } from "konva/lib/Stage";
 import { GRAPH_EDITOR_WARNING, MAX_SCALE, MIN_SCALE } from "./constants/TemcConstants";
 import type { DataModel } from "./DataModel";
-import Utils from "./Utils";
+import {Utils} from "./Utils";
 import Konva from "konva";
 import type { Node } from './model/Node';
 import type { Layer } from "konva/lib/Layer";
@@ -149,7 +149,7 @@ export abstract class GraphManager {
             this.name = graphJson.name;
         }
         this.dataModel?.fromObject(graphJson.model);
-        this.dataModel?.setVariables(graphJson.variables);
+       // this.dataModel?.setVariables(graphJson.variables);
     }
 
     /**

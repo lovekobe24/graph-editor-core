@@ -1,4 +1,4 @@
-import Utils from "../Utils";
+import {Utils} from "../Utils";
 import EVENT_TYPE from '../constants/EventType';
 import EventObject from "../EventObject";
 import { EXECUTE_SCRIPT_ACTION, GRAPH_EDITOR_INFO, GRAPH_EDITOR_WARNING, animationToDefaultPeriod, supportAnimation, supportEventAction, supportEventType } from "../constants/TemcConstants";
@@ -245,11 +245,13 @@ export abstract class Node {
         if (oldName) {
             delete this.variables[oldName]
             this.variables[name] = variable;
-            this.dataModel.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'update', 'variable', variable, 'name', name, 'oldName', oldName), null);
+            this.dataModel.fireEvent(new EventObject(EVENT_TYPE.NODE_VARIABLE_CHANGE, 'type', 'update', 'variable', variable, 'name', name, 'oldName', oldName), null);
         } else {
+         
             //如果没有原来的名字
             if (this.variables.hasOwnProperty(name)) {
                 this.variables[name] = Utils.combine(this.variables[name], variable);
+                this.dataModel.fireEvent(new EventObject(EVENT_TYPE.NODE_VARIABLE_CHANGE, 'type', 'update', 'variable', variable, 'name', name), null);
             } else {
                 console.warn(GRAPH_EDITOR_WARNING + "未找到该变量，更新变量失败");
             }
@@ -378,6 +380,15 @@ export abstract class Node {
 
     getVariables(): any {
         return this.variables;
+    }
+
+    getVariable(name:string):any{
+        if(this.variables.hasOwnProperty(name)){
+            return this.variables[name]
+        }else{
+            console.warn(GRAPH_EDITOR_WARNING + '未找到名称为'+name+'的变量');
+        }
+       
     }
 
     setVariables(variables: any): void {

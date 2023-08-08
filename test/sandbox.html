@@ -27,8 +27,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"
     integrity="sha512-jhDajNRbXZ4gJ8SVzcuWTHbgSX66Dh98CwmAkhBHWVuEYVgY8G35rbZuRlQwrOcwEB6z5aYzxUptsSjgTGlCbA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- <script src="../umd/GraphEditor.js"></script> -->
-  <!-- <script src="../umd/GraphViewer.js"></script> -->
+  <!-- <script src="../umd/GraphEditor.js"></script>
+  <script src="../umd/GraphViewer.js"></script> -->
+  <script src="../umd/Giraffe.js"></script>
   <!-- <script src="https://unpkg.com/graph-editor-core/umd/GraphEditor.js"></script> -->
   <!-- <script src="https://unpkg.com/graph-editor-core@1.0.25/umd/GraphViewer.js"></script> -->
   <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
@@ -184,7 +185,8 @@
     import GraphEditor from '../src/GraphEditor';
     import GraphViewer from '../src/GraphViewer';
     import basicShapeList from "./shape/basic";
-    import Utils from "../src/Utils"
+    import {Utils} from "../src/Utils"
+    // import Giraffe from '../src/index.all'
     const container = document.getElementById("jsonEditor")
     const options = {}
     const editor = new JSONEditor(container, options)
@@ -322,7 +324,8 @@
         });
 
         let topDiv = document.createElement("div");
-        Utils.convertSymbolToImage(symbol, (img) => {
+        console.log(Giraffe);
+        Giraffe.Utils.convertSymbolToImage(symbol, (img) => {
           console.log(img);
           img.style.width = '30px';
           img.style.height = '30px';
@@ -383,6 +386,7 @@
       graphEditor.align('vertical');
     })
     document.getElementById('save').addEventListener('click', () => {
+      console.log('保存到localStorage');
       localStorage.setItem('graph', graphEditor.toJSON());
 
     })
@@ -445,9 +449,9 @@
           var inputValue = $('#varName').val(); // 获取输入框的值
           // 处理输入框中的内容
           console.log("输入的内容是：" + inputValue);
-          graphEditor.addVariable(inputValue,{
-            'type':'integer',
-            'defaultVal':0
+          graphEditor.addVariable(inputValue, {
+            'type': 'integer',
+            'defaultVal': 0
           })
           layer.close(index); // 关闭弹窗
         },
@@ -599,17 +603,25 @@
         })
         timer = setInterval(() => {
           let variableJson = {}
-          graphView.getNodes().forEach((node) => {
-            let varJson = {};
-            let variables = node.variables;
-            for (let key in variables) {
-              varJson[key] = getRandomInt(1, 3)
+          let allNodes = graphView.getNodes();
+          (function loop(nodes) {
+            for (let node of nodes) {
+              let className=node.className;
+              let varJson = {};
+              let variables = node.variables;
+              for (let key in variables) {
+                varJson[key] = getRandomInt(1, 3)
+              }
+              variableJson[node.id] = varJson;
+              //图元将不再遍历
+              if (className === 'GroupNode') {
+                loop(node.members);
+              }
             }
-            variableJson[node.id] = varJson;
-          })
+          })(allNodes);
           console.log(variableJson);
           //  graphView.setGraphVariable(variableJson);
-          graphView.refreshGraph(variableJson);
+          graphView.refreshGraph();
         }, 5000)
 
         target.innerHTML = '退出预览'
@@ -634,16 +646,19 @@
       }
 
     }
-    let existGraph = localStorage.getItem('graph');
+   let existGraph = localStorage.getItem('graph');
+  
+
     let graphEditor;
     const initGraphViewer = () => {
       console.log(existGraph);
       graphView = new GraphViewer(
         {
           container: document.getElementById('editor'),
-          graph: existGraph,
+          // graph: existGraph,
         }
       );
+      graphView.setGraph(existGraph);
       graphView.setScale(1.2);
       graphView.refreshGraph()
     }
@@ -651,7 +666,7 @@
       graphEditor = new GraphEditor(
         {
           container: document.getElementById('editor'),
-          // graph: existGraph,
+          //  graph: existGraph,
           view: {
             transformer: {
               anchorSize: 6
@@ -825,6 +840,46 @@
       //     draggable: true
       //   }
       // })
+      graphEditor.onModelChanged((sender, event) => {
+        let nodes = event.getProperty('nodes');
+        let eventName = event.getName();
+        if (eventName == 'nodeAttributeChange') {
+          console.log("节点的属性改变了", event.getProperty('nodes'));
+        } else if (eventName == 'nodeEventsChange') {
+          console.log("节点绑定的事件改变了", event.getProperty('events'));
+        } else if (eventName == 'nodeVariableChange') {
+       
+          let type = event.getProperty('type');
+          console.log("节点绑定的变量改变了", type);
+          switch (type) {
+            case 'add':
+              break;
+            case 'delete':
+              break;
+            case 'update':
+              break;
+          }
+        } else if (eventName == 'nodeAnimationChange') {
+          console.log("动画属性改变了", event.getProperty('animation'));
+        } else if (eventName == 'modelVariableChange') {
+          console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
+          let type = event.getProperty('type');
+          switch (type) {
+            case 'add':
+              break;
+            case 'delete':
+              break;
+            case 'update':
+              break;
+          }
+        } else if (eventName == 'addNodes') {
+          console.log("添加节点", event.getProperty('nodes'));
+        } else if (eventName == 'removeNodes') {
+          console.log("删除节点", event.getProperty('nodes'));
+        } else if (eventName == 'nodePropertyChange') {
+          console.log("节点的属性变化了", event.getProperty('tag'));
+        }
+      });
 
       let allNodes = graphEditor.getNodes();
 
@@ -856,20 +911,22 @@
       // //添加变量
       graphEditor.addVariable('state', {
         type: 'integer',
-        defaultVal: 1
-      }, false, ids[0]);
+        defaultVal:3
+      },  ids[0]);
 
       graphEditor.addVariable('变量3', {
         type: 'integer',
         defaultVal: 0
-      }, false, ids[0]);
-      console.log(graphEditor.getVariables());
+      }, ids[0]);
+      console.log(graphEditor.getVariables(ids[0]));
       //修改变量
       graphEditor.updateVariable('变量3', {
         type: 'string',
         defaultVal: 6
-      }, false);
+      },ids[0]);
       console.log(graphEditor.getVariables());
+      console.log(graphEditor.getVariable('变量3',ids[0]));
+      
       //  graphEditor.deleteVariable('变量2', false, ids[0]);
 
       // //设置属性
@@ -921,37 +978,42 @@
       // graphEditor.setBackgroundColor('black');
       // // graphEditor.deleteNodes(selectNodes[0].id);
       //  //添加事件
+      // graphEditor.addEvent({
+      //   type: 'valueUpdate',
+      //   action: 'changeProperty',
+      //   value: [{
+      //     name: 'fill', val: 'rgba(0,0,0,1)'
+      //   }],
+      //   where: {
+      //     type: 'comparison',
+      //     value: 1,
+      //     key: "state",
+      //     comparison: "="
+      //   }
+      // }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'click',
+      //   action: 'executeScript',
+      //   fnjs: 'console.log("world,balalabalabanabbl")'
+      // }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'valueUpdate',
+      //   action: 'changeProperty',
+      //   value: [{
+      //     name: 'fill', val: 'rgba(255,0,0,1)'
+      //   }],
+      //   where: {
+      //     type: 'comparison',
+      //     value: 1,
+      //     key: "state",
+      //     comparison: "!="
+      //   }
+      // }, ids[0])
       graphEditor.addEvent({
         type: 'valueUpdate',
-        action: 'changeProperty',
-        value: [{
-          name: 'fill', val: 'rgba(0,0,0,1)'
-        }],
-        where: {
-          type: 'comparison',
-          value: 1,
-          key: "state",
-          comparison: "="
-        }
-      }, ids[0])
-      graphEditor.addEvent({
-        type: 'click',
         action: 'executeScript',
-        fnjs: 'console.log("world,balalabalabanabbl")'
-      }, ids[0])
-      graphEditor.addEvent({
-        type: 'valueUpdate',
-        action: 'changeProperty',
-        value: [{
-          name: 'fill', val: 'rgba(255,0,0,1)'
-        }],
-        where: {
-          type: 'comparison',
-          value: 1,
-          key: "state",
-          comparison: "!="
-        }
-      }, ids[0])
+        fnjs: "switch(data.state){\r\n    case 1:\r\n    viewer.setNodeAttribute(node,'fill','#C80000')\r\n    break;\r\n    case 2:\r\n      viewer.setNodeAttribute(node,'fill','#FFFF2B')\r\n    break;\r\n    default:\r\n     viewer.setNodeAttribute(node,'fill','#000000')\r\n}"
+      },ids[0]);
       graphEditor.order('top');
       // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
       //点击启动动画
@@ -983,45 +1045,7 @@
         }
         //进行相应操作
       });
-      graphEditor.onModelChanged((sender, event) => {
-        let nodes = event.getProperty('nodes');
-        let eventName = event.getName();
-        if (eventName == 'nodeAttributeChange') {
-          console.log("节点的属性改变了", event.getProperty('nodes'));
-        } else if (eventName == 'nodeEventsChange') {
-          console.log("节点绑定的事件改变了", event.getProperty('events'));
-        } else if (eventName == 'nodeVariableChange') {
-          console.log("节点绑定的变量改变了", event.getProperty('variable'));
-          let type = event.getProperty('type');
-          switch (type) {
-            case 'add':
-              break;
-            case 'delete':
-              break;
-            case 'update':
-              break;
-          }
-        } else if (eventName == 'nodeAnimationChange') {
-          console.log("动画属性改变了", event.getProperty('animation'));
-        } else if (eventName == 'modelVariableChange') {
-          console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
-          let type = event.getProperty('type');
-          switch (type) {
-            case 'add':
-              break;
-            case 'delete':
-              break;
-            case 'update':
-              break;
-          }
-        } else if (eventName == 'addNodes') {
-          console.log("添加节点", event.getProperty('nodes'));
-        } else if (eventName == 'removeNodes') {
-          console.log("删除节点", event.getProperty('nodes'));
-        } else if (eventName == 'nodePropertyChange') {
-          console.log("节点的属性变化了", event.getProperty('tag'));
-        }
-      });
+   
     }
 
 
@@ -1128,7 +1152,7 @@
       }
     }
     initGraphEditor()
-  // initGraphViewer()
+   //initGraphViewer()
   </script>
 </body>
 

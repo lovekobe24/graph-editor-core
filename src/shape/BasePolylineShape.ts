@@ -2,7 +2,7 @@ import Konva from 'konva';
 import AbstractShape from "./AbstractShape";
 import AttributeChange from '../command/AttributeChange';
 import Command from "../command/Command";
-import { DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE } from '../constants/TemcConstants';
+import { DRAWING_MOUSE_DBL_CLICK, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE } from '../constants/TemcConstants';
 import { PolylineNode } from '../model/PolylineNode';
 
 class BasePolylineShape extends AbstractShape {
@@ -36,14 +36,17 @@ class BasePolylineShape extends AbstractShape {
                         });
                         graphEditor.getDrawingLayer().add(this.tempLine);
                     }
-                } else if (btn === 2 && this.tempLine) {
+                }
+                break;
+            case DRAWING_MOUSE_DBL_CLICK:
+                if (this.tempLine) {
                     let points = JSON.parse(JSON.stringify(this.tempLine.points()));
                     let polyline = this.createElement(points, graphEditor);
                     this.insertShapeElement(graphEditor.getDataModel(), polyline);
                     this.tempLine.destroy();
                     this.tempLine = null;
-                 
                 }
+
                 break;
             case DRAWING_MOUSE_MOVE:
                 if (this.tempLine) {

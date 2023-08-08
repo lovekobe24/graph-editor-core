@@ -44,6 +44,24 @@ export default [
         ],
     },
     {
+        input: `src/index.all.ts`,
+        output: [
+            {
+                file: 'umd/Giraffe.js',
+                name: 'Giraffe',
+                format: 'iife',
+                sourcemap: false,
+                freeze: false,
+            }
+        ],
+        plugins: [
+            ignore(['canvas']),
+            nodeResolve(),
+            commonjs(),
+            typescript()
+        ],
+    },
+    {
         plugins: [
             ignore(['canvas']),
             nodeResolve(),

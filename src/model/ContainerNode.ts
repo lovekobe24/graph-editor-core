@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { Node, NodeAttrs } from './Node';
-import Utils from '../Utils';
+import {Utils} from '../Utils';
 
 export class ContainerNodeAttrs extends NodeAttrs { }
 

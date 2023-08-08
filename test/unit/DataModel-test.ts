@@ -85,27 +85,27 @@ describe('DataModel', function () {
 
     assert.equal(nodes?.length, 2);
   })
-  it('saveVariable', function () {
-    editor?.getDataModel()?.addVariable('state', {
-      defaultVal: 1
-    });
-    assert.equal(editor?.getDataModel()?.getVariable('state').defaultVal, 1);
-  })
-  it('getVariables', function () {
-    assert.equal(editor?.getDataModel()?.getVariables().hasOwnProperty('state'), true);
-  })
-  it('setVariables', function () {
-    editor?.getDataModel()?.setVariables({
-      'temperature': {
-        defaultVal: 1
-      }
-    });
-    assert.equal(editor?.getDataModel()?.getVariables().hasOwnProperty('temperature'), true);
-  })
-  it('deleteVariable', function () {
-    editor?.getDataModel()?.deleteVariable('temperature');
-    assert.equal(editor?.getDataModel()?.getVariables().hasOwnProperty('temperature'), false);
-  })
+  // it('saveVariable', function () {
+  //   editor?.getDataModel()?.addVariable('state', {
+  //     defaultVal: 1
+  //   });
+  //   assert.equal(editor?.getDataModel()?.getVariable('state').defaultVal, 1);
+  // })
+  // it('getVariables', function () {
+  //   assert.equal(editor?.getDataModel()?.getVariables().hasOwnProperty('state'), true);
+  // })
+  // it('setVariables', function () {
+  //   editor?.getDataModel()?.setVariables({
+  //     'temperature': {
+  //       defaultVal: 1
+  //     }
+  //   });
+  //   assert.equal(editor?.getDataModel()?.getVariables().hasOwnProperty('temperature'), true);
+  // })
+  // it('deleteVariable', function () {
+  //   editor?.getDataModel()?.deleteVariable('temperature');
+  //   assert.equal(editor?.getDataModel()?.getVariables().hasOwnProperty('temperature'), false);
+  // })
   it('setAttributeValues', function () {
     let attrMap = new Map();
     attrMap.set(rectNode, { 'fill': 'yellow' });
