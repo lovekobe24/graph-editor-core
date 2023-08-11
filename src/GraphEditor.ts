@@ -477,19 +477,56 @@ export default class GraphEditor extends GraphManager {
             });
         });
         this.transformer.on('transformstart', () => {
+            let selectNodes = this.dataModel.getSelectionManager().getSelection();
             //如果resize开始，则停止绘制自动切换到普通模式
             this.setMode(REGULAR_MODE);
+             //找到所有的相关连接线
+             this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
+        });
+        this.transformer.on('transform', () => {
+           this.updateRelatedConnectedLines(); 
+           
         });
         this.transformer.on('transformend', () => {
             let undoRedoManager = this.dataModel.getUndoRedoManager();
             let selectedNodes = this.dataModel.getSelectionManager().getSelection();
-            //需要看是否有连接线
-            let connectedLineNodes = this.getRelatedConnectedLineMap(selectedNodes);
-            const mergedNodes = [...selectedNodes, ...connectedLineNodes];
+            let relatedConnectedLines=[];
+            for(let [node,reasons] of this.relatedConnectedLinesMap){
+                relatedConnectedLines.push(node);
+            }
+            const mergedNodes = [...selectedNodes, ...relatedConnectedLines];
             let resizeChange = new GeometryChange(mergedNodes, 'resize', this.dataModel);
             let cmd = new Command([resizeChange]);
             undoRedoManager.execute(cmd);
         });
+    }
+    updateRelatedConnectedLines(){
+        for(let [node,reasons] of this.relatedConnectedLinesMap){
+            node.getRef().setAttr('x',0)
+            node.getRef().setAttr('y',0)
+            node.getRef().setAttr('scaleX',1)
+            node.getRef().setAttr('scaleY',1)
+            let from = node.from;
+            let to = node.to;
+            if(reasons.indexOf('from')!=-1){
+                let oldSourcePoint = node.getRef().points();
+                let sourceNode = this.stage?.findOne('#' + from.id);
+                let newSourcePoint = sourceNode?.getTransform().point(from.point);
+                oldSourcePoint[0] = newSourcePoint?.x;
+                oldSourcePoint[1] = newSourcePoint?.y;
+            }
+            if(reasons.indexOf('to')!=-1){
+                let oldPoints = node.getRef().points();
+                let toNode = this.stage?.findOne('#' + to.id);
+                let newToPoint = toNode?.getTransform().point(to.point);
+                oldPoints[2] = newToPoint?.x;
+                oldPoints[3] = newToPoint?.y;
+            }
+        }
+       
+        var nodes = this.transformer.nodes();
+        this.transformer.nodes(nodes);
+        this.nodeLayer.batchDraw();
     }
 
     /**
@@ -521,31 +558,8 @@ export default class GraphEditor extends GraphManager {
         });
         // 监听Transformer的拖动事件
         this.transformer.on('dragmove', (e) => {
-            for(let [node,reasons] of this.relatedConnectedLinesMap){
-                node.getRef().setAttr('x',0)
-                node.getRef().setAttr('y',0)
-                let from = node.from;
-                let to = node.to;
-                if(reasons.indexOf('from')!=-1){
-                    let oldSourcePoint = node.getRef().points();
-                    let sourceNode = this.stage?.findOne('#' + from.id);
-                    let newSourcePoint = sourceNode?.getTransform().point(from.point);
-                    oldSourcePoint[0] = newSourcePoint?.x;
-                    oldSourcePoint[1] = newSourcePoint?.y;
-                }
-                if(reasons.indexOf('to')!=-1){
-                    console.log("修改连接线的终点")
-                    let oldPoints = node.getRef().points();
-                    let toNode = this.stage?.findOne('#' + to.id);
-                    let newToPoint = toNode?.getTransform().point(to.point);
-                    oldPoints[2] = newToPoint?.x;
-                    oldPoints[3] = newToPoint?.y;
-                }
-            }
+            this.updateRelatedConnectedLines();
            
-            var nodes = this.transformer.nodes();
-            this.transformer.nodes(nodes);
-            this.nodeLayer.batchDraw();
         });
 
         this.transformer.on('dragend', (e: any) => {
