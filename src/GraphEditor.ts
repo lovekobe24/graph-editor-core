@@ -56,7 +56,7 @@ export default class GraphEditor extends GraphManager {
     copyNodes: any[] = [];
     currentTarget: any;
     private clipboardContent: Node[] = [];
-    relatedConnectedLinesMap:any=new Map();
+    relatedConnectedLinesMap: any = new Map();
     /**
      * 
      * @param container 画布所在的div容器
@@ -293,7 +293,6 @@ export default class GraphEditor extends GraphManager {
     getImportantPoints(target: any) {
         var points = [];
         if (target instanceof Konva.Path) {
-
             var totalLength = target.getLength();
             var step = totalLength / 5; // 分为5等分，可根据需要调整
             for (var i = 0; i <= 5; i++) {
@@ -302,22 +301,8 @@ export default class GraphEditor extends GraphManager {
                 point = transform.point(point);
                 points.push(point);
             }
-
         } else if (target instanceof Konva.Rect) {
             let rect = target.getClientRect({ relativeTo: this.nodeLayer });
-            console.log(rect);
-            // let originPoints = [
-            //     { x: rect.x(), y: rect.y() },
-            //     { x: rect.x() + rect.width(), y: rect.y() },
-            //     { x: rect.x(), y: rect.y() + rect.height() },
-            //     { x: rect.x() + rect.width(), y: rect.y() + rect.height() },
-            //     { x: rect.x() + rect.width() / 2, y: rect.y() },
-            //     { x: rect.x() + rect.width() / 2, y: rect.y() + rect.height() },
-            //     { x: rect.x(), y: rect.y() + rect.height() / 2 },
-            //     { x: rect.x() + rect.width(), y: rect.y() + rect.height() / 2 },
-            //     { x: rect.x() + rect.width() / 2, y: rect.y() + rect.height() / 2 },
-
-            // ]
             points = [
                 { x: rect.x, y: rect.y },
                 { x: rect.x + rect.width, y: rect.y },
@@ -328,8 +313,35 @@ export default class GraphEditor extends GraphManager {
                 { x: rect.x, y: rect.y + rect.height / 2 },
                 { x: rect.x + rect.width, y: rect.y + rect.height / 2 },
                 { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 },
-
             ]
+        } else if (target instanceof Konva.Circle || target instanceof Konva.Ellipse) {
+            let rect = target.getClientRect({ relativeTo: this.nodeLayer });
+            points = [
+                { x: rect.x + rect.width / 2, y: rect.y },
+                { x: rect.x + rect.width / 2, y: rect.y + rect.height },
+                { x: rect.x, y: rect.y + rect.height / 2 },
+                { x: rect.x + rect.width, y: rect.y + rect.height / 2 },
+            ]
+        } else if (target instanceof Konva.Star) {
+            let star=target;
+            // 获取星形的变换矩阵
+            const transform = star.getTransform();
+            const angleIncrement = (Math.PI * 2) / (star.numPoints() * 2);
+            const startAngle = -Math.PI / 2 + angleIncrement;
+            for (let i = 0; i < star.numPoints() * 2; i++) {
+                const angle = startAngle + angleIncrement * i;
+                let radius = star.innerRadius();
+                if (i % 2 === 1) {
+                    radius = star.outerRadius();
+                }
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                let matrixPoint = transform.point({
+                    x: x,
+                    y: y
+                })
+                points.push(matrixPoint);
+            }
         }
         return points
     }
@@ -414,8 +426,13 @@ export default class GraphEditor extends GraphManager {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_UP, e.evt.button);
             }
         });
-        this.nodeLayer.on('mouseenter', (e: any) => {
-            console.log('nodeLayer mouseenter')
+     
+
+    }
+    addEventToNode(konvaNode:any){
+        let _this=this;
+        konvaNode.on('mouseenter', (e: any) => {
+            console.log('mouseenter',e.target);
             switch (this.currentMode) {
                 case DRAWING_MODE:
                     _this.currentTarget = e.target;
@@ -435,14 +452,12 @@ export default class GraphEditor extends GraphManager {
                             this.makerLayer.add(pointMark);
                         });
                     }
-
                     break;
                 case EDITING_MODE:
                     break;
             }
-
         });
-        this.nodeLayer.on('mouseleave', (e: any) => {
+        konvaNode.on('mouseleave', (e: any) => {
             console.log('nodeLayer mouseleave')
             switch (this.currentMode) {
                 case DRAWING_MODE:
@@ -480,18 +495,18 @@ export default class GraphEditor extends GraphManager {
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             //如果resize开始，则停止绘制自动切换到普通模式
             this.setMode(REGULAR_MODE);
-             //找到所有的相关连接线
-             this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
+            //找到所有的相关连接线
+            this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
         });
         this.transformer.on('transform', () => {
-           this.updateRelatedConnectedLines(); 
-           
+            this.updateRelatedConnectedLines();
+
         });
         this.transformer.on('transformend', () => {
             let undoRedoManager = this.dataModel.getUndoRedoManager();
             let selectedNodes = this.dataModel.getSelectionManager().getSelection();
-            let relatedConnectedLines=[];
-            for(let [node,reasons] of this.relatedConnectedLinesMap){
+            let relatedConnectedLines = [];
+            for (let [node, reasons] of this.relatedConnectedLinesMap) {
                 relatedConnectedLines.push(node);
             }
             const mergedNodes = [...selectedNodes, ...relatedConnectedLines];
@@ -500,30 +515,35 @@ export default class GraphEditor extends GraphManager {
             undoRedoManager.execute(cmd);
         });
     }
-    updateRelatedConnectedLines(){
-        for(let [node,reasons] of this.relatedConnectedLinesMap){
-            node.getRef().setAttr('x',0)
-            node.getRef().setAttr('y',0)
-            node.getRef().setAttr('scaleX',1)
-            node.getRef().setAttr('scaleY',1)
+    updateRelatedConnectedLines() {
+        for (let [node, reasons] of this.relatedConnectedLinesMap) {
+            node.getRef().setAttr('x', 0)
+            node.getRef().setAttr('y', 0)
+            node.getRef().setAttr('scaleX', 1)
+            node.getRef().setAttr('scaleY', 1)
             let from = node.from;
             let to = node.to;
-            if(reasons.indexOf('from')!=-1){
+            if (reasons.indexOf('from') != -1) {
                 let oldSourcePoint = node.getRef().points();
                 let sourceNode = this.stage?.findOne('#' + from.id);
-                let newSourcePoint = sourceNode?.getTransform().point(from.point);
+               // let newSourcePoint = sourceNode?.getTransform().point(from.point);
+                //考虑到元素在组的情况，所以要获取所有的矩阵变换剔除stage的，因为连接线也在stage上
+                let tfWithoutStage=sourceNode.getAbsoluteTransform().copy().multiply(this.stage?.getTransform().copy().invert());
+                let newSourcePoint = tfWithoutStage.point(from.point);
                 oldSourcePoint[0] = newSourcePoint?.x;
                 oldSourcePoint[1] = newSourcePoint?.y;
             }
-            if(reasons.indexOf('to')!=-1){
+            if (reasons.indexOf('to') != -1) {
                 let oldPoints = node.getRef().points();
                 let toNode = this.stage?.findOne('#' + to.id);
-                let newToPoint = toNode?.getTransform().point(to.point);
+               // let newToPoint = toNode?.getTransform().point(to.point);
+                let tfWithoutStage=toNode.getAbsoluteTransform().copy().multiply(this.stage?.getTransform().copy().invert());
+                let newToPoint = tfWithoutStage.point(to.point);
                 oldPoints[2] = newToPoint?.x;
                 oldPoints[3] = newToPoint?.y;
             }
         }
-       
+
         var nodes = this.transformer.nodes();
         this.transformer.nodes(nodes);
         this.nodeLayer.batchDraw();
@@ -559,7 +579,7 @@ export default class GraphEditor extends GraphManager {
         // 监听Transformer的拖动事件
         this.transformer.on('dragmove', (e) => {
             this.updateRelatedConnectedLines();
-           
+
         });
 
         this.transformer.on('dragend', (e: any) => {
@@ -567,12 +587,12 @@ export default class GraphEditor extends GraphManager {
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             let undoRedoManager = this.dataModel.getUndoRedoManager();
             //需要看是否有连接线
-         
-            let relatedConnectedLines=[];
-            for(let [node,reasons] of this.relatedConnectedLinesMap){
+
+            let relatedConnectedLines = [];
+            for (let [node, reasons] of this.relatedConnectedLinesMap) {
                 relatedConnectedLines.push(node);
             }
-            console.log(relatedConnectedLines);
+
             const mergedNodes = [...selectNodes, ...relatedConnectedLines];
             let moveChange = new GeometryChange(mergedNodes, 'move', this.dataModel);
             let cmd = new Command([moveChange]);
@@ -580,30 +600,44 @@ export default class GraphEditor extends GraphManager {
         });
     }
     getRelatedConnectedLineMap(selectNodes: any) {
-        let connectedLineNodesMap =new Map();
-        let selectNodesIds = selectNodes.map(item => item.id);
-        this.dataModel?.getNodes().forEach((node) => {
-            if (node instanceof BaseConnectedLineNode) {
-                let from = node.from;
-                let to = node.to;
-                if (selectNodesIds.indexOf(from.id) != -1) {
-                    if (connectedLineNodesMap.has(node)) {
-                        connectedLineNodesMap.get(node).push('from');
-                    }else{
-                        connectedLineNodesMap.set(node,['from']);
-                    }
+        let connectedLineNodesMap = new Map();
+        let selectNodesIds =[];
+        (function loop(nodes) {
+            for (let node of nodes) {
+                selectNodesIds.push(node.getId());
+                if (node instanceof ContainerNode) {
+                    loop(node.getMembers());
                 }
-                if (selectNodesIds.indexOf(to.id) != -1) {
-                    if (connectedLineNodesMap.has(node)) {
-                        connectedLineNodesMap.get(node).push('to');
-                    }else{
-                        connectedLineNodesMap.set(node,['to']); 
-                    }
-                }
+
             }
+        })(selectNodes);
 
-        })
+        (function loop(nodes) {
+            for (let node of nodes) {
+                if (node instanceof BaseConnectedLineNode) {
+                    let from = node.from;
+                    let to = node.to;
+                    if (selectNodesIds.indexOf(from.id) != -1) {
+                        if (connectedLineNodesMap.has(node)) {
+                            connectedLineNodesMap.get(node).push('from');
+                        } else {
+                            connectedLineNodesMap.set(node, ['from']);
+                        }
+                    }
+                    if (selectNodesIds.indexOf(to.id) != -1) {
+                        if (connectedLineNodesMap.has(node)) {
+                            connectedLineNodesMap.get(node).push('to');
+                        } else {
+                            connectedLineNodesMap.set(node, ['to']);
+                        }
+                    }
+                }
+                if (node instanceof GroupNode) {
+                    loop(node.getMembers());
+                }
 
+            }
+        })(this.dataModel?.getNodes());
         return connectedLineNodesMap;
 
     }
@@ -1102,6 +1136,7 @@ export default class GraphEditor extends GraphManager {
             let node = event.getProperty('node');
             let nodeIndex = event.getProperty('zIndex');
             this.nodeLayer.add(node);
+            this.addEventToNode(node);
             if (nodeIndex != -1) {
                 node.zIndex(nodeIndex);
             }

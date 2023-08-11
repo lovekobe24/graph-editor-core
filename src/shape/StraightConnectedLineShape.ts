@@ -27,7 +27,7 @@ class StraightConnectedLineShape extends BaseConnectedLineShape {
                 if(graphEditor.currentTarget!=null){
                     console.log(graphEditor.currentTarget)
                     this.firstPoint = point;
-                    let fromPoint=this.getOriginPoint(graphEditor.currentTarget,point);
+                    let fromPoint=this.getOriginPoint(graphEditor.currentTarget,point,graphEditor.stage.getAbsoluteTransform().copy());
                     let sourceId=graphEditor.currentTarget.attrs.id;
                     console.log(sourceId);
                     this.tempLine = new Konva.Line({
@@ -65,7 +65,7 @@ class StraightConnectedLineShape extends BaseConnectedLineShape {
                 break;
             case DRAWING_MOUSE_UP:
                 if (this.firstPoint && graphEditor.currentTarget) {
-                    let toPoint=this.getOriginPoint(graphEditor.currentTarget,point);
+                    let toPoint=this.getOriginPoint(graphEditor.currentTarget,point,graphEditor.stage.getAbsoluteTransform().copy());
                     let disTargetId=graphEditor.currentTarget.attrs.id;
                     let node = this.createElementWithTarget(this.firstPoint, point, graphEditor,this.tempLine.from,{
                         id:disTargetId,
