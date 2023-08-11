@@ -45,6 +45,7 @@
     <div class="layui-btn-group">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="直线" id="line"><i
           class="iconfont icon-zhixian"></i></button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="连接线" id="connectedLine">连接线</button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="折线" id="polyline"><i
           class="iconfont icon-curve"></button>
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="钢笔" id="pen"><i
@@ -185,7 +186,7 @@
     import GraphEditor from '../src/GraphEditor';
     import GraphViewer from '../src/GraphViewer';
     import basicShapeList from "./shape/basic";
-    import {Utils} from "../src/Utils"
+    import { Utils } from "../src/Utils"
     // import Giraffe from '../src/index.all'
     const container = document.getElementById("jsonEditor")
     const options = {}
@@ -363,6 +364,10 @@
     document.getElementById('pen').addEventListener('click', () => {
       graphEditor.drawShape('pen');
     })
+    document.getElementById('connectedLine').addEventListener('click', () => {
+      graphEditor.drawShape('straightConnectedLine');
+    })
+
 
     document.getElementById('image').addEventListener('click', () => {
       graphEditor.insertImage();
@@ -495,13 +500,13 @@
               let sameNameSymbol = symbols.filter((item) => item.symbolName == inputValue);
               //if(sameNameSymbol.length>0){
 
-              symbols.push(symbolObj);
+              symbols.push(JSON.parse(symbolObj));
               localStorage.setItem('symbol', JSON.stringify(symbols))
               //  }
 
             } else {
               let symbols = [];
-              symbols.push(symbolObj);
+              symbols.push(JSON.parse(symbolObj));
               localStorage.setItem('symbol', JSON.stringify(symbols))
             }
           }
@@ -567,6 +572,7 @@
           }
         );
         graphView.setScale(scale);
+        graphView.init();
 
         //注册鼠标事件
         graphView.registerNodeMouseEvent({
@@ -606,7 +612,7 @@
           let allNodes = graphView.getNodes();
           (function loop(nodes) {
             for (let node of nodes) {
-              let className=node.className;
+              let className = node.className;
               let varJson = {};
               let variables = node.variables;
               for (let key in variables) {
@@ -621,7 +627,7 @@
           })(allNodes);
           console.log(variableJson);
           //  graphView.setGraphVariable(variableJson);
-          graphView.refreshGraph();
+          graphView.refreshGraph(variableJson);
         }, 5000)
 
         target.innerHTML = '退出预览'
@@ -646,8 +652,8 @@
       }
 
     }
-   let existGraph = localStorage.getItem('graph');
-  
+    let existGraph = localStorage.getItem('graph');
+
 
     let graphEditor;
     const initGraphViewer = () => {
@@ -662,94 +668,18 @@
       graphView.setScale(1.2);
       graphView.refreshGraph()
     }
-    const initGraphEditor = () => {
-      graphEditor = new GraphEditor(
-        {
-          container: document.getElementById('editor'),
-          //  graph: existGraph,
-          view: {
-            transformer: {
-              anchorSize: 6
-            },
-            editAnchor: {
-              anchorFill: 'white',
-              anchorStroke: 'rgb(0, 161, 255)'
-            }
-          },
-          drawing: {
-            snapToGrid: {
-              enable: true,
-            }
-          },
-          selection: {
-            keyboard: {
-              map: {
-                moveLeft: ['Shift+ArrowLeft'],
-                moveRight: ['Shift+ArrowRight'],
-                moveUp: ['Shift+ArrowUp'],
-                moveDown: ['Shift+ArrowDown']
-              }
-            }
-          }
-        }
-      );
-      //创建监听
-      graphEditor.onSelectionChanged((sender, event) => {
-        let selectedNodes = event.getProperty('nodes');
-        console.log("onSelectionChanged", selectedNodes);
-      })
-      var menuNode = document.getElementById('menu');
-      let map = graphEditor.getFnMap();
-      createMenu(map);
-      graphEditor.registerContextMenu((e) => {
-        // alert("ok")
-        let fnState = graphEditor.getFnState();
-        const buttons = menuNode.getElementsByTagName('button');
-
-        for (let i = 0; i < buttons.length; i++) {
-
-          let innerHTML = buttons[i].innerHTML;
-          console.log(fnState.has(innerHTML));
-          if (fnState.has(innerHTML)) {
-            let state = fnState.get(innerHTML);
-            if (state) {
-              buttons[i].removeAttribute('disabled');
-            } else {
-              buttons[i].setAttribute('disabled', true);
-            }
-          }
-        }
-        menuNode.style.border = "1px solid red";
-        menuNode.style.display = 'flex';
-        menuNode.style.left = e.clientX + "px";
-        menuNode.style.top = e.clientY + "px";
-        menuNode.style.position = "absolute";
-      })
-      function createMenu(map) {
-        menuNode.innerHTML = '';
-        map.forEach((value, key) => {
-
-          let divElement = document.createElement('button');
-          divElement.innerHTML = key;
-          divElement.addEventListener('click', () => {
-            value();
-            menuNode.style.display = 'none';
-          })
-          menuNode.append(divElement);
-        });
-
-
-      }
-
+    const addSimpleNodeToEditor=()=>{
       graphEditor.addNode({
         className: 'RectNode',
         attributes: {
-          x: 200,
-          y: 200,
+          x: 100,
+          y: 300,
           width: 200,
           height: 60,
           strokeWidth: 2,
-          stroke: 'red'
+          stroke: 'red',
+          scaleX:1.2,
+          scaleY:1.2
         }
       })
       graphEditor.addNode({
@@ -840,6 +770,19 @@
       //     draggable: true
       //   }
       // })
+      graphEditor.addNode(
+        {
+          className: 'PathNode',
+          attributes: {
+            x: 0,
+            y: 0,
+            data: 'M50,50 L200,100 C150,150 100,150 200,200',
+            strokeWidth: 4,
+            stroke: 'red',
+            draggable: true,
+            scaleX:1.2
+          }
+        })
       graphEditor.onModelChanged((sender, event) => {
         let nodes = event.getProperty('nodes');
         let eventName = event.getName();
@@ -848,7 +791,7 @@
         } else if (eventName == 'nodeEventsChange') {
           console.log("节点绑定的事件改变了", event.getProperty('events'));
         } else if (eventName == 'nodeVariableChange') {
-       
+
           let type = event.getProperty('type');
           console.log("节点绑定的变量改变了", type);
           switch (type) {
@@ -911,8 +854,8 @@
       // //添加变量
       graphEditor.addVariable('state', {
         type: 'integer',
-        defaultVal:3
-      },  ids[0]);
+        defaultVal: 3
+      }, ids[0]);
 
       graphEditor.addVariable('变量3', {
         type: 'integer',
@@ -923,10 +866,10 @@
       graphEditor.updateVariable('变量3', {
         type: 'string',
         defaultVal: 6
-      },ids[0]);
+      }, ids[0]);
       console.log(graphEditor.getVariables());
-      console.log(graphEditor.getVariable('变量3',ids[0]));
-      
+      console.log(graphEditor.getVariable('变量3', ids[0]));
+
       //  graphEditor.deleteVariable('变量2', false, ids[0]);
 
       // //设置属性
@@ -996,6 +939,14 @@
       //   action: 'executeScript',
       //   fnjs: 'console.log("world,balalabalabanabbl")'
       // }, ids[0])
+      //单击更改属性
+      graphEditor.addEvent({
+        type: 'click',
+        action: 'changeProperty',
+        value: [{
+          name: 'fill', val: 'rgba(255,255,0,1)'
+        }],
+      }, ids[0])
       // graphEditor.addEvent({
       //   type: 'valueUpdate',
       //   action: 'changeProperty',
@@ -1009,11 +960,11 @@
       //     comparison: "!="
       //   }
       // }, ids[0])
-      graphEditor.addEvent({
-        type: 'valueUpdate',
-        action: 'executeScript',
-        fnjs: "switch(data.state){\r\n    case 1:\r\n    viewer.setNodeAttribute(node,'fill','#C80000')\r\n    break;\r\n    case 2:\r\n      viewer.setNodeAttribute(node,'fill','#FFFF2B')\r\n    break;\r\n    default:\r\n     viewer.setNodeAttribute(node,'fill','#000000')\r\n}"
-      },ids[0]);
+      // graphEditor.addEvent({
+      //   type: 'valueUpdate',
+      //   action: 'executeScript',
+      //   fnjs: "switch(data.state){\r\n    case 1:\r\n    viewer.setNodeAttribute(node,'fill','#C80000')\r\n    break;\r\n    case 2:\r\n      viewer.setNodeAttribute(node,'fill','#FFFF2B')\r\n    break;\r\n    default:\r\n     viewer.setNodeAttribute(node,'fill','#000000')\r\n}"
+      // },ids[0]);
       graphEditor.order('top');
       // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
       //点击启动动画
@@ -1031,6 +982,89 @@
       //graphEditor.deleteEvent(0,selectNodes[0].id);
 
       // let json = graphEditor.toJSON();
+
+    }
+    const initGraphEditor = () => {
+      graphEditor = new GraphEditor(
+        {
+          container: document.getElementById('editor'),
+            graph: existGraph,
+          view: {
+            transformer: {
+              anchorSize: 6
+            },
+            editAnchor: {
+              anchorFill: 'white',
+              anchorStroke: 'rgb(0, 161, 255)'
+            }
+          },
+          drawing: {
+            snapToGrid: {
+              enable: true,
+            }
+          },
+          selection: {
+            keyboard: {
+              map: {
+                moveLeft: ['Shift+ArrowLeft'],
+                moveRight: ['Shift+ArrowRight'],
+                moveUp: ['Shift+ArrowUp'],
+                moveDown: ['Shift+ArrowDown']
+              }
+            }
+          }
+        }
+      );
+      //创建监听
+      graphEditor.onSelectionChanged((sender, event) => {
+        let selectedNodes = event.getProperty('nodes');
+        console.log("onSelectionChanged", selectedNodes);
+      })
+      var menuNode = document.getElementById('menu');
+      let map = graphEditor.getFnMap();
+      createMenu(map);
+      graphEditor.registerContextMenu((e) => {
+        // alert("ok")
+        let fnState = graphEditor.getFnState();
+        const buttons = menuNode.getElementsByTagName('button');
+
+        for (let i = 0; i < buttons.length; i++) {
+
+          let innerHTML = buttons[i].innerHTML;
+          console.log(fnState.has(innerHTML));
+          if (fnState.has(innerHTML)) {
+            let state = fnState.get(innerHTML);
+            if (state) {
+              buttons[i].removeAttribute('disabled');
+            } else {
+              buttons[i].setAttribute('disabled', true);
+            }
+          }
+        }
+        menuNode.style.border = "1px solid red";
+        menuNode.style.display = 'flex';
+        menuNode.style.left = e.clientX + "px";
+        menuNode.style.top = e.clientY + "px";
+        menuNode.style.position = "absolute";
+      })
+      function createMenu(map) {
+        menuNode.innerHTML = '';
+        map.forEach((value, key) => {
+
+          let divElement = document.createElement('button');
+          divElement.innerHTML = key;
+          divElement.addEventListener('click', () => {
+            value();
+            menuNode.style.display = 'none';
+          })
+          menuNode.append(divElement);
+        });
+
+
+      }
+
+      //addSimpleNodeToEditor();
+     
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';
         let selectedNodes = event.getProperty('nodes');
@@ -1045,7 +1079,7 @@
         }
         //进行相应操作
       });
-   
+
     }
 
 

@@ -120,7 +120,7 @@ export abstract class Node {
             if (attr) {
                 if (JSON.stringify(attr.value) !== JSON.stringify(attrValue)) {
                     attr.value = attrValue;
-                    _attrValues[name] = attrValue;
+                    _attrValues[name] = Utils.is(attrValue,'string')?attrValue:JSON.parse(JSON.stringify(attrValue));
                 }
             } else {
                 console.warn(GRAPH_EDITOR_WARNING + this.className + "不支持的属性 " + name);

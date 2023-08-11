@@ -13,7 +13,7 @@ import type { ViewerConfig } from "./types";
 import { GroupNode, SymbolNode } from "./index.all";
 
 export default class GraphViewer extends GraphManager {
-    firstPreview: boolean = true;
+   
     eventToRealTimeInfo: any = new Map();
     constructor(config: ViewerConfig) {
         super(config);
@@ -367,6 +367,10 @@ export default class GraphViewer extends GraphManager {
         }
     }
 
+    init(){
+        this.parseMouseEventNode();
+        this.refreshGraph();
+    }
 
    /**
     * 刷新图形
@@ -386,10 +390,6 @@ export default class GraphViewer extends GraphManager {
     refreshGraph(realTimeVariableJson?:any) {
         this.realTimeVariableJson=realTimeVariableJson?realTimeVariableJson:{};
         if (this.dataModel) {
-            if (this.firstPreview) {
-                this.parseMouseEventNode();
-                this.firstPreview = false;
-            }
             this.dataModel.nodes.forEach((node: any) => {
                 let variableJson={};
                 if(this.realTimeVariableJson.hasOwnProperty(node.getId())){

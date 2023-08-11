@@ -32,6 +32,7 @@ export const DIRECTION_VERTICAL = 'vertical';
 export const REGULAR_MODE = 'regularMode';
 export const DRAWING_MODE = 'drawingMode';
 export const EDITING_MODE = 'editingMode';
+export const DRAWING_MODE_SUB_CONNECTED_LINE ='drawingModeSubConnectedLine'
 
 export const DRAWING_MOUSE_DOWN = 0;
 export const DRAWING_MOUSE_MOVE = 1;

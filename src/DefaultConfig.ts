@@ -59,7 +59,7 @@ export const defaultConfig:EditorConfig = {
     style: {
         strokeWidth: 2,
         stroke: '#ff0000',
-        draggable: true,
+        draggable: false,
         strokeScaleEnabled: false,
         hitStrokeWidth: 2
     },
