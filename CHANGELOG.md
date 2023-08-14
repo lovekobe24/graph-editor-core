@@ -1,3 +1,7 @@
+## 1.0.53 2023-08-09
+### Fixed 
+1 GraphViewer添加init接口，用于解析绑定的事件
+
 ## 1.0.52 2023-08-08
 ### Fixed 
 1 添加getVariable接口
