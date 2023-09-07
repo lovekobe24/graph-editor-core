@@ -38,7 +38,6 @@ class GeometryChange extends Change {
           
         }
         this.attrValuesMap = map;
-        console.log(this.attrValuesMap);
         this.dataModel = dataModel;
     }
 
@@ -47,7 +46,7 @@ class GeometryChange extends Change {
         for (let [node, attrValuesPairs] of this.attrValuesMap) {
             map.set(node, attrValuesPairs[flag ? 1 : 0]);
         }
-        this.dataModel.setAttributeValues(map);
+        this.dataModel.setAttributeValues(map,true);
     }
 
     execute() {

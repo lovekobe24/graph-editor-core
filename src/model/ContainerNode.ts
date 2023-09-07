@@ -96,4 +96,21 @@ export abstract class ContainerNode extends Node {
         })(this.getMembers());
     }
 
+     /**
+     * 更新konva节点的动画
+     */
+     updateRefAnimation(reason: string) {
+        super.updateRefAnimation(reason);
+        (function loop(nodes) {
+            for (let node of nodes) {
+                if (node instanceof ContainerNode) {
+                    loop(node.getMembers());
+                } else {
+                    node.updateRefAnimation(reason);
+                }
+            }
+        })(this.getMembers());
+    }
+
+
 }

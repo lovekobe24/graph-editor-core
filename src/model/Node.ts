@@ -3,6 +3,7 @@ import EVENT_TYPE from '../constants/EventType';
 import EventObject from "../EventObject";
 import { EXECUTE_SCRIPT_ACTION, GRAPH_EDITOR_INFO, GRAPH_EDITOR_WARNING, animationToDefaultPeriod, supportAnimation, supportEventAction, supportEventType } from "../constants/TemcConstants";
 import { RESIZE_STYLE } from "../constants/StyleMap";
+import { Tween } from "konva/lib/Tween";
 
 export abstract class NodeAttrs {
     visible = { "value": true, "default": true, "group": "hidden", "type": "Boolean" };
@@ -32,7 +33,8 @@ export abstract class Node {
     events: any = [];
     animation: any = {
         'type': 'none',
-        'autoPlay': false
+        'autoPlay': false,
+        'period':5
     };
     animationObj: any = {};
     ref: any = null;
@@ -134,10 +136,11 @@ export abstract class Node {
     updateRefAttrs(attrValues: any) {
         if (this.ref !== null) {
             this.ref.setAttrs(attrValues);
-            //如果有动画是正在执行的，则要重新生成动画
+            //如果有动画是正在执行的，则要根据属性的改变重新生成动画,比如修改了位置，则旋转动画要重新生成
             let shouldUpdateAnimation = Utils.getShouldUpdateAnimation(attrValues);
             let autoPlay = this.getAnimationValue('autoPlay');
-            if (autoPlay && shouldUpdateAnimation) {
+            let isRotate=this.getAnimationValue('type')=='rotateByCenter';
+            if (autoPlay && isRotate && shouldUpdateAnimation) {
                 this.updateRefAnimation("updateRefAttrs");
             }
         }
@@ -160,7 +163,7 @@ export abstract class Node {
             this.updateRefAnimation("setAnimation");
         }
     }
-    destroyAnimation(isDragStart: boolean = false) {
+    destroyAnimation() {
         let animationObj = this.getAnimationObj();
         if (animationObj.obj) {
             let tween = animationObj.obj;
@@ -182,6 +185,7 @@ export abstract class Node {
                 this.ref.setAttrs(updateAttr);
             }
         }
+       this.animationObj={};
     }
     /**
      * 更新konva节点的动画

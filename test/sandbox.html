@@ -13,6 +13,10 @@
       height: 100vh;
       user-select: none;
     }
+
+    #editor:focus {
+      outline: none;
+    }
   </style>
   <script
     src="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.js?spm=a313x.7781069.1998910419.53&file=font_3759154_f4x5ab2inh5.js"></script>
@@ -63,6 +67,12 @@
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="取消组合" id="ungroup"><i
           class="iconfont icon-zuhe"></i></button>
     </div>
+    <div class="layui-btn-group">
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="组成图元" id="constructSymbol"><i
+          class="iconfont icon-zuhe"></i></button>
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="解构图元" id="deconstructSymbol"><i
+          class="iconfont icon-zuhe"></i></button>
+    </div>
     <div class="layui-btn-group" id="alginToolbar">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="左对齐" id="alignLeft"><i
           class="iconfont icon-shuipingzuoduiqi"></i></button>
@@ -108,7 +118,7 @@
     <!-- <div id="leftPanel"
       style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
     </div> -->
-    <div id="editor" style="background-color: bisque;border:1px solid gray;"></div>
+    <div id="editor" style="background-color: bisque;width: 800px;height: 600px;"></div>
     <div id="previewPanel" style="background-color: bisque;border:1px solid gray;"></div>
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
       <ul class="layui-tab-title">
@@ -668,7 +678,7 @@
       graphView.setScale(1.2);
       graphView.refreshGraph()
     }
-    const addSimpleNodeToEditor=()=>{
+    const addSimpleNodeToEditor = () => {
       graphEditor.addNode({
         className: 'RectNode',
         attributes: {
@@ -678,8 +688,8 @@
           height: 60,
           strokeWidth: 2,
           stroke: 'red',
-          scaleX:1.2,
-          scaleY:1.2
+          scaleX: 1.2,
+          scaleY: 1.2
         }
       })
       graphEditor.addNode({
@@ -780,7 +790,7 @@
             strokeWidth: 4,
             stroke: 'red',
             draggable: true,
-            scaleX:1.2
+            scaleX: 1.2
           }
         })
       graphEditor.onModelChanged((sender, event) => {
@@ -823,6 +833,11 @@
           console.log("节点的属性变化了", event.getProperty('tag'));
         }
       });
+      graphEditor.onNodeAttributeChange((sender,event)=>{
+        console.log("onNodeAttributeChange............",event);
+
+      })
+
 
       let allNodes = graphEditor.getNodes();
 
@@ -845,11 +860,12 @@
       // graphEditor.align('top');
 
       // //调整显示比例
-      graphEditor.setScale(1.2);
+     // graphEditor.setScale(1.2);
 
-      graphEditor.setSize(500, 600);
+      graphEditor.setSize(400, 400);
       //设置背景色
-      graphEditor.setBackgroundColor("#00ff00");
+      // graphEditor.setBackgroundColor("#ffff66");
+      console.log(graphEditor.getBackgroundColor());
 
       // //添加变量
       graphEditor.addVariable('state', {
@@ -870,7 +886,7 @@
       console.log(graphEditor.getVariables());
       console.log(graphEditor.getVariable('变量3', ids[0]));
 
-      //  graphEditor.deleteVariable('变量2', false, ids[0]);
+     // graphEditor.deleteVariable('变量3');
 
       // //设置属性
       graphEditor.setAttributeValues({
@@ -880,10 +896,15 @@
       //   'rotation': 30
       // },ids);
       // graphEditor.setAttribute('fill','orange',ids);
-      // graphEditor.group(ids);
+      graphEditor.group([ids[0],ids[1]]);
+     
+      graphEditor.setAttributeValue('opacity','0.2');
       // let selectNodes=graphEditor.getSelection();
       // graphEditor.unGroup(selectNodes[0].id);
       // console.log('当前配置',graphEditor.getConfig());
+      graphEditor.selectAll();
+      console.log(graphEditor.getNodesAttributes());
+      graphEditor.setAttributeValue('fill','gray');
 
       // //添加动画
       selectNodes = graphEditor.getSelection();
@@ -891,20 +912,16 @@
 
       graphEditor.getAnimation();
       let length = graphEditor.getNodes().length;
-      // for (let i = 0; i <= 1; i++) {
-      //   graphEditor.setAnimationValue('autoPlay', true, ids[i]);
-      //   graphEditor.setAnimation({
-      //     'type': 'rotateByCenter',
-      //     'period': 2
-      //   }, ids[i]);
-      // }
-
-
+      for (let i = 0; i < 1; i++) {
+        graphEditor.setAnimationValue('autoPlay', true, ids[i]);
+        graphEditor.setAnimation({
+          'type': 'rotateByCenter'
+        }, ids[i]);
+      }
+      console.log(graphEditor.getAnimationValue('period'));
       //graphEditor.setAnimationValue('type', 'none', ids[0]);
-
-      // let groupArray = new Array(ids[2], ids[0]);
-
-      // let groupNode=graphEditor.group(groupArray);
+      let groupArray = new Array(ids[1], ids[0]);
+      let groupNode = graphEditor.group(groupArray);
       // console.log(graphEditor.getNodes());
       // graphEditor.setAttributeValue('rotation',60, groupNode.id)
 
@@ -919,7 +936,7 @@
       // console.log('获取画布上所有的节点',graphEditor.getNodes());
       // //设置背景色
       // graphEditor.setBackgroundColor('black');
-      // // graphEditor.deleteNodes(selectNodes[0].id);
+      // graphEditor.deleteNodes();
       //  //添加事件
       // graphEditor.addEvent({
       //   type: 'valueUpdate',
@@ -966,6 +983,8 @@
       //   fnjs: "switch(data.state){\r\n    case 1:\r\n    viewer.setNodeAttribute(node,'fill','#C80000')\r\n    break;\r\n    case 2:\r\n      viewer.setNodeAttribute(node,'fill','#FFFF2B')\r\n    break;\r\n    default:\r\n     viewer.setNodeAttribute(node,'fill','#000000')\r\n}"
       // },ids[0]);
       graphEditor.order('top');
+      // console.log(graphEditor.getStyleConfig());
+      // console.log(graphEditor.getGridConfig());
       // graphEditor.getDataModel().getSelectionManager().setSelection( ids[2], true);
       //点击启动动画
       // graphEditor.addEvent({
@@ -988,7 +1007,7 @@
       graphEditor = new GraphEditor(
         {
           container: document.getElementById('editor'),
-            graph: existGraph,
+          // graph: existGraph,
           view: {
             transformer: {
               anchorSize: 6
@@ -1005,12 +1024,7 @@
           },
           selection: {
             keyboard: {
-              map: {
-                moveLeft: ['Shift+ArrowLeft'],
-                moveRight: ['Shift+ArrowRight'],
-                moveUp: ['Shift+ArrowUp'],
-                moveDown: ['Shift+ArrowDown']
-              }
+              enabled: true
             }
           }
         }
@@ -1020,18 +1034,22 @@
         let selectedNodes = event.getProperty('nodes');
         console.log("onSelectionChanged", selectedNodes);
       })
+      graphEditor.onFnStateChanged((sender, event) => {
+        console.log("改变菜单的状态");
+        console.log(graphEditor.getFnState());
+      })
+
       var menuNode = document.getElementById('menu');
       let map = graphEditor.getFnMap();
       createMenu(map);
       graphEditor.registerContextMenu((e) => {
-        // alert("ok")
         let fnState = graphEditor.getFnState();
         const buttons = menuNode.getElementsByTagName('button');
 
         for (let i = 0; i < buttons.length; i++) {
 
           let innerHTML = buttons[i].innerHTML;
-          console.log(fnState.has(innerHTML));
+          console.log(innerHTML);
           if (fnState.has(innerHTML)) {
             let state = fnState.get(innerHTML);
             if (state) {
@@ -1063,8 +1081,8 @@
 
       }
 
-      //addSimpleNodeToEditor();
-     // graphEditor.setScale(1.2);
+      addSimpleNodeToEditor();
+      // graphEditor.setScale(1.2);
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';
         let selectedNodes = event.getProperty('nodes');
@@ -1115,7 +1133,16 @@
       compDiv.appendChild(strokeLabel);
       compDiv.appendChild(attrDiv);
       attrDiv.addEventListener('change', (evt) => {
-        graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
+        //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
+        let json={};
+        json[proName]=parseFloat(attrDiv.value);
+        graphEditor.setAttributeValues({
+          x:240,
+          y:34,
+          width:200,
+          height:560
+        });
+        //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
       })
       return compDiv;
     }
@@ -1134,7 +1161,7 @@
 
     }
     const initPropertyPanel = (node) => {
-
+      console.log('initPropertyPanel',graphEditor.getAttributes());
 
       document.getElementById('property').innerHTML = '';
       let idDiv = getStrDiv('id', node.id);

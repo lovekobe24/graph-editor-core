@@ -8,6 +8,7 @@ let EVENT_TYPE = {
     WRAP_NODES_INTO_GROUP: 'wrapNodesIntoGroup',
     UNWRAP_NODES_FROM_GROUP: 'unwrapNodesFromGroup',
     SELECT_CHANGE: 'selectionChange',
+    FN_STATE_CHANGE: 'fnStateChange',
     PROPERTY_CHANGE:'propertyChange',
     SELECTION_KONVA_NODE_CHANGE:'selectionKonvaNodeChange',
     NODE_ATTRIBUTE_CHANGE: 'nodeAttributeChange',

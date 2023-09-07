@@ -277,7 +277,7 @@ export default class GraphViewer extends GraphManager {
                 if (type) {
                     if (type != 'none') {
                         let tween = node.getAnimationObj().obj;
-                        if (isSuccess) {
+                        if (isSuccess && tween) {
                             this.executeTween(tween);
                         }
 
@@ -286,7 +286,7 @@ export default class GraphViewer extends GraphManager {
                 break;
             case STOP_ANIMATION_ACTION:
                 let tween = node.getAnimationObj().obj;
-                if (isSuccess) {
+                if (isSuccess && tween) {
                     this.stopTween(tween)
                 }
                 break;

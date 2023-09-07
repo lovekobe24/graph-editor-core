@@ -6,7 +6,7 @@ import EVENT_TYPE from "./constants/EventType";
 import { Node } from './model/Node';
 import { Utils } from "./Utils";
 import TemcEventSource from "./TemcEventSource";
-import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE } from './constants/TemcConstants';
+import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE, ROTATE_BY_CENTER } from './constants/TemcConstants';
 
 import Command from "./command/Command";
 
@@ -102,15 +102,9 @@ export default class GraphEditor extends GraphManager {
         super(config);
         this.container = config.container;
         this.config = Utils.combine(defaultConfig, config);
-
         let view = this.config?.view;
-        let graph;
-        if (this.config.graph) {
-            graph = JSON.parse(this.config.graph);
-        }
-        if (config.container) config.container.style.backgroundColor = graph?.backgroundColor ?? '#ffffff';
-        this.width = graph?.width ?? view?.size?.width;
-        this.height = graph?.height ?? view?.size?.height;
+        this.width = view.size.width;
+        this.height =  view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
         this.stage.add(this.gridLayer);
         this.stage.add(this.nodeLayer);
@@ -119,7 +113,6 @@ export default class GraphEditor extends GraphManager {
         this.stage.add(this.makerLayer);
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
-        if (graph) this.dataModel.fromObject(graph.model);
         //初始化框选矩形
         this.selectionRect = new Konva.Rect({ fill: this.config.selection.zone.fill, visible: false })
         this.transformer = new Konva.Transformer(this.config.selection.transformer);
@@ -139,16 +132,19 @@ export default class GraphEditor extends GraphManager {
 
         this.initShapeModule();
 
-        if (Utils.isBrowser()) {
+        if (Utils.isBrowser()){
             var container = this.stage.container();
             // make it focusable
-            container.tabIndex = 1;
-            // focus it
-            // also stage will be in focus on its click
+             container.tabIndex = 1;
+            // // focus it
+            // // also stage will be in focus on its click
             container.focus();
             container.addEventListener('keydown', this.onKeyDown.bind(this))
         }
-
+        if (this.config.graph) {
+            //加载图形
+            this.setGraph(this.config.graph)
+        }
     }
 
 
@@ -432,7 +428,6 @@ export default class GraphEditor extends GraphManager {
     addEventToNode(konvaNode:any){
         let _this=this;
         konvaNode.on('mouseenter', (e: any) => {
-            console.log('mouseenter',e.target);
             switch (this.currentMode) {
                 case DRAWING_MODE:
                     _this.currentTarget = e.target;
@@ -560,10 +555,11 @@ export default class GraphEditor extends GraphManager {
                 for (let node of nodes) {
                     node.getRef().stopDrag();
                     let autoPlay = node.getAnimationValue('autoPlay');
-                    if (autoPlay) {
+                    let type = node.getAnimationValue('type');
+                    if (autoPlay && type==ROTATE_BY_CENTER) {
                         //如果正在播放动画，在移动过程中要将动画暂停,否则会引起坐标的混乱
                         if (node.getAnimationObj().obj) {
-                            node.destroyAnimation(true);
+                            node.destroyAnimation();
                         }
                     }
                     if (node instanceof GroupNode) {
@@ -664,14 +660,43 @@ export default class GraphEditor extends GraphManager {
             _this.undo()
         });
         fnMap.set('redo', () => {
-            _this.undo()
+            _this.redo()
         });
+        //层序函数
         fnMap.set('orderTop', () => {
             _this.order('top')
         });
         fnMap.set('orderBottom', () => {
             _this.order('bottom')
         });
+        fnMap.set('orderUp', () => {
+            _this.order('up')
+        });
+        fnMap.set('orderDown', () => {
+            _this.order('down')
+        });
+        //对齐函数
+        fnMap.set('alignLeft', () => {
+            _this.align('left')
+        });
+        fnMap.set('alignRight', () => {
+            _this.align('right')
+        });
+        fnMap.set('alignTop', () => {
+            _this.align('top')
+        });
+        fnMap.set('alignBottom', () => {
+            _this.align('bottom')
+        });
+        fnMap.set('alignVertical', () => {
+            _this.align(DIRECTION_VERTICAL)
+        });
+        fnMap.set('alignHorizontal', () => {
+            _this.align(DIRECTION_HORIZONTAL)
+        });
+
+        
+        //剪切板函数
         fnMap.set('copy', () => {
             _this.copy()
         });
@@ -701,17 +726,41 @@ export default class GraphEditor extends GraphManager {
         let _this = this;
         let undoRedoManager = this.dataModel?.undoRedoManager;
         let fnMap = new Map();
+        let selectionCount=this.getSelection().length;
         fnMap.set('undo', undoRedoManager.canUndo() ? true : false);
         fnMap.set('redo', undoRedoManager.canRedo() ? true : false);
-        fnMap.set('orderTop', _this.getSelection().length > 0 ? true : false);
-        fnMap.set('orderBottom', _this.getSelection().length > 0 ? true : false);
+        fnMap.set('orderTop', _this.getSelection().length ==1 ? true : false);
+        fnMap.set('orderBottom', _this.getSelection().length ==1 ? true : false);
+        fnMap.set('orderUp', _this.getSelection().length ==1 ? true : false);
+        fnMap.set('orderDown', _this.getSelection().length ==1 ? true : false);
+        fnMap.set('alignLeft', _this.getSelection().length > 1 ? true : false);
+        fnMap.set('alignRight', _this.getSelection().length > 1 ? true : false);
+        fnMap.set('alignTop', _this.getSelection().length > 1 ? true : false);
+        fnMap.set('alignBottom', _this.getSelection().length > 1 ? true : false);
+        fnMap.set('alignVertical', _this.getSelection().length > 2 ? true : false);
+        fnMap.set('alignHorizontal', _this.getSelection().length > 2 ? true : false);
         fnMap.set('copy', _this.getSelection().length > 0 ? true : false);
         fnMap.set('cut', _this.getSelection().length > 0 ? true : false);
         fnMap.set('paste', _this.copyNodes.length > 0 ? true : false);
         fnMap.set('delete', _this.getSelection().length > 0 ? true : false);
         fnMap.set('group', _this.getSelection().length > 1 ? true : false);
         fnMap.set('unGroup', _this.canUnGroup() ? true : false);
+        fnMap.set('constructSymbol', selectionCount > 1 && this.withoutSymbolNode() ? true : false);
+        fnMap.set('deconstructSymbol', this.canDeconstructSymbol()? true : false);
         return fnMap;
+    }
+
+    withoutSymbolNode(){
+        return this.getSelection().every(node=> !(node instanceof SymbolNode));
+    }
+    private canDeconstructSymbol(){
+        let selectionCount=this.getSelection().length;
+        if(selectionCount==1){
+            let selection=this.dataModel?.getSelectionManager().getSelection()[0];
+            return  selectionCount === 1 && (selection instanceof SymbolNode);
+        }
+      
+       
     }
 
     /**
@@ -740,6 +789,7 @@ export default class GraphEditor extends GraphManager {
         const isCtrlKey = e.ctrlKey;
         const isShiftKey = e.shiftKey;
         const keyboard = this.config.selection?.keyboard
+        console.log(keyboard);
         if (keyboard?.enabled === false) {
             return
         }
@@ -832,6 +882,15 @@ export default class GraphEditor extends GraphManager {
     }
 
     /**
+     * 监听功能可用状态
+     * @param callback 
+     */
+    onFnStateChanged(callback: any) {
+        this.dataModel.onFnStateChanged(callback);
+    }
+
+
+    /**
      * 监听模型变换
      * @param callback 模型变化的回调函数
      */
@@ -844,7 +903,7 @@ export default class GraphEditor extends GraphManager {
      * @param callback 回调函数
      */
     onNodeAttributeChange(callback: any) {
-        this.addListener(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, callback);
+        this.dataModel.addListener(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, callback);
     }
 
     /**
@@ -852,7 +911,7 @@ export default class GraphEditor extends GraphManager {
      * @param callback 回调函数
      */
     onNodeEventsChange(callback: any) {
-        this.addListener(EVENT_TYPE.NODE_EVENTS_CHANGE, callback);
+        this.dataModel.addListener(EVENT_TYPE.NODE_EVENTS_CHANGE, callback);
     }
 
     /**
@@ -860,11 +919,11 @@ export default class GraphEditor extends GraphManager {
      * @param callback 回调函数
      */
     onNodeVariableChange(callback: any) {
-        this.addListener(EVENT_TYPE.NODE_VARIABLE_CHANGE, callback);
+        this.dataModel.addListener(EVENT_TYPE.NODE_VARIABLE_CHANGE, callback);
     }
 
     onNodeAnimationChange(callback: any) {
-        this.addListener(EVENT_TYPE.NODE_ANIMATION_CHANGE, callback);
+        this.dataModel.addListener(EVENT_TYPE.NODE_ANIMATION_CHANGE, callback);
     }
 
     /**
@@ -1136,7 +1195,11 @@ export default class GraphEditor extends GraphManager {
             let node = event.getProperty('node');
             let nodeIndex = event.getProperty('zIndex');
             this.nodeLayer.add(node);
-            this.addEventToNode(node);
+            const connectable = this.config.drawing?.connectable
+            if(connectable){
+                this.addEventToNode(node);
+            }
+           
             if (nodeIndex != -1) {
                 node.zIndex(nodeIndex);
             }
@@ -1419,7 +1482,7 @@ export default class GraphEditor extends GraphManager {
      *    'top':顶层
      *    'bottom'：底层
      */
-    order(direction: OrderDirection, nodeId: string) {
+    order(direction: OrderDirection, nodeId?: string) {
         let undoRedoManager = this.dataModel.getUndoRedoManager();
         let selectNode = this.getOperateNode(nodeId);
         if (selectNode) {
@@ -1505,6 +1568,11 @@ export default class GraphEditor extends GraphManager {
             });
             this.nodeLayer.listening(true)
         }
+        let nodes = this.dataModel.getNodes().filter((item: any) => item instanceof EditableShapeNode && item.getRefAnchors() !== null);
+        for (let node of nodes) {
+            node.destroyRefAnchors();
+        }
+       
     }
 
     private setSubMode(subMode: string) {
@@ -1610,25 +1678,35 @@ export default class GraphEditor extends GraphManager {
      * };
      * graphEditor.addVariable('变量1',variable)
      */
-    addVariable(name: string, variable: any, nodeId?: string, toModel: boolean = false,) {
+    addVariable(name: string, variable: any, nodeId?: string, toModel: boolean = false) {
         if (toModel) {
             //this.dataModel.addVariable(name, variable);
         } else {
-            let operateNode = this.getOperateNode(nodeId);
-            if (operateNode) {
-                operateNode.addVariable(name, variable);
-            } else {
-                console.log(GRAPH_EDITOR_WARNING + '未找到设置变量的节点');
+            if(name.trim()==""){
+                console.warn(GRAPH_EDITOR_WARNING + '变量名称不能为空');
+            }else{
+                if(variable.type){
+                    let operateNode = this.getOperateNode(nodeId);
+                    if (operateNode) {
+                        operateNode.addVariable(name, variable);
+                    } else {
+                        console.warn(GRAPH_EDITOR_WARNING + '未找到设置变量的节点');
+                    }
+                }else{
+                    console.warn(GRAPH_EDITOR_WARNING + '变量类型不能为空');
+                }
+                
             }
+           
         }
     }
     /**
      * 更新变量
      * @param name 新的变量名称
      * @param variable 变量值
-     * @param toModel 是否为整个数据模型设置变量，为true，则变量绑定到整个模型，为false则将变量绑定到当前选中节点
      * @param oldVariableName 原来的变量名称
      * @param nodeId 需要更新变量的节点
+       @param toModel 是否为整个数据模型设置变量，为true，则变量绑定到整个模型，为false则将变量绑定到当前选中节点
      * @example
      *  graphEditor.updateVariable('变量2', {
      *      type: 'string',
@@ -1684,7 +1762,7 @@ export default class GraphEditor extends GraphManager {
      * @param toModel 是否是删除模型上的变量
      * @param nodeId 需要操作的节点
      */
-    deleteVariable(name: string, nodeId: string, toModel: boolean) {
+    deleteVariable(name: string, nodeId?: string, toModel?: boolean=false) {
         if (toModel) {
             // this.dataModel.deleteVariable(name);
         } else {
@@ -1772,7 +1850,7 @@ export default class GraphEditor extends GraphManager {
      * 删除节点
      * @param nodeIds 需要删除的节点id数组，如果为空，则删除当前选中节点
      */
-    deleteNodes(nodeIds: any) {
+    deleteNodes(nodeIds?: any) {
         let operateNodes = this.getOperateNodes(nodeIds);
         let nodeChange = new NodeChange(operateNodes, 'delete', this.dataModel);
         let cmd = new Command([nodeChange]);
@@ -1790,6 +1868,7 @@ export default class GraphEditor extends GraphManager {
     getConfig() {
         return JSON.parse(JSON.stringify(this.config));
     }
+    
     private setIsSquare(square: boolean) {
         this.isSquare = square;
     }
@@ -1837,6 +1916,9 @@ export default class GraphEditor extends GraphManager {
     setStyleConfig(styleConfig: StyleConfig) {
         this.config.style = Utils.combine(this.config.style, styleConfig);
     }
+    getStyleConfig(){
+        return JSON.parse(JSON.stringify(this.config.style));
+    }
 
     /**
     * 修改默认网格配置
@@ -1850,47 +1932,54 @@ export default class GraphEditor extends GraphManager {
         this.config.view.grid = Utils.combine(this.config.view.grid, gridConfig);
         this.initGrid();
     }
-
-    /**
-     * 设置背景色
-     * @param color 背景色
-     * @example
-     * editor.setBackgroundColor('red');
-     */
-    setBackgroundColor(color: string) {
-        this.stage.container().style.backgroundColor = color;
+    getGridConfig(){
+        return JSON.parse(JSON.stringify(this.config.view.grid))
     }
 
-    /**
-     * 使画布获取焦点
-     */
-    focusCanvas() {
-        this.stage.container().focus();
-    }
+   
 
 
 
     /**
      * 获取节点的所有属性
-     * @param id 节点id
+     * @param ids 节点id
      * @returns 属性的JSON数组，含有属性中所有的信息
      * @example 
      * editor.getAttributes(id);
      */
-    getAttributes(id: string) {
-        let node = this.getNode(id);
-        if (node instanceof ContainerNode) {
-            let memberAttrs = node.getMemberAttributes(true);
-            for (let key in memberAttrs) {
-                let val = memberAttrs[key];
-                if (val.group == 'geometry') {
-                    delete memberAttrs[key];
+    getAttributes(id?: string) {
+        let node = this.getOperateNode(id);
+        if(node){
+            if (node instanceof ContainerNode) {
+                let memberAttrs = node.getMemberAttributes(true);
+                for (let key in memberAttrs) {
+                    let val = memberAttrs[key];
+                    if (val.group == 'geometry') {
+                        delete memberAttrs[key];
+                    }
                 }
+                return Object.assign(memberAttrs, node.getAttributes(true));
+            } else {
+                return node.getAttributes();
             }
-            return Object.assign(memberAttrs, node.getAttributes(true));
-        } else {
-            return node.getAttributes();
+        }else{
+            console.warn(GRAPH_EDITOR_WARNING+"未找到操作的节点")
         }
+    }
+
+    /**
+     * 
+     * @param ids 操作节点的id数组
+     * @returns 操作节点的属性的交集
+     */
+    getNodesAttributes(ids?:any){
+        let allAttrs={};
+        let nodes = this.getOperateNodes(ids);
+        nodes.forEach(element => {
+            let attrs=this.getAttributes(element.id);
+            allAttrs=Object.assign(allAttrs, attrs);
+        });
+        return allAttrs;
     }
 
     /**
@@ -2168,7 +2257,7 @@ export default class GraphEditor extends GraphManager {
      * 组成图元
      * @param symbolName 图元名称
      */
-    makeSymbol(symbolName: string) {
+    constructSymbol(symbolName: string) {
 
         if (!symbolName) throw new Error("名称不能为空");
         let selectedNodes = this.getOperateNodes();
@@ -2228,7 +2317,7 @@ export default class GraphEditor extends GraphManager {
             }
             symbolNode.setVariables(variableWithoutFrom);
             this.dataModel.addNode(symbolNode);
-            return JSON.stringify(cloneSymbolNode.toObject());
+            return cloneSymbolNode.toObject();
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未选择任何形状，不能组成图元")
         }
@@ -2254,7 +2343,7 @@ export default class GraphEditor extends GraphManager {
     /**
      * 编辑图元，对当前选中的图元进行编辑
      */
-    editSymbol() {
+    deconstructSymbol() {
         let selectedNode = this.getOperateNode();
         if (selectedNode instanceof SymbolNode) {
             let variables = selectedNode.getVariables();

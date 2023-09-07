@@ -29,6 +29,7 @@ export declare interface EditorConfig extends BaseConfig {
       anchorFill: string,
       anchorStroke: string
     }>
+    connectable:boolean
   }>
   selection?: Partial<{
     interactive: boolean

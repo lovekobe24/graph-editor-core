@@ -25,6 +25,8 @@ export class SelectionManager {
         })
        
         this.dataModel.fireEvent(new EventObject(EVENT_TYPE.SELECT_CHANGE, 'nodes',Utils.getObjectNodes(this.selectedNodes)), null);
+        this.dataModel.fireEvent(new EventObject(EVENT_TYPE.FN_STATE_CHANGE), null);
+        
         if (notifyStage) {
             //改变stage中选中的节点元素
             this.dataModel.fireEvent(new EventObject(EVENT_TYPE.SELECTION_KONVA_NODE_CHANGE, 'nodes', this.selectedNodes), null);

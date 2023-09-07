@@ -207,6 +207,9 @@ export class DataModel extends TemcEventSource {
     onSelectionChanged(callback: any) {
         this.addListener(EVENT_TYPE.SELECT_CHANGE, callback);
     }
+    onFnStateChanged(callback:any){
+        this.addListener(EVENT_TYPE.FN_STATE_CHANGE, callback);
+    }
 
     onModelChanged(callback: any) {
         this.addListener(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, callback);
@@ -316,13 +319,13 @@ export class DataModel extends TemcEventSource {
     //     this.fireEvent(new EventObject(EVENT_TYPE.MODEL_VARIABLE_CHANGE, 'type', 'delete', 'name', name), null);
     // }
 
-    setAttributeValues(attrValuesMap: any) {
+    setAttributeValues(attrValuesMap: any,canvasAction: boolean=false) {
         let map = new Map();
         for (let [node, attrValues] of attrValuesMap) {
             node.setAttributeValues(attrValues);
             map.set(node.toObject(), JSON.parse(JSON.stringify(attrValues)));
         }
-        this.fireEvent(new EventObject(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, 'nodes', map), null);
+        this.fireEvent(new EventObject(EVENT_TYPE.NODE_ATTRIBUTE_CHANGE, 'nodes', map,'canvasAction',canvasAction), null);
     }
 
     /*

@@ -118,7 +118,7 @@ export abstract class GraphManager {
     /**
   * 清空画布内容
  */
-    private clear() {
+    clear() {
         this.dataModel?.clear();
     }
 
@@ -140,10 +140,7 @@ export abstract class GraphManager {
         this.setSize(graphJson.width, graphJson.height);
         let bgColor = graphJson.backgroundColor;
         if (bgColor) {
-            let container = this.stage?.container();
-            if (container) {
-                container.style.backgroundColor = bgColor;
-            }
+            this.setBackgroundColor(bgColor);
         }
         if (graphJson.name) {
             this.name = graphJson.name;
@@ -151,6 +148,36 @@ export abstract class GraphManager {
         this.dataModel?.fromObject(graphJson.model);
        // this.dataModel?.setVariables(graphJson.variables);
     }
+
+     /**
+     * 设置背景色
+     * @param color 背景色
+     * @example
+     * editor.setBackgroundColor('red');
+     */
+     setBackgroundColor(color: string) {
+        var elements = document.getElementsByClassName('konvajs-content');
+        if(elements.length>0){
+            var konvaContent:any = elements[0];
+            konvaContent.style.backgroundColor = color;
+        }else{
+            console.warn(GRAPH_EDITOR_WARNING+"未找到画布");
+        }
+    }
+    /**
+     * 
+     * @returns 获取背景色
+     */
+    getBackgroundColor(){
+        var elements = document.getElementsByClassName('konvajs-content');
+        if(elements.length>0){
+            var konvaContent:any = elements[0];
+            return konvaContent.style.backgroundColor;
+        }else{
+            console.warn(GRAPH_EDITOR_WARNING+"未找到容器");
+        }
+    }
+
 
     /**
    * 销毁画布

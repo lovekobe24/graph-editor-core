@@ -22,7 +22,8 @@ export const defaultConfig:EditorConfig = {
         editAnchor: {
             anchorFill: 'white',
             anchorStroke: 'rgb(0, 161, 255)'
-        }
+        },
+        connectable:false
     },
     selection: {
         transformer: {
@@ -59,7 +60,7 @@ export const defaultConfig:EditorConfig = {
     style: {
         strokeWidth: 2,
         stroke: '#ff0000',
-        draggable: false,
+        draggable: true,
         strokeScaleEnabled: false,
         hitStrokeWidth: 2
     },

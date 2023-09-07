@@ -23,7 +23,7 @@ import { PenNode } from "./model/PenNode";
 import { PolylineNode } from "./model/PolylineNode";
 import { PolylineArrowNode } from "./model/PolylineArrowNode";
 import { Utils } from './Utils';
-import { ConnectedLineNode } from './model/ConnectedLineNode';
+
 import { StraightConnectedLineNode } from './model/StraightConnectedLineNode';
 
 
