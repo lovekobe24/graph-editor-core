@@ -650,7 +650,7 @@
 
           {
             container: document.getElementById('editor'),
-            graph: currentGraph,
+            // graph: currentGraph,
             drawing: {
               snapToGrid: {
                 enable: true
@@ -896,13 +896,13 @@
       //   'rotation': 30
       // },ids);
       // graphEditor.setAttribute('fill','orange',ids);
-      graphEditor.group([ids[0],ids[1]]);
+     // graphEditor.group([ids[0],ids[1]]);
      
       graphEditor.setAttributeValue('opacity','0.2');
       // let selectNodes=graphEditor.getSelection();
       // graphEditor.unGroup(selectNodes[0].id);
       // console.log('当前配置',graphEditor.getConfig());
-      graphEditor.selectAll();
+    //  graphEditor.selectAll();
       console.log(graphEditor.getNodesAttributes());
       graphEditor.setAttributeValue('fill','gray');
 
@@ -912,16 +912,16 @@
 
       graphEditor.getAnimation();
       let length = graphEditor.getNodes().length;
-      for (let i = 0; i < 1; i++) {
-        graphEditor.setAnimationValue('autoPlay', true, ids[i]);
-        graphEditor.setAnimation({
-          'type': 'rotateByCenter'
-        }, ids[i]);
-      }
+      // for (let i = 0; i < 1; i++) {
+      //   graphEditor.setAnimationValue('autoPlay', true, ids[i]);
+      //   graphEditor.setAnimation({
+      //     'type': 'rotateByCenter'
+      //   }, ids[i]);
+      // }
       console.log(graphEditor.getAnimationValue('period'));
       //graphEditor.setAnimationValue('type', 'none', ids[0]);
-      let groupArray = new Array(ids[1], ids[0]);
-      let groupNode = graphEditor.group(groupArray);
+      //let groupArray = new Array(ids[1], ids[0]);
+     // let groupNode = graphEditor.group(groupArray);
       // console.log(graphEditor.getNodes());
       // graphEditor.setAttributeValue('rotation',60, groupNode.id)
 
@@ -1138,9 +1138,11 @@
         json[proName]=parseFloat(attrDiv.value);
         graphEditor.setAttributeValues({
           x:240,
+          fill:'green',
           y:34,
-          width:200,
-          height:560
+          width:20,
+          height:60,
+          rotation:50
         });
         //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
       })

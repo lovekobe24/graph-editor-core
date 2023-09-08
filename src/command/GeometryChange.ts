@@ -9,8 +9,9 @@ class GeometryChange extends Change {
 
     attrValuesMap: Map<Node, Array<Object>>;
     dataModel: DataModel;
+    canvasAction:boolean;
 
-    constructor(nodes: Array<Node>, action: string, dataModel: any) {
+    constructor(nodes: Array<Node>, action: string, dataModel: any,canvasAction:boolean=true) {
         super();
         let map = new Map(), actionAttrKeys = ACTION_TO_STYLE_MAP[action];
         for (let node of nodes) {
@@ -46,7 +47,7 @@ class GeometryChange extends Change {
         for (let [node, attrValuesPairs] of this.attrValuesMap) {
             map.set(node, attrValuesPairs[flag ? 1 : 0]);
         }
-        this.dataModel.setAttributeValues(map,true);
+        this.dataModel.setAttributeValues(map,this.canvasAction);
     }
 
     execute() {

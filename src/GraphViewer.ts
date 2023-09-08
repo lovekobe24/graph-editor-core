@@ -318,7 +318,9 @@ export default class GraphViewer extends GraphManager {
             if (fnJs) {
                 let executeFn = new Function('data', fnJs);
                 let isSuccess = executeFn(variableJson);
-
+                if(typeof isSuccess !='boolean'){
+                    isSuccess=false;
+                }
                 _this.eventToRealTimeInfo.set(event, { isSuccess, variableJson });
                 if (type == 'valueUpdate') {
                     this.operateNodeByAction(event, node, isSuccess, variableJson);

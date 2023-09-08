@@ -29,7 +29,7 @@ import { SnapGrid } from './snapGrid/SnapGrid';
 import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
-import { orderDirection, type AlignDirection, type Dimensions, type EditorConfig, type GridConfig, type MoveDirection, type NodeConfig, type OrderDirection, type StyleConfig } from "./types";
+import { orderDirection, type AlignDirection, type Dimensions, type EditorConfig, type GridConfig, type MoveDirection, type NodeConfig, type OrderDirection, type StyleConfig, Event } from "./types";
 import { GroupNode, SymbolNode } from "./index.all";
 import ConnectedLineShape from "./shape/BaseConnectedLineShape";
 import { ConnectedLineNode } from "./model/ConnectedLineNode";
@@ -2155,7 +2155,8 @@ export default class GraphEditor extends GraphManager {
      *     }
      *  })  
      */
-    addEvent(event: Event, nodeId?: string) {
+    addEvent(event: any, nodeId?: string) {
+    
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             this.dataModel.addEvent(operateNode, event);

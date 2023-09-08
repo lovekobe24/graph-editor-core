@@ -1,3 +1,11 @@
+## 1.0.71 2023-09-07
+### Added 
+1 解决setAttributeValues在修改rotation及其他的情况下，其他属性未能生效的问题
+
+## 1.0.70 2023-09-07
+### Added 
+1 解决addEvent参数类型不正确的问题
+
 ## 1.0.69 2023-09-07
 ### Added 
 1 添加getNodesAttributes方法，用于选中多个的节点，获取交集属性
