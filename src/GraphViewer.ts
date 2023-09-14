@@ -2,10 +2,10 @@
 import Konva from "konva";
 
 import EVENT_TYPE from './constants/EventType';
-import { COMPARISON, CUSTOM_SCRIPT, EXECUTE_ANIMATION_ACTION, EXECUTE_SCRIPT_ACTION, FN_JS, STOP_ANIMATION_ACTION,MOUSE_CLICK_EVT_TYPE, CHANGE_PROPERTY_ACTION, MOUSE_OUT_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE } from './constants/TemcConstants';
+import { COMPARISON, CHANGE_ATTRS_ACTION,  EXECUTE_SCRIPT_ACTION, VALUE_UPDATE_EVT_TYPE, MOUSE_CLICK_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE, SCRIPT,UPDATE_ANIMATION_ACTION,EVENT_TRIGGERS } from './constants/TemcConstants';
 import { DataModel } from './DataModel';
 import { ContainerNode, ContainerNodeAttrs } from './model/ContainerNode';
-
+import { defaultConfig } from "./DefaultConfig";
 import { Node } from './model/Node';
 import {Utils} from './Utils';
 import { GraphManager } from "./GraphManager";
@@ -18,23 +18,17 @@ export default class GraphViewer extends GraphManager {
     constructor(config: ViewerConfig) {
         super(config);
         this.config = config;
-        let graph;
-        if (this.config.graph) {
-            graph = JSON.parse(this.config.graph);
-        }
-        this.width = graph?.width ?? 1000;
-        this.height = graph?.height ?? 800;
+        
+        this.width = defaultConfig.view.size.width;
+        this.height =  defaultConfig.view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
         this.stage.add(this.nodeLayer);
-        if (graph) {
-            //运行态所有节点不可拖动
-            graph.model.nodes.map((item: any) => {
-                item.attributes.draggable = false;
-            });
-        }
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
-        if (graph) this.dataModel.fromObject(graph.model);
+        if(this.config.graph){
+            this.setGraph(this.config.graph)
+        }
+     
         this.initStageDrag();
     }
 
@@ -151,19 +145,20 @@ export default class GraphViewer extends GraphManager {
     }
     /**
      * 根据条件生成函数体
-     * @param where 条件
+     * @param trigger 条件
      * @returns 
      */
-    private getFnByWhere(where: any) {
-        let type = where.type;
+    private getFnByWhen(trigger: any) {
+        let type = trigger.type;
         let fn;
         switch (type) {
-            case CUSTOM_SCRIPT:
-                fn = where[FN_JS];
+            case SCRIPT:
+                fn = trigger[SCRIPT];
                 break;
             case COMPARISON:
-                if (where['key'] && where['comparison'] && where['value']) {
-                    let compStr = this.getCompStr(where['key'], where['comparison'], where['value']);
+                let operation=trigger[COMPARISON]
+                if (operation['source'] && operation['operator'] && operation['target']) {
+                    let compStr = this.getCompStr(operation['source'], operation['operator'], operation['target']);
                     fn = "return " + compStr
                 }
 
@@ -234,6 +229,8 @@ export default class GraphViewer extends GraphManager {
         this.dataModel?.getNodes().forEach((node: Node) => {
             node.setAttributeValue("draggable", false);
         })
+        this.parseMouseEventNode();
+        this.refreshGraph();
     }
 
     /**
@@ -253,47 +250,52 @@ export default class GraphViewer extends GraphManager {
         let action = event.action;
         //如果事件类型是值变化
         switch (action) {
-            case 'changeProperty':
-                let properties = event.value;
-                if (isSuccess) {
-                    let jsonObj: any = {};
-                    properties.forEach((prop: any) => {
-                        jsonObj[prop.name] = prop.val;
-                        //如果使用node的方法，则不能正确的为组元素的属性赋值
-                        //node.setAttributeValue(prop.name, prop.val);
-                    })
-                    this.setAttribute(node, jsonObj);
-                } else {
-                    //从单个事件来讲不能条件不成功就退到初始状态，因为可以前面的事件满足了，已经设置过改属性了，事件中本身可能就有冲突的逻辑，按照事件次序依次执行即可，条件必须涵盖所有取值情况
-                    // properties.forEach((prop: any) => {
-                    //     let originNode = this.getOriginNode(node);
-                    //     node.setAttributeValue(prop.name, originNode.attributes[prop.name].value);
-                    // })
+            case CHANGE_ATTRS_ACTION:
+                let properties = event.attributes;
+                if(properties){
+                    if (isSuccess) {
+                        // properties.forEach((prop: any) => {
+                        //     jsonObj[prop.name] = prop.val;
+                        //     //如果使用node的方法，则不能正确的为组元素的属性赋值
+                        //     //node.setAttributeValue(prop.name, prop.val);
+                        // })
+                        this.setAttribute(node, properties);
+                    } else {
+                        //从单个事件来讲不能条件不成功就退到初始状态，因为可以前面的事件满足了，已经设置过改属性了，事件中本身可能就有冲突的逻辑，按照事件次序依次执行即可，条件必须涵盖所有取值情况
+                        // properties.forEach((prop: any) => {
+                        //     let originNode = this.getOriginNode(node);
+                        //     node.setAttributeValue(prop.name, originNode.attributes[prop.name].value);
+                        // })
+                    }
+                }else{
+                    console.warn(GRAPH_EDITOR_WARNING+"changeAttributes动作未找到对应的attributes")
                 }
+              
 
                 break;
-            case EXECUTE_ANIMATION_ACTION:
-                let type = node.animation.type;
-                if (type) {
-                    if (type != 'none') {
-                        let tween = node.getAnimationObj().obj;
-                        if (isSuccess && tween) {
-                            this.executeTween(tween);
+            case UPDATE_ANIMATION_ACTION:
+                let isExecute=event.animation;
+                if(isExecute){
+                    let type = node.animation.type;
+                    if (type) {
+                        if (type != 'none') {
+                            let tween = node.getAnimationObj().obj;
+                            if (isSuccess && tween) {
+                                this.executeTween(tween);
+                            }
+    
                         }
-
+                    }
+                }else{
+                    let tween = node.getAnimationObj().obj;
+                    if (isSuccess && tween) {
+                        this.stopTween(tween)
                     }
                 }
                 break;
-            case STOP_ANIMATION_ACTION:
-                let tween = node.getAnimationObj().obj;
-                if (isSuccess && tween) {
-                    this.stopTween(tween)
-                }
-                break;
-            case EXECUTE_SCRIPT_ACTION:
-                //为防止混淆，将原来的脚本的值改为fnjs
-                let val = event['fnjs'];
 
+            case EXECUTE_SCRIPT_ACTION:
+                let val = event['script'];
                 //执行脚本需要传递node和data两个参数
                 let executeFn = new Function('node', 'data', 'viewer', val);
                 executeFn(node, variableJson, this);
@@ -311,23 +313,34 @@ export default class GraphViewer extends GraphManager {
         let events = node.getEvents();
         events.forEach((event: any) => {
             //查找条件
-            let where = event.where;
+            let triggers = event[EVENT_TRIGGERS];
             let type = event.type;
-
-            let fnJs = this.getFnByWhere(where);
-            if (fnJs) {
-                let executeFn = new Function('data', fnJs);
-                let isSuccess = executeFn(variableJson);
-                if(typeof isSuccess !='boolean'){
-                    isSuccess=false;
+            if(triggers.length>0){
+                let isPass=true;
+                triggers.forEach(trigger => {
+                    let fnJs = this.getFnByWhen(trigger);
+                    let isSuccess;
+                    if(fnJs){
+                        let executeFn = new Function('data', fnJs);
+                        isSuccess= executeFn(variableJson);
+                        if(typeof isSuccess !='boolean'){
+                            isSuccess=false;
+                        }
+                    }else{
+                        isSuccess=false;
+                    }
+                    isPass=isPass && isSuccess
+                });
+                if(isPass){
+                    _this.eventToRealTimeInfo.set(event, { isSuccess:isPass, variableJson });
+                    if (type == VALUE_UPDATE_EVT_TYPE) {
+                        this.operateNodeByAction(event, node, isPass, variableJson);
+                    }
                 }
-                _this.eventToRealTimeInfo.set(event, { isSuccess, variableJson });
-                if (type == 'valueUpdate') {
-                    this.operateNodeByAction(event, node, isSuccess, variableJson);
-                }
-            } else {
+            }else{
+                //无条件
                 _this.eventToRealTimeInfo.set(event, { isSuccess: true, variableJson });
-                if (type == 'valueUpdate') {
+                if (type == VALUE_UPDATE_EVT_TYPE) {
                     this.operateNodeByAction(event, node, true, variableJson);
                 }
             }
@@ -369,10 +382,7 @@ export default class GraphViewer extends GraphManager {
         }
     }
 
-    init(){
-        this.parseMouseEventNode();
-        this.refreshGraph();
-    }
+ 
 
    /**
     * 刷新图形

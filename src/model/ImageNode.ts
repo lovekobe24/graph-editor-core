@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { ShapeNode, ShapeNodeAttrs } from './ShapeNode';
+import { Utils } from '../Utils';
 
 export class ImageNodeAttrs extends ShapeNodeAttrs {
     image = { "value": null, "default": null, "group": "geometry", "type": "Image" };
@@ -26,6 +27,13 @@ export class ImageNode extends ShapeNode {
                 imageObj.src=image;
                 this.ref.setAttr('image',imageObj);
             }
+             //如果有动画是正在执行的，则要根据属性的改变重新生成动画,比如修改了位置，则旋转动画要重新生成
+             let shouldUpdateAnimation = Utils.getShouldUpdateAnimation(attrValues);
+             let autoPlay = this.getAnimationValue('autoPlay');
+             let isRotate=this.getAnimationValue('type')=='rotateByCenter';
+             if (autoPlay && isRotate && shouldUpdateAnimation) {
+                 this.updateRefAnimation("updateRefAttrs");
+             }
         }
     }
 

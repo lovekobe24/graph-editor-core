@@ -10,9 +10,9 @@ export type AlignDirection = 'left'| 'right'| 'top' | 'bottom' | 'horizontal' | 
 export type MoveDirection = 'left'| 'right'| 'up' | 'down'
 export type OrderDirection = 'top'| 'bottom'| 'up' | 'down'
 export const orderDirection = ["top", "bottom", "up", "down"];
-export type EventType = 'click' | 'valueUpdate'| 'mousemove' | 'mouseout'
-export type EventAction = 'changeProperty' | 'executeAnimation'| 'stopAnimation' | 'executeScript'
-export type EventWhereType = 'customScript'|'comparison'|'none'
+export type EventType = 'click' | 'valuechange'| 'mousemove' | 'mouseout' | 'dblclick'
+export type EventAction = 'changeAttributes' | 'updateAnimation' | 'executeScript'
+export type EventWhenType = 'script'|'operation'
 export declare interface Dimensions {
   width: number
   height: number
@@ -30,15 +30,19 @@ export declare interface NodeConfig {
   variables:any
 }
 
-export declare interface Event {
+export declare interface GEvent {
    type?:EventType,
    action?:EventAction,
-   value?:any,
-   where?:{
-     type?:EventWhereType,
-     value?: any,
-     key?: string,
-     comparison?: string,
-     fnjs?:string
-   }
+   attributes?:any,
+   animation?:boolean,
+   script?:string,
+   triggers?:[{
+     type?:EventWhenType,
+     operation?:{
+      source?: any,
+      operator?: string,
+      target?: any,
+     }
+     script?:string
+   }]
 }

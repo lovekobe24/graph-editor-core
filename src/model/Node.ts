@@ -1,7 +1,7 @@
 import {Utils} from "../Utils";
 import EVENT_TYPE from '../constants/EventType';
 import EventObject from "../EventObject";
-import { EXECUTE_SCRIPT_ACTION, GRAPH_EDITOR_INFO, GRAPH_EDITOR_WARNING, animationToDefaultPeriod, supportAnimation, supportEventAction, supportEventType } from "../constants/TemcConstants";
+import { EVENT_TRIGGERS, EXECUTE_SCRIPT_ACTION, GRAPH_EDITOR_INFO, GRAPH_EDITOR_WARNING, animationToDefaultPeriod, supportAnimation, supportEventAction, supportEventType } from "../constants/TemcConstants";
 import { RESIZE_STYLE } from "../constants/StyleMap";
 import { Tween } from "konva/lib/Tween";
 
@@ -302,11 +302,6 @@ export abstract class Node {
         return this.events;
     }
 
-    getDefaultWhere(): any {
-        let whereJson: any = {};
-        whereJson['type'] = 'none';
-        return whereJson
-    }
 
     /**
      * 为节点添加事件
@@ -323,12 +318,56 @@ export abstract class Node {
                 console.warn(GRAPH_EDITOR_WARNING + " 不支持的事件动作")
                 return
             }
-            event['where'] = event.where ? event.where : this.getDefaultWhere();
+            event[EVENT_TRIGGERS] = event[EVENT_TRIGGERS] ? event[EVENT_TRIGGERS] : [];
             this.events.push(event);
         } else {
             console.warn(GRAPH_EDITOR_WARNING + " 需要事件类型和事件动作")
         }
 
+    }
+
+    addEventTrigger(eventIndex:number,trigger:any){
+        if (eventIndex > this.events.length - 1) {
+            console.warn(GRAPH_EDITOR_WARNING + "事件索引越界");
+        } else {
+            let event=this.events[eventIndex];
+            if(event.hasOwnProperty(EVENT_TRIGGERS)){
+                event[EVENT_TRIGGERS].push(trigger);
+            }else{
+                event[EVENT_TRIGGERS]=[trigger];
+            }
+        }
+    }
+
+    updateEventTrigger(eventIndex:number,triggerIndex:number,trigger:any){
+        if (eventIndex > this.events.length - 1) {
+            console.warn(GRAPH_EDITOR_WARNING + "事件索引越界");
+        } else {
+            let event=this.events[eventIndex];
+            if(event.hasOwnProperty(EVENT_TRIGGERS)){
+                let triggers=event[EVENT_TRIGGERS];
+                if(triggerIndex>triggers.length-1){
+                    console.warn(GRAPH_EDITOR_WARNING + "条件索引越界");
+                }else{
+                    let oldTrigger=triggers[triggerIndex];
+                    triggers[triggerIndex]=Utils.combine(oldTrigger, trigger);
+                }
+            }else{
+                console.warn(GRAPH_EDITOR_WARNING + "事件下不存在triggers");
+            }
+        }
+    }
+    deleteEventTrigger(eventIndex:number,triggerIndex:number){
+        if (eventIndex > this.events.length - 1) {
+            console.warn(GRAPH_EDITOR_WARNING + "事件索引越界");
+        } else {
+            let event=this.events[eventIndex];
+            if(event.hasOwnProperty(EVENT_TRIGGERS)){
+                event[EVENT_TRIGGERS].splice(triggerIndex, 1);
+            }else{
+                console.warn(GRAPH_EDITOR_WARNING + "事件下不存在triggers");
+            }
+        }
     }
 
     /**

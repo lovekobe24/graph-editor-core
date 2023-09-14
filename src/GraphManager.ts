@@ -145,6 +145,7 @@ export abstract class GraphManager {
         if (graphJson.name) {
             this.name = graphJson.name;
         }
+        console.log(graphJson.model);
         this.dataModel?.fromObject(graphJson.model);
         // this.dataModel?.setVariables(graphJson.variables);
     }
@@ -156,10 +157,9 @@ export abstract class GraphManager {
     * editor.setBackgroundColor('red');
     */
     setBackgroundColor(color: string) {
-        var elements = document.getElementsByClassName('konvajs-content');
-        if (elements.length > 0) {
-            var konvaContent: any = elements[0];
-            konvaContent.style.backgroundColor = color;
+        var element = this.stage?.container().querySelector('.konvajs-content') as HTMLElement;
+        if (element) {
+            element.style.backgroundColor = color;
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未找到画布");
         }
@@ -169,10 +169,9 @@ export abstract class GraphManager {
      * @returns 获取背景色
      */
     getBackgroundColor() {
-        var elements = document.getElementsByClassName('konvajs-content');
-        if (elements.length > 0) {
-            var konvaContent: any = elements[0];
-            return konvaContent.style.backgroundColor;
+        var element = this.stage?.container().querySelector('.konvajs-content') as HTMLElement;
+        if (element) {
+            return element.style.backgroundColor;
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未找到容器");
         }

@@ -77,7 +77,7 @@ export {EditorConfig} from './types/config';
 export {GridConfig} from './types/config';
 export {StyleConfig} from './types/config';
 export {AlignDirection} from './types/common'
-export {Event,EventType,EventAction,EventWhereType} from './types/common'
+export {GEvent,EventType,EventAction,EventWhenType} from './types/common'
 
 export {Utils};
   

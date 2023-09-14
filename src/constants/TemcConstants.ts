@@ -1,7 +1,7 @@
 
-export const CUSTOM_SCRIPT = 'customScript';
-export const COMPARISON = 'comparison';
-export const FN_JS = 'fnjs';
+export const SCRIPT = 'script';
+export const COMPARISON = 'operation';
+
 
 export const ROTATE_BY_CENTER = 'rotateByCenter';
 export const BLINK = 'blink';
@@ -9,17 +9,20 @@ export const FLOW = 'flow';
 export const NONE = 'none';
 
 export const TRANSFORM = 'transform';
-//事件行为
-export const EXECUTE_ANIMATION_ACTION = 'executeAnimation';
-export const STOP_ANIMATION_ACTION = "stopAnimation";
-export const CHANGE_PROPERTY_ACTION = 'changeProperty';
-export const EXECUTE_SCRIPT_ACTION = 'executeScript';
 
+
+//事件行为
+export const UPDATE_ANIMATION_ACTION = "updateAnimation";
+export const CHANGE_ATTRS_ACTION = 'changeAttributes';
+export const EXECUTE_SCRIPT_ACTION = 'executeScript';
+//事件类型
 export const MOUSE_LEAVE_EVT_TYPE = 'mouseleave';
 export const MOUSE_ENTER_EVT_TYPE = 'mouseenter';
 export const MOUSE_CLICK_EVT_TYPE = 'click';
 export const MOUSE_DBL_CLICK_EVT_TYPE = 'dblclick';
-export const VALUE_UPDATE_EVT_TYPE = 'valueUpdate';
+export const VALUE_UPDATE_EVT_TYPE = 'valuechange';
+
+export const EVENT_TRIGGERS = 'triggers';
 
 
 export const DIRECTION_LEFT = 'left';
@@ -48,7 +51,7 @@ export const GRAPH_EDITOR_INFO = "GraphEditor info ";
 
 const supportAnimation = [BLINK, ROTATE_BY_CENTER, FLOW,NONE];
 const supportEventType = [MOUSE_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE,MOUSE_DBL_CLICK_EVT_TYPE, VALUE_UPDATE_EVT_TYPE];
-const supportEventAction = [EXECUTE_ANIMATION_ACTION, STOP_ANIMATION_ACTION, CHANGE_PROPERTY_ACTION, EXECUTE_SCRIPT_ACTION];
+const supportEventAction = [UPDATE_ANIMATION_ACTION, CHANGE_ATTRS_ACTION, EXECUTE_SCRIPT_ACTION];
 const animationToDefaultPeriod: any = {
     'blink': 1,
     'rotateByCenter': 6,

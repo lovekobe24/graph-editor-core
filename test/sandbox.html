@@ -578,45 +578,46 @@
         graphView = new GraphViewer(
           {
             container: document.getElementById('editor'),
-            graph: currentGraph,
+            //graph: currentGraph,
           }
         );
         graphView.setScale(scale);
-        graphView.init();
+
+        graphView.setGraph(currentGraph);
 
         //注册鼠标事件
-        graphView.registerNodeMouseEvent({
-          'mouseover': function (evt) {
-            console.log('mouseover');
-          },
-          'mouseenter': function (evt, node, bound) {
-            tempDiv.style.display = 'block';
-            let top = bound.y + bound.height / 2;
-            let left = bound.x + bound.width + 10;
-            tempDiv.style.left = left + 'px';
-            tempDiv.style.top = top + 'px';
-            tempDiv.innerHTML = node.id;
+        // graphView.registerNodeMouseEvent({
+        //   'mouseover': function (evt) {
+        //     console.log('mouseover');
+        //   },
+        //   'mouseenter': function (evt, node, bound) {
+        //     tempDiv.style.display = 'block';
+        //     let top = bound.y + bound.height / 2;
+        //     let left = bound.x + bound.width + 10;
+        //     tempDiv.style.left = left + 'px';
+        //     tempDiv.style.top = top + 'px';
+        //     tempDiv.innerHTML = node.id;
 
-          },
-          'mouseleave': function (evt) {
-            tempDiv.style.display = 'none';
-          },
-          'click tap': function (evt) {
-            console.log('click');
-          },
-          'dblclick dbltap': function (evt) {
-            console.log('dblclick');
-          },
-          'contextmenu': function (evt) {
-            console.log('contextmenu');
-          },
-          'mousedown': function (evt) {
-            console.log('mousedown');
-          },
-          'mouseup': function (evt) {
-            console.log('mouseup');
-          }
-        })
+        //   },
+        //   'mouseleave': function (evt) {
+        //     tempDiv.style.display = 'none';
+        //   },
+        //   'click tap': function (evt) {
+        //     console.log('click');
+        //   },
+        //   'dblclick dbltap': function (evt) {
+        //     console.log('dblclick');
+        //   },
+        //   'contextmenu': function (evt) {
+        //     console.log('contextmenu');
+        //   },
+        //   'mousedown': function (evt) {
+        //     console.log('mousedown');
+        //   },
+        //   'mouseup': function (evt) {
+        //     console.log('mouseup');
+        //   }
+        // })
         timer = setInterval(() => {
           let variableJson = {}
           let allNodes = graphView.getNodes();
@@ -833,8 +834,8 @@
           console.log("节点的属性变化了", event.getProperty('tag'));
         }
       });
-      graphEditor.onNodeAttributeChange((sender,event)=>{
-        console.log("onNodeAttributeChange............",event);
+      graphEditor.onNodeAttributeChange((sender, event) => {
+        console.log("onNodeAttributeChange............", event);
 
       })
 
@@ -860,17 +861,17 @@
       // graphEditor.align('top');
 
       // //调整显示比例
-     // graphEditor.setScale(1.2);
+      // graphEditor.setScale(1.2);
 
       graphEditor.setSize(400, 400);
       //设置背景色
-      // graphEditor.setBackgroundColor("#ffff66");
+      graphEditor.setBackgroundColor("#ffff00");
       console.log(graphEditor.getBackgroundColor());
 
       // //添加变量
       graphEditor.addVariable('state', {
         type: 'integer',
-        defaultVal: 3
+        defaultVal: 2
       }, ids[0]);
 
       graphEditor.addVariable('变量3', {
@@ -886,7 +887,7 @@
       console.log(graphEditor.getVariables());
       console.log(graphEditor.getVariable('变量3', ids[0]));
 
-     // graphEditor.deleteVariable('变量3');
+      // graphEditor.deleteVariable('变量3');
 
       // //设置属性
       graphEditor.setAttributeValues({
@@ -896,15 +897,15 @@
       //   'rotation': 30
       // },ids);
       // graphEditor.setAttribute('fill','orange',ids);
-     // graphEditor.group([ids[0],ids[1]]);
-     
-      graphEditor.setAttributeValue('opacity','0.2');
+      // graphEditor.group([ids[0],ids[1]]);
+
+      graphEditor.setAttributeValue('opacity', 0.2);
       // let selectNodes=graphEditor.getSelection();
       // graphEditor.unGroup(selectNodes[0].id);
       // console.log('当前配置',graphEditor.getConfig());
-    //  graphEditor.selectAll();
+      //  graphEditor.selectAll();
       console.log(graphEditor.getNodesAttributes());
-      graphEditor.setAttributeValue('fill','gray');
+      graphEditor.setAttributeValue('fill', 'gray');
 
       // //添加动画
       selectNodes = graphEditor.getSelection();
@@ -921,7 +922,7 @@
       console.log(graphEditor.getAnimationValue('period'));
       //graphEditor.setAnimationValue('type', 'none', ids[0]);
       //let groupArray = new Array(ids[1], ids[0]);
-     // let groupNode = graphEditor.group(groupArray);
+      // let groupNode = graphEditor.group(groupArray);
       // console.log(graphEditor.getNodes());
       // graphEditor.setAttributeValue('rotation',60, groupNode.id)
 
@@ -937,33 +938,71 @@
       // //设置背景色
       // graphEditor.setBackgroundColor('black');
       // graphEditor.deleteNodes();
-      //  //添加事件
+      //单击修改属性
+      graphEditor.addEvent({
+        type: 'valuechange',
+        action: 'changeAttributes',
+        attributes: {
+          'fill': 'rgba(0,0,0,1)'
+        },
+        triggers: [{
+          type: 'operation',
+          operation: {
+            target: 3,
+            source: "state",
+            operator: "="
+          }
+        }]
+      }, ids[0])
+      graphEditor.addEvent({
+        type: 'valuechange',
+        action: 'changeAttributes',
+        attributes: {
+          'fill': 'rgba(0,255,0,1)'
+        },
+        triggers: [{
+          type: 'operation',
+          operation: {
+            target: 3,
+            source: "state",
+            operator: "!="
+          }
+        }]
+      }, ids[0])
+      //单击启动动画
       // graphEditor.addEvent({
-      //   type: 'valueUpdate',
-      //   action: 'changeProperty',
-      //   value: [{
-      //     name: 'fill', val: 'rgba(0,0,0,1)'
-      //   }],
-      //   where: {
-      //     type: 'comparison',
-      //     value: 1,
-      //     key: "state",
-      //     comparison: "="
-      //   }
+      //   type: 'click',
+      //   action: 'updateAnimation',
+      //   animation:true
       // }, ids[0])
+      // graphEditor.addEventTrigger(0,{
+      //     type: 'operation',
+      //     target: 3,
+      //     source: "state",
+      //     operation: "="
+      // }, ids[0])
+      // graphEditor.updateEventTrigger(0,0,{
+
+      //     source: "state",
+      //     operation: "="
+      // }, ids[0])
+      // graphEditor.deleteEventTrigger(0,0, ids[0])
+
+
+      //单击执行脚本
       // graphEditor.addEvent({
       //   type: 'click',
       //   action: 'executeScript',
-      //   fnjs: 'console.log("world,balalabalabanabbl")'
+      //   script: 'console.log("world,balalabalabanabbl")'
       // }, ids[0])
       //单击更改属性
-      graphEditor.addEvent({
-        type: 'click',
-        action: 'changeProperty',
-        value: [{
-          name: 'fill', val: 'rgba(255,255,0,1)'
-        }],
-      }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'click',
+      //   action: 'changeAttributes',
+      //   value: [{
+      //     name: 'fill', val: 'rgba(255,255,0,1)'
+      //   }],
+      // }, ids[0])
       // graphEditor.addEvent({
       //   type: 'valueUpdate',
       //   action: 'changeProperty',
@@ -1029,6 +1068,7 @@
           }
         }
       );
+      //graphEditor.setGraph(existGraph);
       //创建监听
       graphEditor.onSelectionChanged((sender, event) => {
         let selectedNodes = event.getProperty('nodes');
@@ -1134,15 +1174,15 @@
       compDiv.appendChild(attrDiv);
       attrDiv.addEventListener('change', (evt) => {
         //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
-        let json={};
-        json[proName]=parseFloat(attrDiv.value);
+        let json = {};
+        json[proName] = parseFloat(attrDiv.value);
         graphEditor.setAttributeValues({
-          x:240,
-          fill:'green',
-          y:34,
-          width:20,
-          height:60,
-          rotation:50
+          x: 240,
+          fill: 'green',
+          y: 34,
+          width: 20,
+          height: 60,
+          rotation: 50
         });
         //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
       })
@@ -1163,7 +1203,7 @@
 
     }
     const initPropertyPanel = (node) => {
-      console.log('initPropertyPanel',graphEditor.getAttributes());
+      console.log('initPropertyPanel', graphEditor.getAttributes());
 
       document.getElementById('property').innerHTML = '';
       let idDiv = getStrDiv('id', node.id);

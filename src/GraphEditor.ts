@@ -104,7 +104,7 @@ export default class GraphEditor extends GraphManager {
         this.config = Utils.combine(defaultConfig, config);
         let view = this.config?.view;
         this.width = view.size.width;
-        this.height =  view.size.height;
+        this.height = view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
         this.stage.add(this.gridLayer);
         this.stage.add(this.nodeLayer);
@@ -132,10 +132,10 @@ export default class GraphEditor extends GraphManager {
 
         this.initShapeModule();
 
-        if (Utils.isBrowser()){
+        if (Utils.isBrowser()) {
             var container = this.stage.container();
             // make it focusable
-             container.tabIndex = 1;
+            container.tabIndex = 1;
             // // focus it
             // // also stage will be in focus on its click
             container.focus();
@@ -319,7 +319,7 @@ export default class GraphEditor extends GraphManager {
                 { x: rect.x + rect.width, y: rect.y + rect.height / 2 },
             ]
         } else if (target instanceof Konva.Star) {
-            let star=target;
+            let star = target;
             // 获取星形的变换矩阵
             const transform = star.getTransform();
             const angleIncrement = (Math.PI * 2) / (star.numPoints() * 2);
@@ -422,11 +422,11 @@ export default class GraphEditor extends GraphManager {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_UP, e.evt.button);
             }
         });
-     
+
 
     }
-    addEventToNode(konvaNode:any){
-        let _this=this;
+    addEventToNode(konvaNode: any) {
+        let _this = this;
         konvaNode.on('mouseenter', (e: any) => {
             switch (this.currentMode) {
                 case DRAWING_MODE:
@@ -521,9 +521,9 @@ export default class GraphEditor extends GraphManager {
             if (reasons.indexOf('from') != -1) {
                 let oldSourcePoint = node.getRef().points();
                 let sourceNode = this.stage?.findOne('#' + from.id);
-               // let newSourcePoint = sourceNode?.getTransform().point(from.point);
+                // let newSourcePoint = sourceNode?.getTransform().point(from.point);
                 //考虑到元素在组的情况，所以要获取所有的矩阵变换剔除stage的，因为连接线也在stage上
-                let tfWithoutStage=sourceNode.getAbsoluteTransform().copy().multiply(this.stage?.getTransform().copy().invert());
+                let tfWithoutStage = sourceNode.getAbsoluteTransform().copy().multiply(this.stage?.getTransform().copy().invert());
                 let newSourcePoint = tfWithoutStage.point(from.point);
                 oldSourcePoint[0] = newSourcePoint?.x;
                 oldSourcePoint[1] = newSourcePoint?.y;
@@ -531,8 +531,8 @@ export default class GraphEditor extends GraphManager {
             if (reasons.indexOf('to') != -1) {
                 let oldPoints = node.getRef().points();
                 let toNode = this.stage?.findOne('#' + to.id);
-               // let newToPoint = toNode?.getTransform().point(to.point);
-                let tfWithoutStage=toNode.getAbsoluteTransform().copy().multiply(this.stage?.getTransform().copy().invert());
+                // let newToPoint = toNode?.getTransform().point(to.point);
+                let tfWithoutStage = toNode.getAbsoluteTransform().copy().multiply(this.stage?.getTransform().copy().invert());
                 let newToPoint = tfWithoutStage.point(to.point);
                 oldPoints[2] = newToPoint?.x;
                 oldPoints[3] = newToPoint?.y;
@@ -556,7 +556,7 @@ export default class GraphEditor extends GraphManager {
                     node.getRef().stopDrag();
                     let autoPlay = node.getAnimationValue('autoPlay');
                     let type = node.getAnimationValue('type');
-                    if (autoPlay && type==ROTATE_BY_CENTER) {
+                    if (autoPlay && type == ROTATE_BY_CENTER) {
                         //如果正在播放动画，在移动过程中要将动画暂停,否则会引起坐标的混乱
                         if (node.getAnimationObj().obj) {
                             node.destroyAnimation();
@@ -597,7 +597,7 @@ export default class GraphEditor extends GraphManager {
     }
     getRelatedConnectedLineMap(selectNodes: any) {
         let connectedLineNodesMap = new Map();
-        let selectNodesIds =[];
+        let selectNodesIds = [];
         (function loop(nodes) {
             for (let node of nodes) {
                 selectNodesIds.push(node.getId());
@@ -695,7 +695,7 @@ export default class GraphEditor extends GraphManager {
             _this.align(DIRECTION_HORIZONTAL)
         });
 
-        
+
         //剪切板函数
         fnMap.set('copy', () => {
             _this.copy()
@@ -726,13 +726,13 @@ export default class GraphEditor extends GraphManager {
         let _this = this;
         let undoRedoManager = this.dataModel?.undoRedoManager;
         let fnMap = new Map();
-        let selectionCount=this.getSelection().length;
+        let selectionCount = this.getSelection().length;
         fnMap.set('undo', undoRedoManager.canUndo() ? true : false);
         fnMap.set('redo', undoRedoManager.canRedo() ? true : false);
-        fnMap.set('orderTop', _this.getSelection().length ==1 ? true : false);
-        fnMap.set('orderBottom', _this.getSelection().length ==1 ? true : false);
-        fnMap.set('orderUp', _this.getSelection().length ==1 ? true : false);
-        fnMap.set('orderDown', _this.getSelection().length ==1 ? true : false);
+        fnMap.set('orderTop', _this.getSelection().length == 1 ? true : false);
+        fnMap.set('orderBottom', _this.getSelection().length == 1 ? true : false);
+        fnMap.set('orderUp', _this.getSelection().length == 1 ? true : false);
+        fnMap.set('orderDown', _this.getSelection().length == 1 ? true : false);
         fnMap.set('alignLeft', _this.getSelection().length > 1 ? true : false);
         fnMap.set('alignRight', _this.getSelection().length > 1 ? true : false);
         fnMap.set('alignTop', _this.getSelection().length > 1 ? true : false);
@@ -745,22 +745,22 @@ export default class GraphEditor extends GraphManager {
         fnMap.set('delete', _this.getSelection().length > 0 ? true : false);
         fnMap.set('group', _this.getSelection().length > 1 ? true : false);
         fnMap.set('unGroup', _this.canUnGroup() ? true : false);
-        fnMap.set('constructSymbol', selectionCount > 1 && this.withoutSymbolNode() ? true : false);
-        fnMap.set('deconstructSymbol', this.canDeconstructSymbol()? true : false);
+        fnMap.set('constructSymbol', selectionCount > 0 && this.withoutSymbolNode() ? true : false);
+        fnMap.set('deconstructSymbol', this.canDeconstructSymbol() ? true : false);
         return fnMap;
     }
 
-    withoutSymbolNode(){
-        return this.getSelection().every(node=> !(node instanceof SymbolNode));
+    withoutSymbolNode() {
+        return this.getSelection().every(node => !(node instanceof SymbolNode));
     }
-    private canDeconstructSymbol(){
-        let selectionCount=this.getSelection().length;
-        if(selectionCount==1){
-            let selection=this.dataModel?.getSelectionManager().getSelection()[0];
-            return  selectionCount === 1 && (selection instanceof SymbolNode);
+    private canDeconstructSymbol() {
+        let selectionCount = this.getSelection().length;
+        if (selectionCount == 1) {
+            let selection = this.dataModel?.getSelectionManager().getSelection()[0];
+            return selectionCount === 1 && (selection instanceof SymbolNode);
         }
-      
-       
+
+
     }
 
     /**
@@ -1196,10 +1196,10 @@ export default class GraphEditor extends GraphManager {
             let nodeIndex = event.getProperty('zIndex');
             this.nodeLayer.add(node);
             const connectable = this.config.drawing?.connectable
-            if(connectable){
+            if (connectable) {
                 this.addEventToNode(node);
             }
-           
+
             if (nodeIndex != -1) {
                 node.zIndex(nodeIndex);
             }
@@ -1572,7 +1572,7 @@ export default class GraphEditor extends GraphManager {
         for (let node of nodes) {
             node.destroyRefAnchors();
         }
-       
+
     }
 
     private setSubMode(subMode: string) {
@@ -1616,7 +1616,7 @@ export default class GraphEditor extends GraphManager {
         let graphObj = {
             width: this.width,
             height: this.height,
-            backgroundColor: this.stage.container().style.backgroundColor,
+            backgroundColor: this.getBackgroundColor(),
             name: this.name,
             model: this.dataModel.toObject(isArray),
         };
@@ -1682,22 +1682,22 @@ export default class GraphEditor extends GraphManager {
         if (toModel) {
             //this.dataModel.addVariable(name, variable);
         } else {
-            if(name.trim()==""){
+            if (name.trim() == "") {
                 console.warn(GRAPH_EDITOR_WARNING + '变量名称不能为空');
-            }else{
-                if(variable.type){
+            } else {
+                if (variable.type) {
                     let operateNode = this.getOperateNode(nodeId);
                     if (operateNode) {
                         operateNode.addVariable(name, variable);
                     } else {
                         console.warn(GRAPH_EDITOR_WARNING + '未找到设置变量的节点');
                     }
-                }else{
+                } else {
                     console.warn(GRAPH_EDITOR_WARNING + '变量类型不能为空');
                 }
-                
+
             }
-           
+
         }
     }
     /**
@@ -1762,7 +1762,7 @@ export default class GraphEditor extends GraphManager {
      * @param toModel 是否是删除模型上的变量
      * @param nodeId 需要操作的节点
      */
-    deleteVariable(name: string, nodeId?: string, toModel?: boolean=false) {
+    deleteVariable(name: string, nodeId?: string, toModel?: boolean = false) {
         if (toModel) {
             // this.dataModel.deleteVariable(name);
         } else {
@@ -1868,7 +1868,7 @@ export default class GraphEditor extends GraphManager {
     getConfig() {
         return JSON.parse(JSON.stringify(this.config));
     }
-    
+
     private setIsSquare(square: boolean) {
         this.isSquare = square;
     }
@@ -1916,7 +1916,7 @@ export default class GraphEditor extends GraphManager {
     setStyleConfig(styleConfig: StyleConfig) {
         this.config.style = Utils.combine(this.config.style, styleConfig);
     }
-    getStyleConfig(){
+    getStyleConfig() {
         return JSON.parse(JSON.stringify(this.config.style));
     }
 
@@ -1932,11 +1932,11 @@ export default class GraphEditor extends GraphManager {
         this.config.view.grid = Utils.combine(this.config.view.grid, gridConfig);
         this.initGrid();
     }
-    getGridConfig(){
+    getGridConfig() {
         return JSON.parse(JSON.stringify(this.config.view.grid))
     }
 
-   
+
 
 
 
@@ -1949,7 +1949,7 @@ export default class GraphEditor extends GraphManager {
      */
     getAttributes(id?: string) {
         let node = this.getOperateNode(id);
-        if(node){
+        if (node) {
             if (node instanceof ContainerNode) {
                 let memberAttrs = node.getMemberAttributes(true);
                 for (let key in memberAttrs) {
@@ -1962,8 +1962,8 @@ export default class GraphEditor extends GraphManager {
             } else {
                 return node.getAttributes();
             }
-        }else{
-            console.warn(GRAPH_EDITOR_WARNING+"未找到操作的节点")
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到操作的节点")
         }
     }
 
@@ -1972,12 +1972,12 @@ export default class GraphEditor extends GraphManager {
      * @param ids 操作节点的id数组
      * @returns 操作节点的属性的交集
      */
-    getNodesAttributes(ids?:any){
-        let allAttrs={};
+    getNodesAttributes(ids?: any) {
+        let allAttrs = {};
         let nodes = this.getOperateNodes(ids);
         nodes.forEach(element => {
-            let attrs=this.getAttributes(element.id);
-            allAttrs=Object.assign(allAttrs, attrs);
+            let attrs = this.getAttributes(element.id);
+            allAttrs = Object.assign(allAttrs, attrs);
         });
         return allAttrs;
     }
@@ -2118,48 +2118,103 @@ export default class GraphEditor extends GraphManager {
      * @param event 
      * @param {string} event.type 事件类型，枚举值
      *     'click': '单击',
-     *     'valueUpdate': '值变化',
-     *     'mousemove': '鼠标悬停',
-     *     'mouseout': '鼠标移出'
+     *      'dblclick': '双击',
+     *     'valuechange': '值变化',
+     *     'mouseenter': '鼠标移入',
+     *     'mouseleave': '鼠标移出'
      * @param {string} event.action 事件动作，枚举值  
-     * 'changeProperty': '更改属性',
-     * 'executeAnimation': '执行动画',
-     * 'stopAnimation': '暂停动画',
-     *  'executeScript': '执行JavaScript' 
-     * @param {any} event.value 值，和事件动作有关 
-     * @param {string} event.where.type 条件类型，枚举值：'customScript': '脚本','comparison': '关系运算符','none': '无'
-     * @param {string} event.where.fnjs 条件函数
+     * 'changeAttributes': '更改属性',
+     * 'updateAnimation': '修改动画',
+     * 'executeScript': '执行JavaScript' 
+     * @param {any} event.attributes 值，valuechange的值
+     * @param {any} event.animation  updateAnimation的值
+     * @param {any} event.script  executeScript的值
+     * @param {string} trigger.type 条件类型，枚举值：'script': '脚本','operation': '关系运算符'
+     * @param {string} trigger.operation 关系运算符的值
+     * @param {string} trigger.script 条件类型为script时的取值
      * @param nodeId 操作的节点id
      * @example
      *  graphEditor.addEvent({
-     *   type:'valueUpdate',
-     *   action:'changeProperty',
-     *   value:[{
-     *     name:'fill'
-     *     val:'green'
-     *    }],
-     *   where:{
-     *      type:'comparison',
-     *      value: 1,
-     *      key: "变量2",
-     *      comparison: "="
-     *   }
+     *   type:'valuechange',
+     *   action:'changeAttributes',
+     *   attributes:{
+     *    'fill' :'green'
+     *    },
+     *   triggers:[{
+     *      type:'operation',
+     *        operation: {
+     *           target: 3,
+     *           source: "state",
+     *           operator: "="
+     *       }
+     *   }]
      *  },nodeId)
      *  graphEditor.addEvent({
-     *     type:'valueUpdate',
+     *     type:'valuechange',
      *     action:'executeScript',
-     *     fnjs: 'console.log("world")',
-     *     where:{
-     *        fnjs:'return data.state==1',
-     *        type:'customScript'
-     *     }
+     *     script: 'console.log("world")',
+     *     triggers:[{
+     *        script:'return data.state==1',
+     *        type:'script'
+     *     }]
      *  })  
      */
     addEvent(event: any, nodeId?: string) {
-    
+
         let operateNode = this.getOperateNode(nodeId);
         if (operateNode) {
             this.dataModel.addEvent(operateNode, event);
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到添加事件的节点")
+        }
+    }
+    /**
+     * 为事件添加条件
+     * @param eventIndex 事件的索引
+     * @example
+     *  graphEditor.addEventTrigger(0,{
+     *    type: 'operation',
+     *    target: 3,
+     *   source: "state",
+     *    operation: "="
+     *   },)
+     */
+    addEventTrigger(eventIndex: number, trigger: any, nodeId?: string) {
+        let operateNode = this.getOperateNode(nodeId);
+        if (operateNode) {
+            this.dataModel.addEventTrigger(operateNode, eventIndex, trigger);
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到添加事件的节点")
+        }
+    }
+
+    /**
+     * 更新事件条件
+     * @param eventIndex 事件索引
+     * @param triggerIndex 条件索引
+     * @param trigger 修改的条件
+     * @param nodeId 操作节点id
+     */
+    updateEventTrigger(eventIndex: number, triggerIndex: number, trigger: any, nodeId?: string) {
+
+        let operateNode = this.getOperateNode(nodeId);
+        if (operateNode) {
+            this.dataModel.updateEventTrigger(operateNode, eventIndex, triggerIndex, trigger);
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未找到添加事件的节点")
+        }
+    }
+
+    /**
+     * 删除事件中的条件
+     * @param eventIndex 事件索引
+     * @param triggerIndex 条件索引
+     * @param nodeId 操作节点id
+     */
+    deleteEventTrigger(eventIndex: number, triggerIndex: number, nodeId?: string) {
+        let operateNode = this.getOperateNode(nodeId);
+        if (operateNode) {
+            this.dataModel.deleteEventTrigger(operateNode, eventIndex, triggerIndex);
         } else {
             console.warn(GRAPH_EDITOR_WARNING + "未找到添加事件的节点")
         }

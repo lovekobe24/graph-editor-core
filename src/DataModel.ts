@@ -336,6 +336,31 @@ export class DataModel extends TemcEventSource {
         this.fireEvent(new EventObject(EVENT_TYPE.NODE_EVENTS_CHANGE, 'node', this, 'events', JSON.parse(JSON.stringify(node.getEvents()))), null);
     }
 
+    /**
+     * 
+     * @param operateNode 操作的节点
+     * @param eventIndex 事件的索引
+     */
+    addEventTrigger(node:any, eventIndex:number,trigger:any){
+        node.addEventTrigger(eventIndex,trigger);
+        this.fireEvent(new EventObject(EVENT_TYPE.NODE_EVENTS_CHANGE, 'node', this, 'events', JSON.parse(JSON.stringify(node.getEvents()))), null);
+    }
+
+    updateEventTrigger(node:any, eventIndex:number,triggerIndex:number,trigger:any){
+        node.updateEventTrigger(eventIndex,triggerIndex,trigger);
+        this.fireEvent(new EventObject(EVENT_TYPE.NODE_EVENTS_CHANGE, 'node', this, 'events', JSON.parse(JSON.stringify(node.getEvents()))), null);
+    }
+
+    /**
+     * 
+     * @param eventIndex 事件索引
+     * @param triggerIndex 条件索引
+     */
+    deleteEventTrigger(node:any,eventIndex:number,triggerIndex:any){
+        node.deleteEventTrigger(eventIndex,triggerIndex);
+        this.fireEvent(new EventObject(EVENT_TYPE.NODE_EVENTS_CHANGE, 'node', this, 'events', JSON.parse(JSON.stringify(node.getEvents()))), null);
+    }
+
     deleteEvent(node: any, eventIndex: any) {
         node.deleteEvent(eventIndex);
         this.fireEvent(new EventObject(EVENT_TYPE.NODE_EVENTS_CHANGE, 'node', this, 'events', JSON.parse(JSON.stringify(node.getEvents()))), null);
