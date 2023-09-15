@@ -786,10 +786,11 @@ export default class GraphEditor extends GraphManager {
         key: string
         ctrlKey: boolean
     }) {
+        e.stopPropagation();
+        e.preventDefault();
         const isCtrlKey = e.ctrlKey;
         const isShiftKey = e.shiftKey;
         const keyboard = this.config.selection?.keyboard
-        console.log(keyboard);
         if (keyboard?.enabled === false) {
             return
         }

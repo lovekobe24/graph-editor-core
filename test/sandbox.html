@@ -636,9 +636,9 @@
               }
             }
           })(allNodes);
-          console.log(variableJson);
+          //  console.log(variableJson);
           //  graphView.setGraphVariable(variableJson);
-          graphView.refreshGraph(variableJson);
+          //graphView.refreshGraph(variableJson);
         }, 5000)
 
         target.innerHTML = '退出预览'
@@ -871,7 +871,7 @@
       // //添加变量
       graphEditor.addVariable('state', {
         type: 'integer',
-        defaultVal: 2
+        defaultVal: 1
       }, ids[0]);
 
       graphEditor.addVariable('变量3', {
@@ -890,9 +890,9 @@
       // graphEditor.deleteVariable('变量3');
 
       // //设置属性
-      graphEditor.setAttributeValues({
-        'fill': 'red'
-      }, ids[0]);
+      // graphEditor.setAttributeValues({
+      //   'fill': 'red'
+      // }, ids[0]);
       // graphEditor.setAttributes({
       //   'rotation': 30
       // },ids);
@@ -939,36 +939,71 @@
       // graphEditor.setBackgroundColor('black');
       // graphEditor.deleteNodes();
       //单击修改属性
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'changeAttributes',
+      //   attributes: {
+      //     'fill': 'rgba(0,0,0,1)'
+      //   },
+      //   triggers: [{
+      //     type: 'operation',
+      //     operation: {
+      //       target: 3,
+      //       source: "state",
+      //       operator: "="
+      //     }
+      //   }]
+      // }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'changeAttributes',
+      //   attributes: {
+      //     'fill': 'rgba(0,255,0,1)'
+      //   },
+      //   triggers: [{
+      //     type: 'operation',
+      //     operation: {
+      //       target: 3,
+      //       source: "state",
+      //       operator: "!="
+      //     }
+      //   }]
+      // }, ids[0])
+      //值变化执行脚本
+      // case 1:
+      //          viewer.setNodeAttribute(node,'stroke','#00ff00')；viewer.setNodeAttribute(node,'fill','#00ff00');
+      //          break;
+      //          case 2:
+      //          viewer.setNodeAttribute(node,'fill','#ff0000');
+      //          break;
+      //         default:
+      //         viewer.setNodeAttribute(node,'stroke','#cccccc');
+      //         viewer.setNodeAttribute(node,'fill','none');
+
+      let scriptStr = `
+      switch(data.state){
+        case 1:
+           viewer.setNodeAttribute(node,'stroke','#00ff00');
+           viewer.setNodeAttribute(node,'fill','#00ff00');
+           break;
+           case 2:
+            viewer.setNodeAttribute(node,'fill','#ff0000');
+            viewer.setNodeAttribute(node,'stroke','#ff0000');
+            break;
+           default:
+              viewer.setNodeAttribute(node,'stroke','#cccccc');
+              viewer.setNodeAttribute(node,'fill','');
+        break;
+      }
+      `
+
       graphEditor.addEvent({
         type: 'valuechange',
-        action: 'changeAttributes',
-        attributes: {
-          'fill': 'rgba(0,0,0,1)'
-        },
-        triggers: [{
-          type: 'operation',
-          operation: {
-            target: 3,
-            source: "state",
-            operator: "="
-          }
-        }]
-      }, ids[0])
-      graphEditor.addEvent({
-        type: 'valuechange',
-        action: 'changeAttributes',
-        attributes: {
-          'fill': 'rgba(0,255,0,1)'
-        },
-        triggers: [{
-          type: 'operation',
-          operation: {
-            target: 3,
-            source: "state",
-            operator: "!="
-          }
-        }]
-      }, ids[0])
+        action: 'executeScript',
+        script: scriptStr
+      }, ids[0]);
+
+
       //单击启动动画
       // graphEditor.addEvent({
       //   type: 'click',
