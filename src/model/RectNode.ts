@@ -3,6 +3,8 @@ import Konva from 'konva';
 import { ShapeNode, ShapeNodeAttrs } from './ShapeNode';
 
 export class RectNodeAttrs extends ShapeNodeAttrs {
+    width = { "value": "auto", "default": "auto", "group": "geometry", "type": "Number" };
+    height = { "value": "auto", "default": "auto", "group": "geometry", "type": "Number" };
 }
 
 export class RectNode extends ShapeNode {

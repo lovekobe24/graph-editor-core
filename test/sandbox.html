@@ -881,8 +881,8 @@
       console.log(graphEditor.getVariables(ids[0]));
       //修改变量
       graphEditor.updateVariable('变量3', {
-        type: 'string',
-        defaultVal: 6
+      
+        linkInfo:null
       }, ids[0]);
       console.log(graphEditor.getVariables());
       console.log(graphEditor.getVariable('变量3', ids[0]));
@@ -981,7 +981,7 @@
       //         viewer.setNodeAttribute(node,'fill','none');
 
       let scriptStr = `
-      switch(data.state){
+      switch(state){
         case 1:
            viewer.setNodeAttribute(node,'stroke','#00ff00');
            viewer.setNodeAttribute(node,'fill','#00ff00');
@@ -1010,17 +1010,33 @@
       //   action: 'updateAnimation',
       //   animation:true
       // }, ids[0])
-      // graphEditor.addEventTrigger(0,{
-      //     type: 'operation',
-      //     target: 3,
-      //     source: "state",
-      //     operation: "="
-      // }, ids[0])
-      // graphEditor.updateEventTrigger(0,0,{
+      graphEditor.addEventTrigger(0, {
+        type: 'script',
+        script: 'return state==3'
+      }, ids[0])
+      graphEditor.updateEventTrigger(0, 0, {
+        operation: {
+          source: "state",
+          operator: "=",
+          target: "3"
+        }
 
-      //     source: "state",
-      //     operation: "="
-      // }, ids[0])
+      }, ids[0])
+      //添加链接
+      let obj = {
+        "entityAliasId": "f3ef3cba-8e82-e820-6cfc-2b1c522b0805",
+        "dataKey": {
+            "name": "第1路电流",
+            "type": "timeseries"
+        }
+    }; 
+    graphEditor.updateVariable('state',{
+      linkInfo:obj
+    }, ids[0])
+    graphEditor.updateVariable('state',{
+      linkInfo:null
+    }, ids[0])
+  
       // graphEditor.deleteEventTrigger(0,0, ids[0])
 
 

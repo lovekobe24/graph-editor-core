@@ -97,9 +97,11 @@ export const Utils = {
         return obj;
     },
     combine(obj1: any, obj2: any) {
+        if (obj1 === null) return obj2;
+        if (obj2 === null) return null;
         let keys1 = Object.keys(obj1), keys2 = Object.keys(obj2);
         let keys = keys1.filter(k => keys2.includes(k));
-        let obj: any = {};
+        let obj:any = {};
         for (let k of keys) {
             let o1 = obj1[k], o2 = obj2[k];
             if (typeof o1 !== typeof o2) continue;

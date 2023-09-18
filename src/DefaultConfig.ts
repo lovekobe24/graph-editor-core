@@ -53,7 +53,9 @@ export const defaultConfig:EditorConfig = {
                 inverseSelect: ['Control+i'],
                 copy:['Control+c'],
                 paste:['Control+v'],
-                group:['Control+g']
+                group:['Control+g'],
+                undo:['Control+z'],
+                redo:['Control+y']
             }
         }
     },

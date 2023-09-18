@@ -5,6 +5,8 @@ import { Utils } from '../Utils';
 export class ImageNodeAttrs extends ShapeNodeAttrs {
     image = { "value": null, "default": null, "group": "geometry", "type": "Image" };
     crop = { "value": null, "default": null, "group": "geometry", "type": "Object" };
+    width = { "value": "auto", "default": "auto", "group": "geometry", "type": "Number" };
+    height = { "value": "auto", "default": "auto", "group": "geometry", "type": "Number" };
 }
 
 export class ImageNode extends ShapeNode {

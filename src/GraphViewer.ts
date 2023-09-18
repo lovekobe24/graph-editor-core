@@ -2,33 +2,33 @@
 import Konva from "konva";
 
 import EVENT_TYPE from './constants/EventType';
-import { COMPARISON, CHANGE_ATTRS_ACTION,  EXECUTE_SCRIPT_ACTION, VALUE_UPDATE_EVT_TYPE, MOUSE_CLICK_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE, SCRIPT,UPDATE_ANIMATION_ACTION,EVENT_TRIGGERS } from './constants/TemcConstants';
+import { COMPARISON, CHANGE_ATTRS_ACTION, EXECUTE_SCRIPT_ACTION, VALUE_UPDATE_EVT_TYPE, MOUSE_CLICK_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE, SCRIPT, UPDATE_ANIMATION_ACTION, EVENT_TRIGGERS } from './constants/TemcConstants';
 import { DataModel } from './DataModel';
 import { ContainerNode, ContainerNodeAttrs } from './model/ContainerNode';
 import { defaultConfig } from "./DefaultConfig";
 import { Node } from './model/Node';
-import {Utils} from './Utils';
+import { Utils } from './Utils';
 import { GraphManager } from "./GraphManager";
 import type { ViewerConfig } from "./types";
 import { GroupNode, SymbolNode } from "./index.all";
 
 export default class GraphViewer extends GraphManager {
-   
+
     eventToRealTimeInfo: any = new Map();
     constructor(config: ViewerConfig) {
         super(config);
         this.config = config;
-        
+
         this.width = defaultConfig.view.size.width;
-        this.height =  defaultConfig.view.size.height;
+        this.height = defaultConfig.view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
         this.stage.add(this.nodeLayer);
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
-        if(this.config.graph){
+        if (this.config.graph) {
             this.setGraph(this.config.graph)
         }
-     
+
         this.initStageDrag();
     }
 
@@ -156,7 +156,7 @@ export default class GraphViewer extends GraphManager {
                 fn = trigger[SCRIPT];
                 break;
             case COMPARISON:
-                let operation=trigger[COMPARISON]
+                let operation = trigger[COMPARISON]
                 if (operation['source'] && operation['operator'] && operation['target']) {
                     let compStr = this.getCompStr(operation['source'], operation['operator'], operation['target']);
                     fn = "return " + compStr
@@ -177,22 +177,22 @@ export default class GraphViewer extends GraphManager {
         let compStr;
         switch (comparison) {
             case "=":
-                compStr = "data." + key + "==" + value;
+                compStr = key + "==" + value;
                 break;
             case ">":
-                compStr = "data." + key + ">" + value;
+                compStr = key + ">" + value;
                 break;
             case ">=":
-                compStr = "data." + key + ">" + value + " || " + "data." + key + "==" + value;
+                compStr = key + ">" + value + " || " + key + "==" + value;
                 break;
             case "<":
-                compStr = "data." + key + "<" + value;
+                compStr = key + "<" + value;
                 break;
             case "<=":
-                compStr = "data." + key + "<" + value + " || " + "data." + key + "==" + value;
+                compStr = key + "<" + value + " || " + key + "==" + value;
                 break;
             case "!=":
-                compStr = "data." + key + "!=" + value;
+                compStr = key + "!=" + value;
                 break;
         }
         return compStr;
@@ -252,7 +252,7 @@ export default class GraphViewer extends GraphManager {
         switch (action) {
             case CHANGE_ATTRS_ACTION:
                 let properties = event.attributes;
-                if(properties){
+                if (properties) {
                     if (isSuccess) {
                         // properties.forEach((prop: any) => {
                         //     jsonObj[prop.name] = prop.val;
@@ -267,15 +267,15 @@ export default class GraphViewer extends GraphManager {
                         //     node.setAttributeValue(prop.name, originNode.attributes[prop.name].value);
                         // })
                     }
-                }else{
-                    console.warn(GRAPH_EDITOR_WARNING+"changeAttributes动作未找到对应的attributes")
+                } else {
+                    console.warn(GRAPH_EDITOR_WARNING + "changeAttributes动作未找到对应的attributes")
                 }
-              
+
 
                 break;
             case UPDATE_ANIMATION_ACTION:
-                let isExecute=event.animation;
-                if(isExecute){
+                let isExecute = event.animation;
+                if (isExecute) {
                     let type = node.animation.type;
                     if (type) {
                         if (type != 'none') {
@@ -283,10 +283,10 @@ export default class GraphViewer extends GraphManager {
                             if (isSuccess && tween) {
                                 this.executeTween(tween);
                             }
-    
+
                         }
                     }
-                }else{
+                } else {
                     let tween = node.getAnimationObj().obj;
                     if (isSuccess && tween) {
                         this.stopTween(tween)
@@ -297,8 +297,10 @@ export default class GraphViewer extends GraphManager {
             case EXECUTE_SCRIPT_ACTION:
                 let val = event['script'];
                 //执行脚本需要传递node和data两个参数
-                let executeFn = new Function('node', 'data', 'viewer', val);
-                executeFn(node, variableJson, this);
+                let keys = Object.keys(variableJson);
+                let values = Object.values(variableJson);
+                let executeFn = new Function('viewer', 'node', ...keys, val);
+                executeFn(this, node, ...values);
                 break;
         }
 
@@ -315,29 +317,31 @@ export default class GraphViewer extends GraphManager {
             //查找条件
             let triggers = event[EVENT_TRIGGERS];
             let type = event.type;
-            if(triggers.length>0){
-                let isPass=true;
+            if (triggers.length > 0) {
+                let isPass = true;
                 triggers.forEach(trigger => {
                     let fnJs = this.getFnByWhen(trigger);
                     let isSuccess;
-                    if(fnJs){
-                        let executeFn = new Function('data', fnJs);
-                        isSuccess= executeFn(variableJson);
-                        if(typeof isSuccess !='boolean'){
-                            isSuccess=false;
+                    if (fnJs) {
+                        let keys = Object.keys(variableJson);
+                        let values = Object.values(variableJson);
+                        let executeFn = new Function(...keys, fnJs);
+                        isSuccess = executeFn(...values);
+                        if (typeof isSuccess != 'boolean') {
+                            isSuccess = false;
                         }
-                    }else{
-                        isSuccess=false;
+                    } else {
+                        isSuccess = false;
                     }
-                    isPass=isPass && isSuccess
+                    isPass = isPass && isSuccess
                 });
-                if(isPass){
-                    _this.eventToRealTimeInfo.set(event, { isSuccess:isPass, variableJson });
+                if (isPass) {
+                    _this.eventToRealTimeInfo.set(event, { isSuccess: isPass, variableJson });
                     if (type == VALUE_UPDATE_EVT_TYPE) {
                         this.operateNodeByAction(event, node, isPass, variableJson);
                     }
                 }
-            }else{
+            } else {
                 //无条件
                 _this.eventToRealTimeInfo.set(event, { isSuccess: true, variableJson });
                 if (type == VALUE_UPDATE_EVT_TYPE) {
@@ -361,17 +365,17 @@ export default class GraphViewer extends GraphManager {
         if (node instanceof GroupNode) {
             let groupMembers = node.getMembers() ? node.getMembers() : [];
             groupMembers.forEach((element: any) => {
-                let id=element.getId();
+                let id = element.getId();
                 //使用自身的变量
-                variableJson=_this.realTimeVariableJson.hasOwnProperty(id)?_this.realTimeVariableJson[id]:this.getVariableJson(Utils.deepCopy(element.getVariables()));
+                variableJson = _this.realTimeVariableJson.hasOwnProperty(id) ? _this.realTimeVariableJson[id] : this.getVariableJson(Utils.deepCopy(element.getVariables()));
                 this.changeNodeByEvent(element, variableJson, true);
             });
         } else if (node instanceof SymbolNode) {
             //如果节点类型为Symbol，则此时要获取一下SymbolNode的变量作为参数
-            if(_this.realTimeVariableJson.hasOwnProperty(node.getId())){
-                variableJson=_this.realTimeVariableJson[node.getId()];
-            }else{
-                variableJson=this.getVariableJson(Utils.deepCopy(node.getVariables()));
+            if (_this.realTimeVariableJson.hasOwnProperty(node.getId())) {
+                variableJson = _this.realTimeVariableJson[node.getId()];
+            } else {
+                variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             }
             //variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             let symbolMembers = node.getMembers() ? node.getMembers() : [];
@@ -382,41 +386,41 @@ export default class GraphViewer extends GraphManager {
         }
     }
 
- 
 
-   /**
-    * 刷新图形
-    * @param realTimeVariableJson 传入的变量值JSON对象，如没有，则运行态变量取值为defaultValue的值
-    * @example
-    * viewer.refreshGraph({
-    *    nodeId:{
-    *       state1:4,
-    *       state2:5
-    *    },
-    *    nodeId:{
-    *       temperature:36,
-    *       humidity:0.3
-    *    }
-    * })
-    */
-    refreshGraph(realTimeVariableJson?:any) {
-        this.realTimeVariableJson=realTimeVariableJson?realTimeVariableJson:{};
+
+    /**
+     * 刷新图形
+     * @param realTimeVariableJson 传入的变量值JSON对象，如没有，则运行态变量取值为defaultValue的值
+     * @example
+     * viewer.refreshGraph({
+     *    nodeId:{
+     *       state1:4,
+     *       state2:5
+     *    },
+     *    nodeId:{
+     *       temperature:36,
+     *       humidity:0.3
+     *    }
+     * })
+     */
+    refreshGraph(realTimeVariableJson?: any) {
+        this.realTimeVariableJson = realTimeVariableJson ? realTimeVariableJson : {};
         if (this.dataModel) {
             this.dataModel.nodes.forEach((node: any) => {
-                let variableJson={};
-                if(this.realTimeVariableJson.hasOwnProperty(node.getId())){
-                    variableJson=this.realTimeVariableJson[node.getId()];
-                }else{
-                    variableJson=this.getVariableJson(Utils.deepCopy(node.getVariables()));
+                let variableJson = {};
+                if (this.realTimeVariableJson.hasOwnProperty(node.getId())) {
+                    variableJson = this.realTimeVariableJson[node.getId()];
+                } else {
+                    variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
                 }
-               
+
                 this.changeNodeByEvent(node, variableJson, true);
             })
         }
 
     }
     private isMouseEvent(type: string) {
-        if (type == MOUSE_CLICK_EVT_TYPE || type == MOUSE_ENTER_EVT_TYPE || type == MOUSE_LEAVE_EVT_TYPE ||type ==MOUSE_DBL_CLICK_EVT_TYPE) {
+        if (type == MOUSE_CLICK_EVT_TYPE || type == MOUSE_ENTER_EVT_TYPE || type == MOUSE_LEAVE_EVT_TYPE || type == MOUSE_DBL_CLICK_EVT_TYPE) {
             return true;
         } else {
             return false;

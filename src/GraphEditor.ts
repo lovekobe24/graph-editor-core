@@ -786,8 +786,7 @@ export default class GraphEditor extends GraphManager {
         key: string
         ctrlKey: boolean
     }) {
-        e.stopPropagation();
-        e.preventDefault();
+      
         const isCtrlKey = e.ctrlKey;
         const isShiftKey = e.shiftKey;
         const keyboard = this.config.selection?.keyboard
@@ -814,6 +813,7 @@ export default class GraphEditor extends GraphManager {
 
         if (keyboard?.map?.delete?.includes(realKey)) {
             this.deleteNodes();
+           
         }
 
         if (keyboard?.map?.moveLeft?.includes(realKey)) {
@@ -849,6 +849,12 @@ export default class GraphEditor extends GraphManager {
         }
         if (keyboard?.map?.group?.includes(realKey)) {
             this.group()
+        }
+        if (keyboard?.map?.undo?.includes(realKey)) {
+            this.undo()
+        }
+        if (keyboard?.map?.redo?.includes(realKey)) {
+            this.redo()
         }
     }
 
@@ -2155,7 +2161,7 @@ export default class GraphEditor extends GraphManager {
      *     action:'executeScript',
      *     script: 'console.log("world")',
      *     triggers:[{
-     *        script:'return data.state==1',
+     *        script:'return state==1',
      *        type:'script'
      *     }]
      *  })  

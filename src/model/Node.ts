@@ -12,8 +12,6 @@ export abstract class NodeAttrs {
     listening = { "value": true, "default": true, "group": "hidden", "type": "Boolean" };
     x = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };
     y = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };
-    width = { "value": "auto", "default": "auto", "group": "geometry", "type": "Number" };
-    height = { "value": "auto", "default": "auto", "group": "geometry", "type": "Number" };
     scaleX = { "value": 1, "default": 1, "group": "hidden", "type": "Number" };
     scaleY = { "value": 1, "default": 1, "group": "hidden", "type": "Number" };
     skewX = { "value": 0, "default": 0, "group": "hidden", "type": "Number" };

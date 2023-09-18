@@ -50,6 +50,8 @@ export declare interface EditorConfig extends BaseConfig {
             copy?: string[]
             paste?: string[]
             group?: string[]
+            undo?:string[]
+            redo?:string[]
           }>
         >
       }>
