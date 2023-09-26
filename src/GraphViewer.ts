@@ -143,12 +143,16 @@ export default class GraphViewer extends GraphManager {
         }
         return variableJson;
     }
+    private isEffective(obj){
+        return Utils.is(obj,'number') || Utils.is(obj,'string') || Utils.is(obj,'number')
+    }
     /**
      * 根据条件生成函数体
      * @param trigger 条件
      * @returns 
      */
     private getFnByWhen(trigger: any) {
+        let _this=this;
         let type = trigger.type;
         let fn;
         switch (type) {
@@ -157,7 +161,7 @@ export default class GraphViewer extends GraphManager {
                 break;
             case COMPARISON:
                 let operation = trigger[COMPARISON]
-                if (operation['source'] && operation['operator'] && operation['target']) {
+                if (operation['source'] && operation['operator'] && _this.isEffective(operation['target'])) {
                     let compStr = this.getCompStr(operation['source'], operation['operator'], operation['target']);
                     fn = "return " + compStr
                 }
@@ -307,6 +311,7 @@ export default class GraphViewer extends GraphManager {
     }
 
     private changeNodeByEventOnce(node: any, variableJson: any, ownVariable: boolean) {
+      
         let _this = this;
         //是不是可以不用
         // if (ownVariable) {
@@ -377,6 +382,7 @@ export default class GraphViewer extends GraphManager {
             } else {
                 variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             }
+        
             //variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             let symbolMembers = node.getMembers() ? node.getMembers() : [];
             symbolMembers.forEach((element: any) => {
@@ -404,6 +410,7 @@ export default class GraphViewer extends GraphManager {
      * })
      */
     refreshGraph(realTimeVariableJson?: any) {
+      
         this.realTimeVariableJson = realTimeVariableJson ? realTimeVariableJson : {};
         if (this.dataModel) {
             this.dataModel.nodes.forEach((node: any) => {

@@ -118,7 +118,9 @@
     <!-- <div id="leftPanel"
       style="width:200px;min-width: 200px;display: flex;flex-wrap: wrap;align-items: flex-start;border:1px solid gray;padding: 5px;">
     </div> -->
-    <div id="editor" style="background-color: bisque;width: 800px;height: 600px;"></div>
+    <div id="editor" style="background-color: bisque;width: 700px;height:700px;overflow: scroll;"></div>
+    <div id="previewDiv"
+      style="background-color: rgb(196, 255, 216);width: 700px;height:700px;overflow: scroll;display: none;"></div>
     <div id="previewPanel" style="background-color: bisque;border:1px solid gray;"></div>
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
       <ul class="layui-tab-title">
@@ -241,7 +243,17 @@
       });
 
       let topDiv = document.createElement("div");
-      topDiv.innerHTML = shape.path;
+      if (shape.path) {
+        topDiv.innerHTML = shape.path;
+      } else {
+        let imgDiv = document.createElement("img");
+        imgDiv.src = shape.url;
+        imgDiv.style.width = "24px";
+        imgDiv.style.height = "24px";
+        topDiv.appendChild(imgDiv);
+
+      }
+
       let labelDiv = document.createElement("div");
       labelDiv.innerHTML = shape.label;
       shapeDiv.appendChild(topDiv);
@@ -354,6 +366,7 @@
     }
 
     let graphViewer;
+    let graphEditor;
     document.getElementById('toRegularMode').addEventListener('click', () => {
       graphEditor.stopDrawing();
     })
@@ -420,7 +433,7 @@
       })
     })
     document.getElementById('zoom').addEventListener('click', (e) => {
-      graphEditor.setScale(1.5)
+      graphEditor.setScale(2)
     })
     document.getElementById('group').addEventListener('click', (e) => {
       graphEditor.group()
@@ -484,7 +497,7 @@
         success: function (index, layero) {
           let tBody = $("#variableTable").find('tbody:first');
           let variables = graphEditor.extractVariables();
-          console.log(variables);
+        
           if (variables) {
             for (let key in variables) {
               let trDiv = document.createElement('tr');
@@ -568,20 +581,31 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     let timer;
+    graphView = new GraphViewer(
+      {
+        container: document.getElementById('previewDiv'),
+      }
+    );
+    graphEditor = new GraphEditor(
+
+      {
+        container: document.getElementById('editor'),
+
+      }
+    );
     const preview = (target) => {
 
       if (target.innerHTML == '预览') {
+
         let currentGraph = graphEditor.toJSON();
 
         let scale = graphEditor.getScale();
-        graphEditor.destroy();
-        graphView = new GraphViewer(
-          {
-            container: document.getElementById('editor'),
-            //graph: currentGraph,
-          }
-        );
+        //graphEditor.destroy();
+        document.getElementById('editor').style.display = 'none';
+        document.getElementById('previewDiv').style.display = 'block';
+
         graphView.setScale(scale);
+        console.log(currentGraph);
 
         graphView.setGraph(currentGraph);
 
@@ -638,27 +662,17 @@
           })(allNodes);
           //  console.log(variableJson);
           //  graphView.setGraphVariable(variableJson);
-          //graphView.refreshGraph(variableJson);
+          //  graphView.refreshGraph(variableJson);
         }, 5000)
 
         target.innerHTML = '退出预览'
       } else {
         clearInterval(timer);
         let currentGraph = graphView.config.graph;
-        graphView.destroy();
-
-        graphEditor = new GraphEditor(
-
-          {
-            container: document.getElementById('editor'),
-            // graph: currentGraph,
-            drawing: {
-              snapToGrid: {
-                enable: true
-              }
-            }
-          }
-        );
+        //   graphView.destroy();
+        document.getElementById('editor').style.display = 'block';
+        document.getElementById('previewDiv').style.display = 'none';
+        graphEditor.setGraph(localStorage.getItem('graph'));
         target.innerHTML = '预览'
       }
 
@@ -666,12 +680,12 @@
     let existGraph = localStorage.getItem('graph');
 
 
-    let graphEditor;
+
     const initGraphViewer = () => {
       console.log(existGraph);
       graphView = new GraphViewer(
         {
-          container: document.getElementById('editor'),
+          container: document.getElementById('previewDiv'),
           // graph: existGraph,
         }
       );
@@ -684,37 +698,28 @@
         className: 'RectNode',
         attributes: {
           x: 100,
-          y: 300,
+          y: 200,
           width: 200,
           height: 60,
           strokeWidth: 2,
           stroke: 'red',
-          scaleX: 1.2,
-          scaleY: 1.2
+          // rotation:90
         }
       })
+      graphEditor.setAttributeValue('rotation', 90);
+      graphEditor.setAttributeValue('rotation', 0);
       graphEditor.addNode({
         className: 'EllipseNode',
         attributes: {
           x: 200,
           y: 300,
-          width: 100,
-          height: 20,
+          radiusX: 60,
+          radiusY: 20,
           strokeWidth: 2,
           stroke: 'yellow'
         }
       })
-      graphEditor.addNode({
-        className: 'EllipseNode',
-        attributes: {
-          x: 40,
-          y: 100,
-          radiusX: 50,
-          radiusY: 25,
-          strokeWidth: 4,
-          stroke: 'green'
-        }
-      })
+
       graphEditor.addNode({
         className: 'EllipseNode',
         attributes: {
@@ -781,16 +786,32 @@
       //     draggable: true
       //   }
       // })
+      // graphEditor.addNode(
+      //   {
+      //     className: 'PathNode',
+      //     attributes: {
+      //       x: 0,
+      //       y: 0,
+      //       data: 'M50,50 L200,100 C150,150 100,150 200,200',
+      //       strokeWidth: 4,
+      //       stroke: 'red',
+      //       draggable: true,
+      //       dash:[5,10],
+      //       scaleX: 1.2
+      //     }
+      //   })
       graphEditor.addNode(
         {
-          className: 'PathNode',
+          className: 'LineNode',
           attributes: {
-            x: 0,
-            y: 0,
-            data: 'M50,50 L200,100 C150,150 100,150 200,200',
+            x1: 0,
+            y1: 0,
+            x2: 100,
+            y2: 200,
             strokeWidth: 4,
             stroke: 'red',
             draggable: true,
+            dash: [5, 10],
             scaleX: 1.2
           }
         })
@@ -798,13 +819,13 @@
         let nodes = event.getProperty('nodes');
         let eventName = event.getName();
         if (eventName == 'nodeAttributeChange') {
-          console.log("节点的属性改变了", event.getProperty('nodes'));
+         // console.log("节点的属性改变了", event.getProperty('nodes'));
         } else if (eventName == 'nodeEventsChange') {
-          console.log("节点绑定的事件改变了", event.getProperty('events'));
+          //console.log("节点绑定的事件改变了", event.getProperty('events'));
         } else if (eventName == 'nodeVariableChange') {
 
           let type = event.getProperty('type');
-          console.log("节点绑定的变量改变了", type);
+         // console.log("节点绑定的变量改变了", type);
           switch (type) {
             case 'add':
               break;
@@ -835,7 +856,7 @@
         }
       });
       graphEditor.onNodeAttributeChange((sender, event) => {
-        console.log("onNodeAttributeChange............", event);
+        console.log("onNodeAttributeChange............", graphEditor.getNodesAttributes());
 
       })
 
@@ -871,7 +892,7 @@
       // //添加变量
       graphEditor.addVariable('state', {
         type: 'integer',
-        defaultVal: 1
+        defaultVal: 0
       }, ids[0]);
 
       graphEditor.addVariable('变量3', {
@@ -881,8 +902,8 @@
       console.log(graphEditor.getVariables(ids[0]));
       //修改变量
       graphEditor.updateVariable('变量3', {
-      
-        linkInfo:null
+
+        linkInfo: null
       }, ids[0]);
       console.log(graphEditor.getVariables());
       console.log(graphEditor.getVariable('变量3', ids[0]));
@@ -899,13 +920,20 @@
       // graphEditor.setAttribute('fill','orange',ids);
       // graphEditor.group([ids[0],ids[1]]);
 
-      graphEditor.setAttributeValue('opacity', 0.2);
+      //graphEditor.setAttributeValue('opacity', 0.2);
       // let selectNodes=graphEditor.getSelection();
       // graphEditor.unGroup(selectNodes[0].id);
       // console.log('当前配置',graphEditor.getConfig());
       //  graphEditor.selectAll();
       console.log(graphEditor.getNodesAttributes());
-      graphEditor.setAttributeValue('fill', 'gray');
+      // graphEditor.setAttributeValue('fill', 'gray');
+      //流动动画
+      graphEditor.setAnimation({
+        type: 'flow',
+
+      });
+      graphEditor.setAnimationValue('autoPlay', true);
+
 
       // //添加动画
       selectNodes = graphEditor.getSelection();
@@ -926,11 +954,11 @@
       // console.log(graphEditor.getNodes());
       // graphEditor.setAttributeValue('rotation',60, groupNode.id)
 
-      // graphEditor.setAnimation({
-      //     'type': 'rotateByCenter',
-      //     'autoPlay':true,
-      //     'period': 5
-      //   }, groupNode.id);
+      graphEditor.setAnimation({
+        'type': 'rotateByCenter',
+        'autoPlay': false,
+        'period': 5
+      }, ids[0]);
 
       // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
       // graphEditor.setAnimation('period',6,selectNodes[0].id);
@@ -939,20 +967,39 @@
       // graphEditor.setBackgroundColor('black');
       // graphEditor.deleteNodes();
       //单击修改属性
+      graphEditor.addEvent({
+        type: 'valuechange',
+        action: 'changeAttributes',
+        animation: true,
+        attributes: {
+          'fill': 'rgba(0,0,0,1)'
+        },
+        triggers: [{
+          type: 'operation',
+          operation: {
+            target: 0,
+            source: "state",
+            operator: "="
+          }
+        }]
+      }, ids[0])
       // graphEditor.addEvent({
-      //   type: 'valuechange',
-      //   action: 'changeAttributes',
-      //   attributes: {
-      //     'fill': 'rgba(0,0,0,1)'
-      //   },
-      //   triggers: [{
-      //     type: 'operation',
-      //     operation: {
-      //       target: 3,
-      //       source: "state",
-      //       operator: "="
+      //   "type": "valuechange",
+      //   "action": "updateAnimation",
+      //   "attributes": {},
+      //   "animation": true,
+      //   "script": "",
+      //   "triggers": [
+      //     {
+      //       "type": "operation",
+      //       "operation": {
+      //         "source": "state",
+      //         "operator": "<",
+      //         "target": 0
+      //       },
+      //       "script": ""
       //     }
-      //   }]
+      //   ]
       // }, ids[0])
       // graphEditor.addEvent({
       //   type: 'valuechange',
@@ -980,28 +1027,28 @@
       //         viewer.setNodeAttribute(node,'stroke','#cccccc');
       //         viewer.setNodeAttribute(node,'fill','none');
 
-      let scriptStr = `
-      switch(state){
-        case 1:
-           viewer.setNodeAttribute(node,'stroke','#00ff00');
-           viewer.setNodeAttribute(node,'fill','#00ff00');
-           break;
-           case 2:
-            viewer.setNodeAttribute(node,'fill','#ff0000');
-            viewer.setNodeAttribute(node,'stroke','#ff0000');
-            break;
-           default:
-              viewer.setNodeAttribute(node,'stroke','#cccccc');
-              viewer.setNodeAttribute(node,'fill','');
-        break;
-      }
-      `
+      // let scriptStr = `
+      // switch(state){
+      //   case 1:
+      //      viewer.setNodeAttribute(node,'stroke','#00ff00');
+      //      viewer.setNodeAttribute(node,'fill','#00ff00');
+      //      break;
+      //      case 2:
+      //       viewer.setNodeAttribute(node,'fill','#ff0000');
+      //       viewer.setNodeAttribute(node,'stroke','#ff0000');
+      //       break;
+      //      default:
+      //         viewer.setNodeAttribute(node,'stroke','#cccccc');
+      //         viewer.setNodeAttribute(node,'fill','');
+      //   break;
+      // }
+      // `
 
-      graphEditor.addEvent({
-        type: 'valuechange',
-        action: 'executeScript',
-        script: scriptStr
-      }, ids[0]);
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'executeScript',
+      //   script: scriptStr
+      // }, ids[0]);
 
 
       //单击启动动画
@@ -1010,33 +1057,33 @@
       //   action: 'updateAnimation',
       //   animation:true
       // }, ids[0])
-      graphEditor.addEventTrigger(0, {
-        type: 'script',
-        script: 'return state==3'
-      }, ids[0])
-      graphEditor.updateEventTrigger(0, 0, {
-        operation: {
-          source: "state",
-          operator: "=",
-          target: "3"
-        }
+      // graphEditor.addEventTrigger(0, {
+      //   type: 'script',
+      //   script: 'return state==3'
+      // }, ids[0])
+      // graphEditor.updateEventTrigger(0, 0, {
+      //   operation: {
+      //     source: "state",
+      //     operator: "=",
+      //     target: "3"
+      //   }
 
-      }, ids[0])
+      // }, ids[0])
       //添加链接
-      let obj = {
-        "entityAliasId": "f3ef3cba-8e82-e820-6cfc-2b1c522b0805",
-        "dataKey": {
-            "name": "第1路电流",
-            "type": "timeseries"
-        }
-    }; 
-    graphEditor.updateVariable('state',{
-      linkInfo:obj
-    }, ids[0])
-    graphEditor.updateVariable('state',{
-      linkInfo:null
-    }, ids[0])
-  
+      // let obj = {
+      //   "entityAliasId": "f3ef3cba-8e82-e820-6cfc-2b1c522b0805",
+      //   "dataKey": {
+      //     "name": "第1路电流",
+      //     "type": "timeseries"
+      //   }
+      // };
+      // graphEditor.updateVariable('state', {
+      //   linkInfo: obj
+      // }, ids[0])
+      // graphEditor.updateVariable('state', {
+      //   linkInfo: null
+      // }, ids[0])
+
       // graphEditor.deleteEventTrigger(0,0, ids[0])
 
 
@@ -1102,10 +1149,10 @@
             transformer: {
               anchorSize: 6
             },
-            editAnchor: {
-              anchorFill: 'white',
-              anchorStroke: 'rgb(0, 161, 255)'
-            }
+            // editAnchor: {
+            //   anchorFill: 'white',
+            //   anchorStroke: 'rgb(0, 161, 255)'
+            // }
           },
           drawing: {
             snapToGrid: {
@@ -1119,7 +1166,7 @@
           }
         }
       );
-      //graphEditor.setGraph(existGraph);
+       graphEditor.setGraph(existGraph);
       //创建监听
       graphEditor.onSelectionChanged((sender, event) => {
         let selectedNodes = event.getProperty('nodes');
@@ -1172,7 +1219,7 @@
 
       }
 
-      addSimpleNodeToEditor();
+     // addSimpleNodeToEditor();
       // graphEditor.setScale(1.2);
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';
@@ -1225,17 +1272,7 @@
       compDiv.appendChild(attrDiv);
       attrDiv.addEventListener('change', (evt) => {
         //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
-        let json = {};
-        json[proName] = parseFloat(attrDiv.value);
-        graphEditor.setAttributeValues({
-          x: 240,
-          fill: 'green',
-          y: 34,
-          width: 20,
-          height: 60,
-          rotation: 50
-        });
-        //graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
+        graphEditor.setAttributeValue(proName, parseFloat(attrDiv.value));
       })
       return compDiv;
     }
@@ -1254,7 +1291,7 @@
 
     }
     const initPropertyPanel = (node) => {
-      console.log('initPropertyPanel', graphEditor.getAttributes());
+   
 
       document.getElementById('property').innerHTML = '';
       let idDiv = getStrDiv('id', node.id);
@@ -1306,7 +1343,7 @@
       }
     }
     initGraphEditor()
-   //initGraphViewer()
+    //initGraphViewer()
   </script>
 </body>
 

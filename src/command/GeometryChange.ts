@@ -23,16 +23,18 @@ class GeometryChange extends Change {
                 relatedAttKeys.forEach((key)=>{
                     if(prevAllAttrs.hasOwnProperty(key)) prevAttrs[key] = prevAllAttrs[key];
                     let nextAttrValue=nextAllAttrs.hasOwnProperty(key)?nextAllAttrs[key]: konvaNode.getAttr(key);
-                    if(nextAttrValue) nextAttrs[key] = nextAttrValue;
+                    if(nextAttrValue!=undefined) nextAttrs[key] = nextAttrValue;
                 })
                 map.set(node, [prevAttrs, nextAttrs]);
-            }else{                let konvaNode = node.getRef();
+            }else{               
+                let konvaNode = node.getRef();
                 let prevAllAttrs = node.getAttributeValues(), nextAllAttrs = konvaNode.attrs;
                 let prevAttrs: any = {}, nextAttrs: any = {};
                 for (let key of actionAttrKeys) {
                     if(prevAllAttrs.hasOwnProperty(key)) prevAttrs[key] = prevAllAttrs[key];
                     let nextAttrValue=nextAllAttrs.hasOwnProperty(key)?nextAllAttrs[key]: konvaNode.getAttr(key);
-                    if(nextAttrValue) nextAttrs[key] = nextAttrValue;
+                    //不能简单用if(nextAttrValue)因为nextAttrValue有可能为0
+                    if(nextAttrValue!=undefined) nextAttrs[key] = nextAttrValue;
                 }
                 map.set(node, [prevAttrs, nextAttrs]);
             }
@@ -40,6 +42,7 @@ class GeometryChange extends Change {
         }
         this.attrValuesMap = map;
         this.dataModel = dataModel;
+        this.canvasAction=canvasAction;
     }
 
     private apply(flag: boolean) {
@@ -47,6 +50,7 @@ class GeometryChange extends Change {
         for (let [node, attrValuesPairs] of this.attrValuesMap) {
             map.set(node, attrValuesPairs[flag ? 1 : 0]);
         }
+     
         this.dataModel.setAttributeValues(map,this.canvasAction);
     }
 

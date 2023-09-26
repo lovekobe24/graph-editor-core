@@ -159,20 +159,24 @@ export const Utils = {
         const delta = newTr.multiply(oldTr.invert());
     
     
-        const parentTransform = node.getParent().getAbsoluteTransform();
+        const parentTransform = node.getParent()?.getAbsoluteTransform();
         // console.log(parentTransform.m);
         // console.log('roateTransform',parentTransform.getTranslation());
         const localTransform = node.getTransform().copy();
         // skip offset:
         localTransform.translate(node.offsetX(), node.offsetY());
         const newLocalTransform = new Konva.Transform();
-        newLocalTransform
+        if(parentTransform){
+            newLocalTransform
             .multiply(parentTransform.copy().invert())
             .multiply(delta)
             .multiply(parentTransform)
             .multiply(localTransform);
-        const attrs = newLocalTransform.decompose();
-        node.setAttrs(attrs);
+            const attrs = newLocalTransform.decompose();
+            node.setAttrs(attrs);
+        }
+     
+      
     },
     
     getTweenByType(type: string, konvaNode: any, period: number = 5){

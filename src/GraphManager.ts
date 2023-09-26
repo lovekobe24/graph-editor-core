@@ -145,7 +145,6 @@ export abstract class GraphManager {
         if (graphJson.name) {
             this.name = graphJson.name;
         }
-        console.log(graphJson.model);
         this.dataModel?.fromObject(graphJson.model);
         // this.dataModel?.setVariables(graphJson.variables);
     }
@@ -197,7 +196,7 @@ export abstract class GraphManager {
         });
         return nodes;
     }
-    setNodesAttributes(nodes: Array<Node>, attrValues: any, toHistory: boolean = true) {
+    getSetNodesAttributesChange(nodes: Array<Node>, attrValues: any, toHistory: boolean = true){
         let undoRedoManager = this.dataModel?.getUndoRedoManager();
         let rotationAngle: any = null;
         if (attrValues.hasOwnProperty('rotation')) {
@@ -271,21 +270,24 @@ export abstract class GraphManager {
                     const shape = Utils.rotateAroundCenter(attrs, rad);
                     Utils.fitNodesInto(node.getRef(), attrs, shape);
                 })
+             
                 let rotateChange = new GeometryChange(nodes, 'rotate', this.dataModel, false);
-                let cmd = new Command([attrChange, rotateChange]);
-                undoRedoManager.execute(cmd, toHistory);
+                return [attrChange, rotateChange]
+               
 
             } else {
                 //没有旋转，则直接修改属性
                 let attrChange = new AttributeChange(attrValuesMap, this.dataModel);
-                let cmd = new Command([attrChange]);
-                undoRedoManager.execute(cmd, toHistory);
+                return [attrChange];
             }
-
 
         }
 
-
     }
-
+    setNodesAttributes(nodes: Array<Node>, attrValues: any, toHistory: boolean = true) {
+        let undoRedoManager = this.dataModel?.getUndoRedoManager();
+        let changeArray=this.getSetNodesAttributesChange(nodes,attrValues,toHistory);
+        let cmd = new Command(changeArray);
+        undoRedoManager.execute(cmd, toHistory);
+    }
 }

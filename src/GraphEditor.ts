@@ -5,6 +5,7 @@ import { DataModel } from "./DataModel";
 import EVENT_TYPE from "./constants/EventType";
 import { Node } from './model/Node';
 import { Utils } from "./Utils";
+
 import TemcEventSource from "./TemcEventSource";
 import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE, ROTATE_BY_CENTER } from './constants/TemcConstants';
 
@@ -30,20 +31,26 @@ import pako from 'pako'
 import { GraphManager } from "./GraphManager";
 import { defaultConfig } from "./DefaultConfig";
 import { orderDirection, type AlignDirection, type Dimensions, type EditorConfig, type GridConfig, type MoveDirection, type NodeConfig, type OrderDirection, type StyleConfig, Event } from "./types";
-import { GroupNode, SymbolNode } from "./index.all";
+import { GroupNode, ImageNode, SymbolNode } from "./index.all";
 import ConnectedLineShape from "./shape/BaseConnectedLineShape";
 import { ConnectedLineNode } from "./model/ConnectedLineNode";
 import StraightConnectedLineShape from "./shape/StraightConnectedLineShape";
 import BaseConnectedLineShape from "./shape/BaseConnectedLineShape";
 import { BaseConnectedLineNode } from "./model/BaseConnectedLineNode";
+import gifuct from './lib/gifuct';
+
 
 
 
 export default class GraphEditor extends GraphManager {
-    private gridLayer: Layer = new Konva.Layer({ listening: false });
-    private helpLayer: Layer = new Konva.Layer();
-    private drawingLayer: Layer = new Konva.Layer();
-    private makerLayer: Layer = new Konva.Layer();
+    //网格绘制层
+    private gridLayer: Layer = new Konva.Layer({ listening: false, name: '网格层' });
+    //辅助层
+    private helpLayer: Layer = new Konva.Layer({ name: '辅助层' });
+    //绘图层
+    private drawingLayer: Layer = new Konva.Layer({ name: '绘图层' });
+    //连接点所在层
+    private makerLayer: Layer = new Konva.Layer({ name: '连接点' });
     transformer: any;
     private selectionRect: Rect;
     currentMode: string = REGULAR_MODE;
@@ -346,6 +353,7 @@ export default class GraphEditor extends GraphManager {
      * 监听鼠标事件，进入编辑状态
      */
     private initNodeEdit() {
+        let _this = this;
         this.nodeLayer.on('dblclick', (e: any) => {
             if (this.currentMode === REGULAR_MODE) {
                 let target = e.target;
@@ -751,7 +759,7 @@ export default class GraphEditor extends GraphManager {
     }
 
     withoutSymbolNode() {
-        return this.getSelection().every(node => !(node instanceof SymbolNode));
+        return this.dataModel?.getSelectionManager().getSelection().every(node => !(node instanceof SymbolNode));
     }
     private canDeconstructSymbol() {
         let selectionCount = this.getSelection().length;
@@ -759,8 +767,6 @@ export default class GraphEditor extends GraphManager {
             let selection = this.dataModel?.getSelectionManager().getSelection()[0];
             return selectionCount === 1 && (selection instanceof SymbolNode);
         }
-
-
     }
 
     /**
@@ -786,7 +792,7 @@ export default class GraphEditor extends GraphManager {
         key: string
         ctrlKey: boolean
     }) {
-      
+
         const isCtrlKey = e.ctrlKey;
         const isShiftKey = e.shiftKey;
         const keyboard = this.config.selection?.keyboard
@@ -794,7 +800,7 @@ export default class GraphEditor extends GraphManager {
             return
         }
         const nodes = this.transformer.nodes();
-        const movingSpaces = keyboard?.movingSpaces ?? 5
+        const movingSpaces = keyboard?.movingSpaces ?? 2
         function getRealKey() {
             let realKey = e.key;
             if (isCtrlKey) {
@@ -813,7 +819,7 @@ export default class GraphEditor extends GraphManager {
 
         if (keyboard?.map?.delete?.includes(realKey)) {
             this.deleteNodes();
-           
+
         }
 
         if (keyboard?.map?.moveLeft?.includes(realKey)) {
@@ -1096,8 +1102,43 @@ export default class GraphEditor extends GraphManager {
      *    }
      * })
      */
-    addNode(opt: NodeConfig) {
+    // addNode(opt: NodeConfig) {
+    //     console.log("addNode...............",opt);
+    //     let defaultStyleConfig = this.config.style;
+    //     let wholeStyle = { ...defaultStyleConfig, ...opt.attributes };
+    //     opt.attributes = wholeStyle;
+    //     let imageInfo;
+    //     if(opt.attributes['image']){
+    //         imageInfo=opt.attributes['image'];
+    //         delete opt.attributes['image']
+    //     }
+    //     let node = Node.create(opt);
+    //     if (node) {
+    //         if(node instanceof ImageNode){
+    //              if(imageInfo){
+    //                 node.setAttributeValue('image',undefined);
+    //                 let nodeChange = new NodeChange([node], 'add', this.dataModel);
+    //                 let attrChanges=this.getSetNodesAttributesChange([node], {'image':imageInfo}, this.dataModel)
+    //                 let cmd = new Command([nodeChange,...attrChanges]);
+    //                 this.dataModel.undoRedoManager.execute(cmd); 
+    //              }else{
+    //                 let nodeChange = new NodeChange([node], 'add', this.dataModel);
+    //                 let cmd = new Command([nodeChange]);
+    //                 this.dataModel.undoRedoManager.execute(cmd); 
+    //              }
+    //         }else{
+    //             let nodeChange = new NodeChange([node], 'add', this.dataModel);
+    //             let cmd = new Command([nodeChange]);
+    //             this.dataModel.undoRedoManager.execute(cmd);
+    //         }
 
+    //     } else {
+    //         console.warn(GRAPH_EDITOR_WARNING + "未找到对应的形状");
+    //     }
+
+    // }
+    addNode(opt: NodeConfig) {
+        console.log("addNode...............", opt);
         let defaultStyleConfig = this.config.style;
         let wholeStyle = { ...defaultStyleConfig, ...opt.attributes };
         opt.attributes = wholeStyle;
@@ -1111,6 +1152,7 @@ export default class GraphEditor extends GraphManager {
         }
 
     }
+
     /**
      * 实例化图元到数据模型
      * @param opt 图元的json信息
@@ -1305,21 +1347,23 @@ export default class GraphEditor extends GraphManager {
      * editor.insertImage()
      */
     public insertImage() {
-        this.chooseImage((imgObj) => {
+        let _this = this;
+        this.chooseImage((imgObj,name) => {
             this.addNode({
                 className: 'ImageNode',
                 attributes: {
                     image: imgObj,
+                    name:name,
                     x: 50,
                     y: 50,
                     width: 200,
                     height: 200,
-                    strokeWidth: 0
+
                 }
             });
         })
-
     }
+
     private chooseImage(callback: Function) {
         let input = document.createElement('input');
         input.style.display = 'none';
@@ -1330,7 +1374,8 @@ export default class GraphEditor extends GraphManager {
             if (file && file.type.match('image.*')) {
                 let reader = new FileReader();
                 reader.addEventListener("load", () => {
-                    callback(reader.result);
+                    console.log(file);
+                    callback(reader.result,file?.name.split(".")[0]);
                 });
                 reader.readAsDataURL(file);
             } else {
@@ -1980,13 +2025,29 @@ export default class GraphEditor extends GraphManager {
      * @returns 操作节点的属性的交集
      */
     getNodesAttributes(ids?: any) {
-        let allAttrs = {};
         let nodes = this.getOperateNodes(ids);
-        nodes.forEach(element => {
-            let attrs = this.getAttributes(element.id);
-            allAttrs = Object.assign(allAttrs, attrs);
-        });
-        return allAttrs;
+        // 创建空对象来存储交集
+        const intersection = {};
+        //选择第一个对象作为基准
+        const baseObject = nodes.length > 0 ? this.getAttributes(nodes[0].id) : {};
+        // 遍历基准对象的属性
+        for (let key in baseObject) {
+            let isCommon = true;
+            // 检查其他对象是否具有相同的属性
+            for (let i = 1; i < nodes.length; i++) {
+                let attrs = this.getAttributes(nodes[i].id);
+                if (!attrs.hasOwnProperty(key)) {
+                    isCommon = false;
+                    break;
+                }
+            }
+            // 如果所有对象都有相同的属性，则将其添加到交集对象中
+            if (isCommon) {
+                intersection[key] = baseObject[key];
+            }
+        }
+
+        return intersection;
     }
 
     /**
@@ -2323,67 +2384,72 @@ export default class GraphEditor extends GraphManager {
     constructSymbol(symbolName: string) {
 
         if (!symbolName) throw new Error("名称不能为空");
-        let selectedNodes = this.getOperateNodes();
+        if (this.withoutSymbolNode) {
+            let selectedNodes = this.getOperateNodes();
 
-        if (selectedNodes.length > 0) {
-            let symbolNode = new SymbolNode(
-                {
-                    attributes: {
-                        draggable: true
+            if (selectedNodes.length > 0) {
+                let symbolNode = new SymbolNode(
+                    {
+                        attributes: {
+                            draggable: true
+                        }
                     }
-                }
-            );
-            symbolNode.setMembers(selectedNodes.map((item: any) => {
-                let node = item.clone(true);
-                node.setAttributeValue('draggable', false);
-                return node;
-            }));
-            symbolNode.setSymbolName(symbolName);
-            this.dataModel.removeNodes(selectedNodes);
-            let bounds = symbolNode.getRef().getClientRect({ skipTransform: true });
-            let cloneSymbolNode = symbolNode.clone(true);
-            cloneSymbolNode.setAttributeValues({
-                x: -bounds.x,
-                y: -bounds.y
-            })
-            //遍历提取子元素的variable
-            let symbolVariables = {};
-            (function loop(node, path) {
-                let nodeIndex = 'node_' + path.join('_');
-                let nodeVariables = node.getVariables();
-                for (let key in nodeVariables) {
-                    if (!symbolVariables.hasOwnProperty(key)) {
-                        let jsonContent = nodeVariables[key];
-                        jsonContent['from'] = [nodeIndex]
-                        symbolVariables[key] = nodeVariables[key];
-                    } else {
-                        //如果已经提取过这个变量了
-                        let jsonContent = symbolVariables[key];
-                        jsonContent['from'].push(nodeIndex)
+                );
+                symbolNode.setMembers(selectedNodes.map((item: any) => {
+                    let node = item.clone(true);
+                    node.setAttributeValue('draggable', false);
+                    return node;
+                }));
+                symbolNode.setSymbolName(symbolName);
+                this.dataModel.removeNodes(selectedNodes);
+                let bounds = symbolNode.getRef().getClientRect({ skipTransform: true });
+                let cloneSymbolNode = symbolNode.clone(true);
+                cloneSymbolNode.setAttributeValues({
+                    x: -bounds.x,
+                    y: -bounds.y
+                })
+                //遍历提取子元素的variable
+                let symbolVariables = {};
+                (function loop(node, path) {
+                    let nodeIndex = 'node_' + path.join('_');
+                    let nodeVariables = node.getVariables();
+                    for (let key in nodeVariables) {
+                        if (!symbolVariables.hasOwnProperty(key)) {
+                            let jsonContent = nodeVariables[key];
+                            jsonContent['from'] = [nodeIndex]
+                            symbolVariables[key] = nodeVariables[key];
+                        } else {
+                            //如果已经提取过这个变量了
+                            let jsonContent = symbolVariables[key];
+                            jsonContent['from'].push(nodeIndex)
+                        }
                     }
-                }
-                node.setVariables(null);
-                if (node instanceof SymbolNode || node instanceof GroupNode) {
-                    node.getMembers().forEach((member, index) => {
-                        const childPath = path.concat(index); // 将当前节点索引添加到路径中
-                        loop(member, childPath);
-                    })
-                }
+                    node.setVariables(null);
+                    if (node instanceof SymbolNode || node instanceof GroupNode) {
+                        node.getMembers().forEach((member, index) => {
+                            const childPath = path.concat(index); // 将当前节点索引添加到路径中
+                            loop(member, childPath);
+                        })
+                    }
 
-            })(cloneSymbolNode, []);
-            cloneSymbolNode.setVariables(symbolVariables);
-            let variableWithoutFrom = {};
-            for (let key in symbolVariables) {
-                let symbolContent = JSON.parse(JSON.stringify(symbolVariables[key]));
-                delete symbolContent.from;
-                variableWithoutFrom[key] = symbolContent;
+                })(cloneSymbolNode, []);
+                cloneSymbolNode.setVariables(symbolVariables);
+                let variableWithoutFrom = {};
+                for (let key in symbolVariables) {
+                    let symbolContent = JSON.parse(JSON.stringify(symbolVariables[key]));
+                    delete symbolContent.from;
+                    variableWithoutFrom[key] = symbolContent;
+                }
+                symbolNode.setVariables(variableWithoutFrom);
+                this.dataModel.addNode(symbolNode);
+                return cloneSymbolNode.toObject();
+            } else {
+                console.warn(GRAPH_EDITOR_WARNING + "未选择任何形状，不能组成图元")
             }
-            symbolNode.setVariables(variableWithoutFrom);
-            this.dataModel.addNode(symbolNode);
-            return cloneSymbolNode.toObject();
         } else {
-            console.warn(GRAPH_EDITOR_WARNING + "未选择任何形状，不能组成图元")
+            console.warn(GRAPH_EDITOR_WARNING + "图元中不能存在图元")
         }
+
 
     }
 

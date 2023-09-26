@@ -41,7 +41,7 @@ export const defaultConfig:EditorConfig = {
         },
         keyboard: {
             enabled: true,
-            movingSpaces: 5,
+            movingSpaces: 1,
             map: {
                 delete: ['Delete'],
                 moveLeft: ['Control+ArrowLeft'],
@@ -64,9 +64,9 @@ export const defaultConfig:EditorConfig = {
         stroke: '#ff0000',
         draggable: true,
         strokeScaleEnabled: false,
-        hitStrokeWidth: 2
+        hitStrokeWidth:6,
+        fill:'#cccccc'
     },
-    
     history:{
        keyboard:{
           enabled:true

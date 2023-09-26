@@ -51,11 +51,14 @@ export abstract class EditableShapeNode extends ShapeNode {
         }
     }
     getAnchorRadius(strokeWidth:number){
-        if(strokeWidth<3){
-            return 4;
-        }else{
-            return strokeWidth;
-        }
+        
+        let scale=this.ref.getParent().getStage().getAttr('scaleX');
+        return 3/scale;
+        // if(strokeWidth<3){
+           
+        // }else{
+        //     return strokeWidth/scale;
+        // }
     }
 
 }

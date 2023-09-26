@@ -6,10 +6,10 @@ import AttributeChange from '../command/AttributeChange';
 import {Utils} from '../Utils';
 
 export class LineNodeAttrs extends EditableShapeNodeAttrs {
-    x1 = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };
-    y1 = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };
-    x2 = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };
-    y2 = { "value": 0, "default": 0, "group": "geometry", "type": "Number" };
+    x1 = { "value": null, "default": null, "group": "geometry", "type": "Number" };
+    y1 = { "value": null, "default": null, "group": "geometry", "type": "Number" };
+    x2 = { "value": null, "default": null, "group": "geometry", "type": "Number" };
+    y2 = { "value": null, "default": null, "group": "geometry", "type": "Number" };
 }
 
 export class LineNode extends EditableShapeNode {
@@ -22,11 +22,12 @@ export class LineNode extends EditableShapeNode {
         super();
         if (opt) this.fromObject(opt);
     }
-
     updateRefAttrs(attrValues: any) {
         if (this.ref !== null) {
+         
             let { x1, y1, x2, y2, ...otherAttrValues } = attrValues;
             if (x1 !== undefined || y1 !== undefined || x2 !== undefined || y2 !== undefined) {
+                
                 let points = this.ref.points().slice();
                 if (x1 !== undefined) points[0] = x1;
                 if (y1 !== undefined) points[1] = y1;

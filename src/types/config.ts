@@ -78,7 +78,8 @@ export declare interface StyleConfig{
     stroke?: string,
     draggable?: boolean,
     strokeScaleEnabled?: boolean,
-    hitStrokeWidth?: number
+    hitStrokeWidth?: number,
+    fill?:string
 }
 
 export declare interface GridConfig{

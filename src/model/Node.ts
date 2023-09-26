@@ -114,13 +114,20 @@ export abstract class Node {
     }
 
     setAttributeValues(attrValues: any) {
+      
         let _attrValues: any = {};
         for (let name in attrValues) {
             let attrValue = attrValues[name], attr = this.attributes[name];
+        
             if (attr) {
                 if (JSON.stringify(attr.value) !== JSON.stringify(attrValue)) {
                     attr.value = attrValue;
-                    _attrValues[name] = Utils.is(attrValue,'string')?attrValue:JSON.parse(JSON.stringify(attrValue));
+                    if(attrValue){
+                        _attrValues[name] = Utils.is(attrValue,'string')?attrValue:JSON.parse(JSON.stringify(attrValue));
+                    }else{
+                        _attrValues[name]=attrValue;
+                    }
+                   
                 }
             } else {
                 console.warn(GRAPH_EDITOR_WARNING + this.className + "不支持的属性 " + name);
@@ -143,6 +150,8 @@ export abstract class Node {
             }
         }
     }
+
+  
 
     setAnimationValue(name: any, value: any) {
         let animationChange: any = {};

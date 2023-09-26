@@ -81,6 +81,10 @@ export class DataModel extends TemcEventSource {
         this.fireEvent(new EventObject(EVENT_TYPE.ADD_KONVA_NODE, 'node', node.getRef(), 'zIndex', index ? index : -1), null);
         //对于Tween动画来说，必须将konva节点加入到Layer后，才能调用动画
         node.updateRefAnimation('addNode');
+        if(node instanceof ImageNode){
+            node.updateGifAnimation('addNode');
+        }
+      
     }
 
 
@@ -180,12 +184,15 @@ export class DataModel extends TemcEventSource {
                     if (className === 'ImageNode') {
                         let imageAttr = node.attributes;
                         let content = imageAttr.image;
-                        imageAttr.image = null;
-                        if (images.hasOwnProperty(content)) {
-                            images[content].push(id);
-                        } else {
-                            images[content] = [id];
+                        if(content){
+                            imageAttr.image = null;
+                            if (images.hasOwnProperty(content)) {
+                                images[content].push(id);
+                            } else {
+                                images[content] = [id];
+                            }
                         }
+                      
                     } else if (className === 'GroupNode') {
                         loop(node.members);
                     }
