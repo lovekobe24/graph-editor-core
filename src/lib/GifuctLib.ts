@@ -131,6 +131,10 @@ export class GifuctLib {
       }, Math.max(0, Math.floor(frame.delay - diff)));
     }
   };
+
+  destoryAnimation(){
+      this.playing=false;
+  }
   
   async load(gifURL: string, layer: Konva.Layer, callbackFn: any) {
     let _this = this;

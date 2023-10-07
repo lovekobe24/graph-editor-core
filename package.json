@@ -1,6 +1,6 @@
 {
   "name": "graph-editor-core",
-  "version": "1.0.89",
+  "version": "1.0.90",
   "description": "",
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   "scripts": {
     "compile": "npm run clean && npm run tsc && npm run rollup",
     "start": "npm run test:watch",
-    "test:watch": "parcel serve ./test/unit-tests.html  ./test/sandbox.html ./test/performance-test.html ./test/1.gif --dist-dir=output --port 51161 --no-cache",
+    "test:watch": "parcel serve ./test/unit-tests.html  ./test/sandbox.html ./test/performance-test.html  --dist-dir=output --port 51161 --no-cache",
     "clean": "rm -rf ./umd && rm -rf ./types && rm -rf ./cmj && rm -rf ./test-build && rm -rf ./esm",
     "tsc": "tsc --removeComments && tsc --build ./tsconfig-cmj.json",
     "rollup": "rollup -c --bundleConfigAsCjs",
