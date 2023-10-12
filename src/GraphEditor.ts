@@ -759,7 +759,21 @@ export default class GraphEditor extends GraphManager {
     }
 
     withoutSymbolNode() {
-        return this.dataModel?.getSelectionManager().getSelection().every(node => !(node instanceof SymbolNode));
+        let withoutSymbolNode=true;
+        let selections=this.dataModel?.getSelectionManager().getSelection();
+        (function loop(nodes) {
+            for (let node of nodes) {
+                if(node instanceof GroupNode){
+                    loop(node.getMembers());
+                }else{
+                    if(node instanceof SymbolNode){
+                        withoutSymbolNode=false
+                    }
+                }
+               
+            }
+        })(selections);
+        return withoutSymbolNode;
     }
     private canDeconstructSymbol() {
         let selectionCount = this.getSelection().length;

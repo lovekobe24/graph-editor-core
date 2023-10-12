@@ -64,13 +64,7 @@
     <div class="layui-btn-group">
       <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="组合" id="group"><i
           class="iconfont icon-zuhe"></i></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="取消组合" id="ungroup"><i
-          class="iconfont icon-zuhe"></i></button>
-    </div>
-    <div class="layui-btn-group">
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="组成图元" id="constructSymbol"><i
-          class="iconfont icon-zuhe"></i></button>
-      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="解构图元" id="deconstructSymbol"><i
+      <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" title="取消组合" id="unGroup"><i
           class="iconfont icon-zuhe"></i></button>
     </div>
     <div class="layui-btn-group" id="alginToolbar">
@@ -93,8 +87,8 @@
     <button title="预设" id="styleConfig" class="layui-btn layui-btn-sm layui-btn-primary">预设线色</button>
     <button title="修改网格" id="gridConfig" class="layui-btn layui-btn-sm layui-btn-primary">修改网格</button>
     <button title="显示比例" id="zoom" class="layui-btn layui-btn-sm layui-btn-primary">150%</button>
-    <button title="组成图元" id="makeSymbol" class="layui-btn layui-btn-sm layui-btn-primary">组成图元</button>
-    <button title="编辑图元" id="editSymbol" class="layui-btn layui-btn-sm layui-btn-primary">编辑图元</button>
+    <button title="组成图元" id="constructSymbol" class="layui-btn layui-btn-sm layui-btn-primary">组成图元</button>
+    <button title="编辑图元" id="deconstructSymbol" class="layui-btn layui-btn-sm layui-btn-primary">编辑图元</button>
   </div>
   <div style="display: flex;">
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
@@ -371,11 +365,11 @@
       graphEditor.stopDrawing();
     })
     let oldVariables;
-    document.getElementById('editSymbol').addEventListener('click', () => {
+    document.getElementById('deconstructSymbol').addEventListener('click', () => {
       let selection = graphEditor.getSelection();
       console.log(selection)
       oldVariables = selection.variables
-      graphEditor.editSymbol();
+      graphEditor.deconstructSymbol();
     })
 
     document.getElementById('line').addEventListener('click', () => {
@@ -438,7 +432,7 @@
     document.getElementById('group').addEventListener('click', (e) => {
       graphEditor.group()
     })
-    document.getElementById('ungroup').addEventListener('click', (e) => {
+    document.getElementById('unGroup').addEventListener('click', (e) => {
       graphEditor.unGroup()
     })
     document.getElementById('mirrorBtn').addEventListener('click', (e) => {
@@ -488,7 +482,7 @@
         }
       });
     })
-    document.getElementById('makeSymbol').addEventListener('click', (e) => {
+    document.getElementById('constructSymbol').addEventListener('click', (e) => {
       layer.open({
         type: 1,
         title: '输入内容',
@@ -515,7 +509,7 @@
           var inputValue = $('#inputText').val(); // 获取输入框的值
           // 处理输入框中的内容
 
-          let symbolObj = graphEditor.makeSymbol(inputValue, oldVariables);
+          let symbolObj = graphEditor.constructSymbol(inputValue, oldVariables);
           console.log("组成的图元是：", symbolObj);
           if (symbolObj) {
             if (localSymbol) {
@@ -523,13 +517,13 @@
               let sameNameSymbol = symbols.filter((item) => item.symbolName == inputValue);
               //if(sameNameSymbol.length>0){
 
-              symbols.push(JSON.parse(symbolObj));
+              symbols.push(symbolObj);
               localStorage.setItem('symbol', JSON.stringify(symbols))
               //  }
 
             } else {
               let symbols = [];
-              symbols.push(JSON.parse(symbolObj));
+              symbols.push(symbolObj);
               localStorage.setItem('symbol', JSON.stringify(symbols))
             }
           }
@@ -601,13 +595,13 @@
         let currentGraph = graphEditor.toJSON();
 
         let scale = graphEditor.getScale();
-         graphEditor.clear();
+        graphEditor.clear();
         // graphView = new GraphViewer(
         //   {
         //     container: document.getElementById('previewDiv'),
         //   }
         // );
-     
+
 
         document.getElementById('editor').style.display = 'none';
         document.getElementById('previewDiv').style.display = 'block';
@@ -677,7 +671,7 @@
       } else {
         clearInterval(timer);
         let currentGraph = graphView.config.graph;
-         graphView.clear();
+        graphView.clear();
         // graphEditor = new GraphEditor(
         //   {
         //     container: document.getElementById('editor'),
@@ -691,7 +685,7 @@
 
     }
     let existGraph = localStorage.getItem('graph');
-   // graphEditor.setGraph(existGraph)
+    // graphEditor.setGraph(existGraph)
 
 
     const initGraphViewer = () => {
@@ -1080,7 +1074,7 @@
       //     operator: "=",
       //     target: "3"
       //   }
-initGraphEditor
+      initGraphEditor
       // }, ids[0])
       //添加链接
       // let obj = {
@@ -1188,6 +1182,21 @@ initGraphEditor
       graphEditor.onFnStateChanged((sender, event) => {
         console.log("改变菜单的状态");
         console.log(graphEditor.getFnState());
+        let menuState = graphEditor.getFnState();
+        for (let [key, value] of menuState) {
+          let enabled = value;
+          let menuItem=document.getElementById(key);
+          if (menuItem) {
+            if (enabled) {
+              menuItem.classList.remove('layui-btn-disabled');
+              menuItem.removeAttribute('disabled');
+            } else {
+              menuItem.classList.add('layui-btn-disabled');
+              menuItem.setAttribute('disabled', 'disabled');
+            }
+          }
+
+        }
       })
 
       var menuNode = document.getElementById('menu');
