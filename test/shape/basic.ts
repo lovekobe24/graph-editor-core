@@ -60,9 +60,9 @@ const list = [
         label: '扇形',
         className: 'WedgeNode',
         attributes: {
-            angle: 30,
+            angle: 90,
             radius: 50,
-            clockwise: false
+            clockwise: true
         },
         path: '<svg viewBox="-35 -60 70 70" width="32" height="32"><path d="M0 -0 L-25 -43.3 A50 50 0 0 1 25 -43.3Z" fill="#ffffff" stroke="#000000" stroke-width="3"></path></svg>'
     },
@@ -71,7 +71,7 @@ const list = [
         className: 'ArcNode',
         attributes: {
             angle: 30,
-            innerRadius: 90,
+            innerRadius: 50,
             outerRadius: 100,
             clockwise: false
         },
@@ -145,6 +145,18 @@ const list = [
         },
         url: 'https://i.postimg.cc/BQDBBTp3/image.jpg'
     },
+    {
+        label: 'Yoda',
+        className: 'ImageNode',
+        attributes: {
+           width:200,
+           height:200,
+           fill:"",
+           stroke:"",
+           image:'https://konvajs.org/assets/yoda.gif'
+        },
+        url: 'https://konvajs.org/assets/yoda.gif'
+    }
 ];
 
 

@@ -20,6 +20,10 @@
 <body>
   <div>
     <button id="preview">预览</button>
+    <button id="destroy">清空画布</button>
+    <button id="manyGif">多个gif</button>
+    <button id="jump">跳转</button>
+    <button id="save">保存</button>
     <input type="checkbox" id="startAnimation">开启动画
   </div>
   <div style="display: flex;">
@@ -28,8 +32,8 @@
   </div>
 
   <script type="module">
-    import  GraphEditor  from '../src/GraphEditor';
-    import  GraphViewer  from '../src/GraphViewer';
+    import GraphEditor from '../src/GraphEditor';
+    import GraphViewer from '../src/GraphViewer';
     import { RectNode } from '../src/model/RectNode';
     import { TextNode } from '../src/model/TextNode';
     import { EllipseNode } from '../src/model/EllipseNode';
@@ -45,11 +49,11 @@
             //开启动画
             ids.forEach((id) => {
               graphEditor.setAnimation({
-                'type': 'blink',
+                'type': 'rotateByCenter',
                 'autoPlay': true
               }, id);
             })
-          }else{
+          } else {
             let ids = graphEditor.getNodes().map(item => item.id);
             ids.forEach((id) => {
               graphEditor.setAnimation({
@@ -76,6 +80,15 @@
         case 'save':
           console.log(JSON.parse(graphEditor.toJSON()));
           break;
+        case 'destroy':
+          graphEditor.clear();
+          break;
+        case 'jump':
+          window.location.replace("http://localhost:51161/sandbox.html");
+          break;
+        case 'manyGif':
+          randomGif();
+          break;
       }
     })
     const toRegularMode = () => {
@@ -83,6 +96,23 @@
     }
     const draw = (shapeName) => {
       graphEditor.drawShape(shapeName);
+    }
+    const randomGif = () => {
+      graphEditor.clear();
+      for (let i = 0; i < 20; i++) {
+        graphEditor.addNode({
+          className: 'ImageNode',
+          attributes: {
+            x: random(),
+            y: random(),
+            width: 200,
+            height: 200,
+            fill: "",
+            stroke: "",
+            image: 'https://konvajs.org/assets/yoda.gif'
+          }
+        })
+      }
     }
 
     const preview = (target) => {
@@ -92,9 +122,9 @@
         graphEditor.destroy();
         graphView = new GraphViewer(
           {
-            container:document.getElementById('editor'),
+            container: document.getElementById('editor'),
             graph: currentGraph,
-           
+
           }
         );
         graphView.refreshGraph();
@@ -105,9 +135,9 @@
 
         graphEditor = new GraphEditor(
           {
-            container:document.getElementById('editor'),
+            container: document.getElementById('editor'),
             graph: currentGraph,
-         
+
           }
         );
         target.innerHTML = '预览'
@@ -115,9 +145,9 @@
 
     }
     let graphEditor = new GraphEditor(
-     
+
       {
-        container:document.getElementById('editor'),
+        container: document.getElementById('editor'),
         view: {
           transformer: {
             anchorSize: 6
@@ -142,14 +172,24 @@
       return 100 + 500 * Math.random();
     }
 
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < 200; i++) {
+      // graphEditor.addNode({
+      //   className: 'RectNode',
+      //   attributes: {
+      //     x: random(),
+      //     y: random(),
+      //     width: 200,
+      //     height: 60,
+      //     strokeWidth: 2,
+      //     stroke: 'red'
+      //   }
+      // })
       graphEditor.addNode({
-        className: 'RectNode',
+        className: 'PathNode',
         attributes: {
           x: random(),
           y: random(),
-          width: 200,
-          height: 60,
+          data: 'M 29.973 27.176 C 28.428 27.176 27.176 28.428 27.176 29.973 C 27.176 31.518 28.428 32.77 29.973 32.77 C 31.518 32.77 32.77 31.518 32.77 29.973 C 32.77 28.428 31.518 27.176 29.973 27.176 M 31.372 2 C 43.96 2 44.267 11.986 37.666 15.287 C 34.896 16.658 33.665 19.595 33.134 22.197 C 34.477 22.756 35.652 23.623 36.547 24.742 C 46.897 19.147 58.03 21.357 58.03 31.372 C 58.03 43.96 48.044 44.239 44.743 37.61 C 43.344 34.84 40.379 33.61 37.778 33.078 C 37.218 34.421 36.351 35.568 35.232 36.519 C 40.799 46.841 38.589 57.946 28.574 57.946 C 15.987 57.946 15.735 47.932 22.336 44.631 C 25.078 43.26 26.309 40.351 26.868 37.778 C 25.497 37.218 24.295 36.323 23.399 35.204 C 13.077 40.743 2 38.561 2 28.574 C 2 15.987 11.958 15.679 15.259 22.308 C 16.658 25.078 19.595 26.281 22.197 26.812 C 22.728 25.469 23.623 24.295 24.77 23.399 C 19.203 13.077 21.413 2 31.372 2 Z',
           strokeWidth: 2,
           stroke: 'red'
         }

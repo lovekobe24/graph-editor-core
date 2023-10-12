@@ -497,7 +497,7 @@
         success: function (index, layero) {
           let tBody = $("#variableTable").find('tbody:first');
           let variables = graphEditor.extractVariables();
-        
+
           if (variables) {
             for (let key in variables) {
               let trDiv = document.createElement('tr');
@@ -593,6 +593,7 @@
 
       }
     );
+
     const preview = (target) => {
 
       if (target.innerHTML == '预览') {
@@ -600,7 +601,14 @@
         let currentGraph = graphEditor.toJSON();
 
         let scale = graphEditor.getScale();
-        //graphEditor.destroy();
+         graphEditor.clear();
+        // graphView = new GraphViewer(
+        //   {
+        //     container: document.getElementById('previewDiv'),
+        //   }
+        // );
+     
+
         document.getElementById('editor').style.display = 'none';
         document.getElementById('previewDiv').style.display = 'block';
 
@@ -669,7 +677,12 @@
       } else {
         clearInterval(timer);
         let currentGraph = graphView.config.graph;
-        //   graphView.destroy();
+         graphView.clear();
+        // graphEditor = new GraphEditor(
+        //   {
+        //     container: document.getElementById('editor'),
+        //   }
+        // );
         document.getElementById('editor').style.display = 'block';
         document.getElementById('previewDiv').style.display = 'none';
         graphEditor.setGraph(localStorage.getItem('graph'));
@@ -678,7 +691,7 @@
 
     }
     let existGraph = localStorage.getItem('graph');
-
+   // graphEditor.setGraph(existGraph)
 
 
     const initGraphViewer = () => {
@@ -819,13 +832,13 @@
         let nodes = event.getProperty('nodes');
         let eventName = event.getName();
         if (eventName == 'nodeAttributeChange') {
-         // console.log("节点的属性改变了", event.getProperty('nodes'));
+          // console.log("节点的属性改变了", event.getProperty('nodes'));
         } else if (eventName == 'nodeEventsChange') {
           //console.log("节点绑定的事件改变了", event.getProperty('events'));
         } else if (eventName == 'nodeVariableChange') {
 
           let type = event.getProperty('type');
-         // console.log("节点绑定的变量改变了", type);
+          // console.log("节点绑定的变量改变了", type);
           switch (type) {
             case 'add':
               break;
@@ -884,7 +897,7 @@
       // //调整显示比例
       // graphEditor.setScale(1.2);
 
-      graphEditor.setSize(400, 400);
+      graphEditor.setSize(500, 500);
       //设置背景色
       graphEditor.setBackgroundColor("#ffff00");
       console.log(graphEditor.getBackgroundColor());
@@ -1067,7 +1080,7 @@
       //     operator: "=",
       //     target: "3"
       //   }
-
+initGraphEditor
       // }, ids[0])
       //添加链接
       // let obj = {
@@ -1166,7 +1179,7 @@
           }
         }
       );
-       graphEditor.setGraph(existGraph);
+      //graphEditor.setGraph(existGraph);
       //创建监听
       graphEditor.onSelectionChanged((sender, event) => {
         let selectedNodes = event.getProperty('nodes');
@@ -1219,7 +1232,7 @@
 
       }
 
-     // addSimpleNodeToEditor();
+      // addSimpleNodeToEditor();
       // graphEditor.setScale(1.2);
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';
@@ -1291,7 +1304,7 @@
 
     }
     const initPropertyPanel = (node) => {
-   
+
 
       document.getElementById('property').innerHTML = '';
       let idDiv = getStrDiv('id', node.id);
@@ -1311,6 +1324,7 @@
           case 'radiusY':
           case 'strokeWidth':
           case 'scaleX':
+          case 'fontSize':
           case 'scaleY':
           case 'x':
           case 'y':

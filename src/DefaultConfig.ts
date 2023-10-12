@@ -48,6 +48,10 @@ export const defaultConfig:EditorConfig = {
                 moveRight: ['Control+ArrowRight'],
                 moveUp: ['Control+ArrowUp'],
                 moveDown: ['Control+ArrowDown'],
+                moveLeftSlow: ['Control+Shift+ArrowLeft'],
+                moveRightSlow: ['Control+Shift+ArrowRight'],
+                moveUpSlow: ['Control+Shift+ArrowUp'],
+                moveDownSlow: ['Control+Shift+ArrowDown'],
                 selectAll: ['Control+a'],
                 deselect: ['Control+d'],
                 inverseSelect: ['Control+i'],
@@ -64,8 +68,7 @@ export const defaultConfig:EditorConfig = {
         stroke: '#ff0000',
         draggable: true,
         strokeScaleEnabled: false,
-        hitStrokeWidth:6,
-        fill:'#cccccc'
+        hitStrokeWidth:6
     },
     history:{
        keyboard:{

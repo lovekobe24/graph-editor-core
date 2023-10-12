@@ -14,9 +14,9 @@ class UndoRedoManager {
     
         this.settings=gm.config
         if (limit > 0) this.limit = limit;
-        if (Utils.isBrowser()) {
-            window.addEventListener('keydown', this.onKeyDown.bind(this))
-        }
+        // if (Utils.isBrowser()) {
+        //     window.addEventListener('keydown', this.onKeyDown.bind(this))
+        // }
     }
 
     canUndo() {
@@ -56,26 +56,26 @@ class UndoRedoManager {
         cmd.execute();
     }
 
-    private onKeyDown(
-        e: Event & {
-            key: string
-            metaKey: boolean
-            ctrlKey: boolean
-            shiftKey: boolean
-        }
-    ) {
+    // private onKeyDown(
+    //     e: Event & {
+    //         key: string
+    //         metaKey: boolean
+    //         ctrlKey: boolean
+    //         shiftKey: boolean
+    //     }
+    // ) {
      
-        if (this.settings?.history?.keyboard?.enabled === false) {
-            return
-        }
+    //     if (this.settings?.history?.keyboard?.enabled === false) {
+    //         return
+    //     }
 
-        const isSpecialKey = e.metaKey || e.ctrlKey
-        const isShiftKey = e.shiftKey === true
-        const key = e.key.toLowerCase()
+    //     const isSpecialKey = e.metaKey || e.ctrlKey
+    //     const isShiftKey = e.shiftKey === true
+    //     const key = e.key.toLowerCase()
 
-        isSpecialKey && !isShiftKey && key === 'z' && this.undo()
-        isSpecialKey && isShiftKey && key === 'z' && this.redo()
-    }
+    //     isSpecialKey && !isShiftKey && key === 'z' && this.undo()
+    //     isSpecialKey && isShiftKey && key === 'z' && this.redo()
+    // }
 
 }
 

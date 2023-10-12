@@ -115,12 +115,7 @@ export abstract class GraphManager {
     getNode(nodeId: string) {
         return this.dataModel ? this.dataModel.getNodeById(nodeId) : null;
     }
-    /**
-  * 清空画布内容
- */
-    clear() {
-        this.dataModel?.clear();
-    }
+
 
     setSize(width: number, height: number) {
         this.width = width;
@@ -134,6 +129,8 @@ export abstract class GraphManager {
   * @param graphContent 图形信息的字符串
   */
     setGraph(graphContent: any) {
+        if (this.stage?.getChildren().length == 0)
+            return
         //清空原来的数据
         this.clear();
         let graphJson = JSON.parse(graphContent);
@@ -176,14 +173,20 @@ export abstract class GraphManager {
         }
     }
 
-
+    /**
+    * 清空画布内容
+   */
+    clear() {
+        this.dataModel?.clear();
+    }
     /**
    * 销毁画布
    */
     destroy() {
-        this.stage?.destroy();
         this.dataModel?.destroy();
         delete this.dataModel;
+        this.stage?.destroy();
+
     }
 
     /**
@@ -196,7 +199,7 @@ export abstract class GraphManager {
         });
         return nodes;
     }
-    getSetNodesAttributesChange(nodes: Array<Node>, attrValues: any, toHistory: boolean = true){
+    getSetNodesAttributesChange(nodes: Array<Node>, attrValues: any, toHistory: boolean = true) {
         let undoRedoManager = this.dataModel?.getUndoRedoManager();
         let rotationAngle: any = null;
         if (attrValues.hasOwnProperty('rotation')) {
@@ -270,10 +273,10 @@ export abstract class GraphManager {
                     const shape = Utils.rotateAroundCenter(attrs, rad);
                     Utils.fitNodesInto(node.getRef(), attrs, shape);
                 })
-             
+
                 let rotateChange = new GeometryChange(nodes, 'rotate', this.dataModel, false);
                 return [attrChange, rotateChange]
-               
+
 
             } else {
                 //没有旋转，则直接修改属性
@@ -286,7 +289,7 @@ export abstract class GraphManager {
     }
     setNodesAttributes(nodes: Array<Node>, attrValues: any, toHistory: boolean = true) {
         let undoRedoManager = this.dataModel?.getUndoRedoManager();
-        let changeArray=this.getSetNodesAttributesChange(nodes,attrValues,toHistory);
+        let changeArray = this.getSetNodesAttributesChange(nodes, attrValues, toHistory);
         let cmd = new Command(changeArray);
         undoRedoManager.execute(cmd, toHistory);
     }

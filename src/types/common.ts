@@ -25,9 +25,9 @@ export declare interface Point {
 
 export declare interface NodeConfig {
   className: string
-  attributes: NodeAttrs
-  animation:any
-  variables:any
+  attributes: any
+  animation?:any
+  variables?:any
 }
 
 export declare interface GEvent {

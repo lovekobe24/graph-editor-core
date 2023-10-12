@@ -245,6 +245,7 @@ export class DataModel extends TemcEventSource {
     }
 
     clear() {
+        console.log("dataModel clear.................");
         
         for (let i = this.nodes.length - 1; i >= 0; i--) {
             let node = this.nodes[i];

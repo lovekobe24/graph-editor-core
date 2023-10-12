@@ -792,7 +792,6 @@ export default class GraphEditor extends GraphManager {
         key: string
         ctrlKey: boolean
     }) {
-
         const isCtrlKey = e.ctrlKey;
         const isShiftKey = e.shiftKey;
         const keyboard = this.config.selection?.keyboard
@@ -803,16 +802,24 @@ export default class GraphEditor extends GraphManager {
         const movingSpaces = keyboard?.movingSpaces ?? 2
         function getRealKey() {
             let realKey = e.key;
-            if (isCtrlKey) {
-                realKey = 'Control+' + realKey
+            if(isCtrlKey && isShiftKey){
+                realKey = 'Control+Shift+' + realKey
+            }else{
+                if (isCtrlKey) {
+                    realKey = 'Control+' + realKey
+                }
+                if (isShiftKey) {
+                    realKey = 'Shift+' + realKey
+                }
             }
-            if (isShiftKey) {
-                realKey = 'Shift+' + realKey
-            }
+           
             return realKey
         }
         let realKey = getRealKey(e.key);
-
+        if (keyboard?.map?.selectAll?.includes(realKey)) {
+            this.selectAll()
+        }
+       
         if (this.transformer.getAttr('visible') === false || nodes.length === 0) {
             return
         }
@@ -837,10 +844,23 @@ export default class GraphEditor extends GraphManager {
         if (keyboard?.map?.moveDown?.includes(realKey)) {
             this.move('down', movingSpaces);
         }
-
-        if (keyboard?.map?.selectAll?.includes(realKey)) {
-            this.selectAll()
+        if (keyboard?.map?.moveLeftSlow?.includes(realKey)) {
+            this.move('left', movingSpaces/2);
         }
+
+        if (keyboard?.map?.moveRightSlow?.includes(realKey)) {
+            this.move('right', movingSpaces/2);
+        }
+
+        if (keyboard?.map?.moveUpSlow?.includes(realKey)) {
+            this.move('up', movingSpaces/2);
+        }
+
+        if (keyboard?.map?.moveDownSlow?.includes(realKey)) {
+            this.move('down', movingSpaces/2);
+        }
+
+       
         if (keyboard?.map?.deselect?.includes(realKey)) {
             this.deselect()
         }
@@ -1138,7 +1158,6 @@ export default class GraphEditor extends GraphManager {
 
     // }
     addNode(opt: NodeConfig) {
-        console.log("addNode...............", opt);
         let defaultStyleConfig = this.config.style;
         let wholeStyle = { ...defaultStyleConfig, ...opt.attributes };
         opt.attributes = wholeStyle;
@@ -1935,6 +1954,7 @@ export default class GraphEditor extends GraphManager {
      * 选中画布上所有节点
      */
     selectAll() {
+     
         let allNodes = this.dataModel.getNodes();
         let allIds: any = [];
         allNodes.forEach((item: any) => {
