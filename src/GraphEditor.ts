@@ -7,7 +7,7 @@ import { Node } from './model/Node';
 import { Utils } from "./Utils";
 
 import TemcEventSource from "./TemcEventSource";
-import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_CLICK,DRAWING_MOUSE_UP, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE, ROTATE_BY_CENTER } from './constants/TemcConstants';
+import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_CLICK,DRAWING_MOUSE_UP,DRAWING_MOUSE_OUT, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE, ROTATE_BY_CENTER } from './constants/TemcConstants';
 
 import Command from "./command/Command";
 
@@ -432,6 +432,16 @@ export default class GraphEditor extends GraphManager {
         this.stage.on('click', (e: any) => {
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_CLICK, e.evt.button);
+            }
+        });
+        this.stage.on('click', (e: any) => {
+            if (this.currentMode === DRAWING_MODE) {
+                this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_CLICK, e.evt.button);
+            }
+        });
+        this.stage?.on('mouseout', (e: any) => {
+            if (this.currentMode === DRAWING_MODE) {
+                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_OUT, e.evt.button);
             }
         });
 

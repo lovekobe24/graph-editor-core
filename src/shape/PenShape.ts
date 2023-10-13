@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE } from "../constants/TemcConstants";
+import { DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_OUT, DRAWING_MOUSE_UP, REGULAR_MODE } from "../constants/TemcConstants";
 import { PenNode } from "../model/PenNode";
 import AbstractShape from "./AbstractShape";
 
@@ -26,25 +26,25 @@ class PenShape extends AbstractShape {
                         stroke: '#ff0000'
                     })
                     graphEditor.getHelpLayer().add(this.tempLine);
-                }else{
+                } else {
                     if (this.firstPoint) {
                         let node = this.createElement(this.tempLine.points(), graphEditor);
                         this.tempLine.destroy();
-                        if(node){
+                        if (node) {
                             this.insertShapeElement(graphEditor.getDataModel(), node);
                         }
-                        
+
                     }
                     if (this.tempLine) {
                         this.tempLine.destroy();
-                        this.tempLine=null;
+                        this.tempLine = null;
                     }
-                    this.firstPoint=null;
+                    this.firstPoint = null;
                 }
-              
+
                 break;
             case DRAWING_MOUSE_MOVE:
-                if (this.firstPoint) {
+                if (this.firstPoint && this.tempLine) {
                     let points = this.tempLine.points();
                     points.push(point.x);
                     points.push(point.y);
@@ -54,26 +54,34 @@ class PenShape extends AbstractShape {
                 }
                 break;
             case DRAWING_MOUSE_UP:
-            
-                if (this.firstPoint) {
+
+                if (this.firstPoint && this.tempLine) {
                     let node = this.createElement(this.tempLine.points(), graphEditor);
                     this.tempLine.destroy();
-                    if(node){
+                    if (node) {
                         this.insertShapeElement(graphEditor.getDataModel(), node);
                     }
                 }
                 if (this.tempLine) {
                     this.tempLine.destroy();
-                    this.tempLine=null;
+                    this.tempLine = null;
                 }
-                this.firstPoint=null;
+                this.firstPoint = null;
+                break;
+            case DRAWING_MOUSE_OUT:
+                //销毁对象
+                if(this.tempLine){
+                    this.tempLine.destroy();
+                    this.tempLine = null;
+                }
+              
                 break;
         }
     }
 
     createElement(points: any, graphEditor: any) {
-        if(points.length==2)
-        return
+        if (points.length == 2)
+            return
         let polyline = new PenNode();
         let style = Object.assign({ points }, graphEditor.getConfig().style);
         polyline.setAttributeValues({ ...style });

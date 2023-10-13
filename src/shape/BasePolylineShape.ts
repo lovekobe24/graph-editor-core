@@ -2,7 +2,7 @@ import Konva from 'konva';
 import AbstractShape from "./AbstractShape";
 import AttributeChange from '../command/AttributeChange';
 import Command from "../command/Command";
-import { DRAWING_MOUSE_DBL_CLICK, DRAWING_MOUSE_CLICK, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE } from '../constants/TemcConstants';
+import { DRAWING_MOUSE_DBL_CLICK, DRAWING_MOUSE_CLICK, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE,DRAWING_MOUSE_OUT } from '../constants/TemcConstants';
 import { PolylineNode } from '../model/PolylineNode';
 
 class BasePolylineShape extends AbstractShape {
@@ -82,6 +82,14 @@ class BasePolylineShape extends AbstractShape {
                     points.push(point.x, point.y);
                     this.tempLine.points(points);
                 }
+                break;
+            case DRAWING_MOUSE_OUT:
+                //销毁对象
+                if(this.tempLine){
+                    this.tempLine.destroy();
+                    this.tempLine = null;
+                }
+              
                 break;
             case DRAWING_MOUSE_UP:
                 

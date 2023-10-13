@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import AbstractShape from "./AbstractShape";
-import { DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE } from '../constants/TemcConstants';
+import { DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_UP, REGULAR_MODE,DRAWING_MOUSE_OUT } from '../constants/TemcConstants';
 
 abstract class BaseLineShape extends AbstractShape {
 
@@ -33,26 +33,26 @@ abstract class BaseLineShape extends AbstractShape {
                         tension: 1
                     });
                     graphEditor.getDrawingLayer().add(line);
-                }else{
-                    if (this.firstPoint) {
+                } else {
+                    if (this.firstPoint && this.tempLine) {
                         if (isSquare) {
                             point = this.relocationPoint(this.firstPoint, point);
                         }
                         let node = this.createElement(this.firstPoint, point, graphEditor);
                         this.tempLine.destroy();
-                        if(node){
+                        if (node) {
                             this.insertShapeElement(graphEditor.getDataModel(), node);
                         }
-                       
+
                     }
                     if (this.tempLine) {
                         this.tempLine.destroy();
-                    } 
+                    }
                 }
-              
+
                 break;
             case DRAWING_MOUSE_MOVE:
-                if (this.firstPoint) {
+                if (this.firstPoint && this.tempLine) {
                     if (isSquare) {
                         point = this.relocationPoint(this.firstPoint, point);
                     }
@@ -62,26 +62,34 @@ abstract class BaseLineShape extends AbstractShape {
                 }
                 break;
             case DRAWING_MOUSE_UP:
-                if (this.firstPoint) {
+                if (this.firstPoint && this.tempLine) {
                     if (isSquare) {
                         point = this.relocationPoint(this.firstPoint, point);
                     }
                     let node = this.createElement(this.firstPoint, point, graphEditor);
                     this.tempLine.destroy();
-                    if(node){
+                    if (node) {
                         this.insertShapeElement(graphEditor.getDataModel(), node);
                     }
-                   
+
                 }
                 if (this.tempLine) {
                     this.tempLine.destroy();
                 }
                 break;
+            case DRAWING_MOUSE_OUT:
+                //销毁对象
+                if (this.tempLine) {
+                    this.tempLine.destroy();
+                    this.tempLine = null;
+                }
+
+                break;
         }
 
     }
 
-    abstract createElement(firstPoint: any, point: any, graphEditor: any):any;
+    abstract createElement(firstPoint: any, point: any, graphEditor: any): any;
 
     relocationPoint(firstPoint: any, currentPoint: any) {
         let returnPoint = currentPoint;
