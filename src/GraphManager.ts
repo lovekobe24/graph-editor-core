@@ -178,7 +178,6 @@ export abstract class GraphManager {
    */
     clear() {
         this.dataModel?.clear();
-        this.stage?.destroy();
     }
     /**
    * 销毁画布

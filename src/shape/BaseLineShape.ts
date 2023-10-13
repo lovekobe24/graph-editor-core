@@ -11,27 +11,45 @@ abstract class BaseLineShape extends AbstractShape {
         super();
     }
 
-    notifyDrawingAction(graphEditor: any, point: any, type: number) {
+    notifyDrawingAction(graphEditor: any, point: any, type: number, btn: number) {
         let isSquare = graphEditor.getIsSquare();
         switch (type) {
             case DRAWING_MOUSE_DOWN:
-                this.firstPoint = point;
-                this.tempLine = new Konva.Line({
-                    x: 0,
-                    y: 0,
-                    points: [this.firstPoint.x, this.firstPoint.y],
-                    strokeWidth: 2,
-                    stroke: '#ff0000'
-                })
-                graphEditor.getDrawingLayer().add(this.tempLine);
-                let line = new Konva.Line({
-                    x: 100,
-                    y: 50,
-                    points: [73, 70],
-                    stroke: 'red',
-                    tension: 1
-                });
-                graphEditor.getDrawingLayer().add(line);
+                if (btn === 0) {
+                    this.firstPoint = point;
+                    this.tempLine = new Konva.Line({
+                        x: 0,
+                        y: 0,
+                        points: [this.firstPoint.x, this.firstPoint.y],
+                        strokeWidth: 2,
+                        stroke: '#ff0000'
+                    })
+                    graphEditor.getDrawingLayer().add(this.tempLine);
+                    let line = new Konva.Line({
+                        x: 100,
+                        y: 50,
+                        points: [73, 70],
+                        stroke: 'red',
+                        tension: 1
+                    });
+                    graphEditor.getDrawingLayer().add(line);
+                }else{
+                    if (this.firstPoint) {
+                        if (isSquare) {
+                            point = this.relocationPoint(this.firstPoint, point);
+                        }
+                        let node = this.createElement(this.firstPoint, point, graphEditor);
+                        this.tempLine.destroy();
+                        if(node){
+                            this.insertShapeElement(graphEditor.getDataModel(), node);
+                        }
+                       
+                    }
+                    if (this.tempLine) {
+                        this.tempLine.destroy();
+                    } 
+                }
+              
                 break;
             case DRAWING_MOUSE_MOVE:
                 if (this.firstPoint) {

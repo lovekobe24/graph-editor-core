@@ -41,6 +41,7 @@ export const DRAWING_MOUSE_DOWN = 0;
 export const DRAWING_MOUSE_MOVE = 1;
 export const DRAWING_MOUSE_UP = 2;
 export const DRAWING_MOUSE_DBL_CLICK = 3;
+export const DRAWING_MOUSE_CLICK=4;
 
 export const MAX_SCALE = 10;
 export const MIN_SCALE = 0.1;

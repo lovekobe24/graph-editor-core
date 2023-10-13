@@ -13,18 +13,35 @@ class PenShape extends AbstractShape {
         this.handleTagName = 'pen';
     }
 
-    notifyDrawingAction(graphEditor: any, point: any, type: number) {
+    notifyDrawingAction(graphEditor: any, point: any, type: number, btn: number) {
         switch (type) {
             case DRAWING_MOUSE_DOWN:
-                this.firstPoint = point;
-                this.tempLine = new Konva.Line({
-                    x: 0,
-                    y: 0,
-                    points: [this.firstPoint.x, this.firstPoint.y],
-                    strokeWidth: 2,
-                    stroke: '#ff0000'
-                })
-                graphEditor.getHelpLayer().add(this.tempLine);
+                if (btn === 0) {
+                    this.firstPoint = point;
+                    this.tempLine = new Konva.Line({
+                        x: 0,
+                        y: 0,
+                        points: [this.firstPoint.x, this.firstPoint.y],
+                        strokeWidth: 2,
+                        stroke: '#ff0000'
+                    })
+                    graphEditor.getHelpLayer().add(this.tempLine);
+                }else{
+                    if (this.firstPoint) {
+                        let node = this.createElement(this.tempLine.points(), graphEditor);
+                        this.tempLine.destroy();
+                        if(node){
+                            this.insertShapeElement(graphEditor.getDataModel(), node);
+                        }
+                        
+                    }
+                    if (this.tempLine) {
+                        this.tempLine.destroy();
+                        this.tempLine=null;
+                    }
+                    this.firstPoint=null;
+                }
+              
                 break;
             case DRAWING_MOUSE_MOVE:
                 if (this.firstPoint) {
@@ -37,17 +54,17 @@ class PenShape extends AbstractShape {
                 }
                 break;
             case DRAWING_MOUSE_UP:
+            
                 if (this.firstPoint) {
                     let node = this.createElement(this.tempLine.points(), graphEditor);
                     this.tempLine.destroy();
                     if(node){
                         this.insertShapeElement(graphEditor.getDataModel(), node);
                     }
-                    
                 }
                 if (this.tempLine) {
-                   
                     this.tempLine.destroy();
+                    this.tempLine=null;
                 }
                 this.firstPoint=null;
                 break;
