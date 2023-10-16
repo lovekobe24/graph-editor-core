@@ -145,6 +145,17 @@ export abstract class GraphManager {
         this.dataModel?.fromObject(graphJson.model);
         // this.dataModel?.setVariables(graphJson.variables);
     }
+    fitView(width: number, height: number){
+        if(this.width && this.height){
+            let scaleX = width/this.width;
+            let scaleY = height/this.height;
+            console.log(scaleX+","+scaleY);
+            this.stage?.scaleX(scaleX);
+            this.stage?.scaleY(scaleY);
+            this.stage?.setAttr('width', width);
+            this.stage?.setAttr('height', height);
+        }
+    }
 
     /**
     * 设置背景色

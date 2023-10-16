@@ -614,6 +614,7 @@
         console.log(currentGraph);
 
         graphView.setGraph(currentGraph);
+        graphView.fitView(600,600);
 
         //注册鼠标事件
         // graphView.registerNodeMouseEvent({
@@ -1246,6 +1247,7 @@
       }
 
        addSimpleNodeToEditor();
+       graphEditor.fitView(600,600);
       // graphEditor.setScale(1.2);
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';

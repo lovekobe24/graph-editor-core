@@ -292,6 +292,7 @@ export default class GraphEditor extends GraphManager {
 
 
         });
+      
     }
     getImportantPoints(target: any) {
         var points = [];
@@ -666,8 +667,6 @@ export default class GraphEditor extends GraphManager {
     registerContextMenu(callbackFn) {
         let _this = this;
         this.stage.on('contextmenu', (e: any) => {
-            console.log(_this.getMode());
-            console.log(_this.getMode()==REGULAR_MODE);
             if(_this.getMode()==REGULAR_MODE){
                 e.evt.preventDefault();
                 callbackFn(e.evt);

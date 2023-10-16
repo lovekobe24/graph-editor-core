@@ -33,6 +33,7 @@ export default class GraphViewer extends GraphManager {
     }
 
     initStageDrag() {
+        let _this=this;
         this.stage.setAttr("draggable", true);
         this.stage.on('dragstart', (e: any) => {
             this.dataModel?.getNodes().forEach((node: Node) => {
@@ -51,6 +52,38 @@ export default class GraphViewer extends GraphManager {
                 node.updateRefAnimation("dragend");
             })
 
+        });
+        var scaleBy = 1.01;
+        this.stage.on('wheel', (e) => {
+            // stop default scrolling
+            e.evt.preventDefault();
+    
+            var oldScale = _this.stage.scaleX();
+            var pointer = _this.stage.getPointerPosition();
+    
+            var mousePointTo = {
+              x: (pointer.x - _this.stage.x()) / oldScale,
+              y: (pointer.y - _this.stage.y()) / oldScale,
+            };
+    
+            // how to scale? Zoom in? Or zoom out?
+            let direction = e.evt.deltaY > 0 ? 1 : -1;
+    
+            // when we zoom on trackpad, e.evt.ctrlKey is true
+            // in that case lets revert direction
+            if (e.evt.ctrlKey) {
+              direction = -direction;
+            }
+    
+            var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    
+            _this.stage.scale({ x: newScale, y: newScale });
+    
+            var newPos = {
+              x: pointer.x - mousePointTo.x * newScale,
+              y: pointer.y - mousePointTo.y * newScale,
+            };
+            _this.stage.position(newPos);
         });
     }
 
