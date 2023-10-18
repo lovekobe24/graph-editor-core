@@ -149,12 +149,15 @@ export abstract class GraphManager {
         if(this.width && this.height){
             let scaleX = width/this.width;
             let scaleY = height/this.height;
-            console.log(scaleX+","+scaleY);
             this.stage?.scaleX(scaleX);
             this.stage?.scaleY(scaleY);
             this.stage?.setAttr('width', width);
             this.stage?.setAttr('height', height);
+            this.dataModel?.getNodes().forEach((node: any) => {
+                node.updateRefAnimation("scaleChange");
+            });
         }
+
     }
 
     /**
