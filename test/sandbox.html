@@ -614,7 +614,7 @@
         console.log(currentGraph);
 
         graphView.setGraph(currentGraph);
-        graphView.fitView(600,600);
+       // graphView.fitView(600,600);
 
         //注册鼠标事件
         // graphView.registerNodeMouseEvent({
@@ -1178,7 +1178,7 @@
         }
       );
       console.log(existGraph);
-      //graphEditor.setGraph(existGraph);
+      graphEditor.setGraph(existGraph);
       //创建监听
       graphEditor.onSelectionChanged((sender, event) => {
         let selectedNodes = event.getProperty('nodes');
@@ -1246,8 +1246,8 @@
 
       }
 
-       addSimpleNodeToEditor();
-       graphEditor.fitView(600,600);
+       //addSimpleNodeToEditor();
+      // graphEditor.fitView(600,600);
       // graphEditor.setScale(1.2);
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';

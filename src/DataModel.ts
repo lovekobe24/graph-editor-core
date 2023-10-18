@@ -17,6 +17,7 @@ import { GRAPH_EDITOR_WARNING } from "./constants/TemcConstants";
 import { ContainerNode } from "./model/ContainerNode";
 import type { GraphManager } from "./GraphManager";
 import GraphViewer from "./GraphViewer";
+import Konva from "konva";
 
 export class DataModel extends TemcEventSource {
 
@@ -77,6 +78,7 @@ export class DataModel extends TemcEventSource {
         } else {
             this.nodes.splice(index, 0, node);
         }
+       
 
         this.fireEvent(new EventObject(EVENT_TYPE.ADD_KONVA_NODE, 'node', node.getRef(), 'zIndex', index ? index : -1), null);
         //对于Tween动画来说，必须将konva节点加入到Layer后，才能调用动画
@@ -84,7 +86,6 @@ export class DataModel extends TemcEventSource {
         if(node instanceof ImageNode){
             node.updateGifAnimation('addNode');
         }
-      
     }
 
 

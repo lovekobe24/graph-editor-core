@@ -265,6 +265,7 @@ export default class GraphViewer extends GraphManager {
         super.setGraph(graphContent);
         this.dataModel?.getNodes().forEach((node: Node) => {
             node.setAttributeValue("draggable", false);
+            node.setAttributeValue("listening", false);
         })
         this.parseMouseEventNode();
         this.refreshGraph();
