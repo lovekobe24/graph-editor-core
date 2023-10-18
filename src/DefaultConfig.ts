@@ -59,7 +59,8 @@ export const defaultConfig:EditorConfig = {
                 paste:['Control+v'],
                 group:['Control+g'],
                 undo:['Control+z'],
-                redo:['Control+y']
+                redo:['Control+y'],
+                toSelectMode:['v']
             }
         }
     },

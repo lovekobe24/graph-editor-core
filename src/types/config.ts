@@ -56,6 +56,7 @@ export declare interface EditorConfig extends BaseConfig {
             group?: string[]
             undo?:string[]
             redo?:string[]
+            toSelectMode?:string[]
           }>
         >
       }>

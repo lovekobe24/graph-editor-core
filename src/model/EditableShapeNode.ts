@@ -13,16 +13,13 @@ export abstract class EditableShapeNode extends ShapeNode {
     }
 
     createRefAnchors() {
-        if (this.refAnchors === null) {
-            this.ref.draggable(false);
-        }
+      
     }
 
     abstract updateRefAnchors(attrValues: any): void;
 
     destroyRefAnchors() {
         if (this.refAnchors !== null) {
-            this.ref.draggable(true);
             let anchors = this.refAnchors;
             for (let anchor of anchors) anchor.destroy();
             this.refAnchors = null;

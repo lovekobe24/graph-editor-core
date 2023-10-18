@@ -366,7 +366,6 @@ export default class GraphEditor extends GraphManager {
                         let attrChange = new AttributeChange(new Map([[textNode, [{ text: oldText }, { text: newText }]]]), this.dataModel);
                         let cmd = new Command([attrChange]);
                         this.dataModel.getUndoRedoManager().execute(cmd);
-                        this.currentMode = REGULAR_MODE;
                     });
                 } else if (target instanceof Konva.Image) {
                     this.chooseImage((newImgData: Image) => {
@@ -380,24 +379,20 @@ export default class GraphEditor extends GraphManager {
                 } else {
                     let node = this.dataModel.getNodes().find((item: any) => item.getId() === target.attrs.id);
                     if (node instanceof EditableShapeNode) {
+                        _this.setMode(EDITING_MODE);
                         node.createRefAnchors(this.config.view.editAnchor);
                         let anchors = node.getRefAnchors();
-                        this.helpLayer.add(...anchors);
-                        this.currentMode = EDITING_MODE;
+                        this.drawingLayer.add(...anchors);
                         this.transformer.nodes([]);
                     }
                     this.dataModel.getSelectionManager().setSelection([node.getId()], false);
                 }
-                this.currentMode = EDITING_MODE;
+                
             }
         });
         this.stage.on('click', (e: any) => {
             if (this.currentMode === EDITING_MODE && this.stage === e.target) {
-                this.currentMode = REGULAR_MODE;
-                let nodes = this.dataModel.getNodes().filter((item: any) => item instanceof EditableShapeNode && item.getRefAnchors() !== null);
-                for (let node of nodes) {
-                    node.destroyRefAnchors();
-                }
+                _this.setMode(REGULAR_MODE);
             }
         });
     }
@@ -850,6 +845,9 @@ export default class GraphEditor extends GraphManager {
         let realKey = getRealKey(e.key);
         if (keyboard?.map?.selectAll?.includes(realKey)) {
             this.selectAll()
+        }
+        if (keyboard?.map?.toSelectMode?.includes(realKey)) {
+            this.setMode(REGULAR_MODE);
         }
        
         if (this.transformer.getAttr('visible') === false || nodes.length === 0) {
@@ -1633,9 +1631,6 @@ export default class GraphEditor extends GraphManager {
     stopDrawing() {
         //停止绘制模式
         this.setMode(REGULAR_MODE);
-        //如果有绘制到一半的东西，需要删除
-        this.drawingLayer.destroyChildren();
-
     }
 
 
@@ -1652,30 +1647,18 @@ export default class GraphEditor extends GraphManager {
      */
     private setMode(mode: string) {
         this.currentMode = mode;
-        if (mode == DRAWING_MODE) {
-            if (this.drawingShape instanceof ConnectedLineShape) {
-                //不能全关掉
-                this.nodeLayer.getChildren().forEach((node) => {
-                    node.draggable(false);
-                });
-            } else {
+        //如果有绘制到一半的东西，需要删除
+        this.drawingLayer.destroyChildren();
+        switch(mode){
+            case REGULAR_MODE:
+                this.nodeLayer.listening(true);
+                this.container.style.cursor = 'default';
+                break;
+            case EDITING_MODE:
+            case DRAWING_MODE:
                 this.nodeLayer.listening(false)
-            }
-
-        } else {
-            this.nodeLayer.getChildren().forEach((node) => {
-                if (!(node instanceof BaseConnectedLineNode)) {
-                    node.draggable(true);
-                }
-
-            });
-            this.nodeLayer.listening(true)
+                break;
         }
-        let nodes = this.dataModel.getNodes().filter((item: any) => item instanceof EditableShapeNode && item.getRefAnchors() !== null);
-        for (let node of nodes) {
-            node.destroyRefAnchors();
-        }
-
     }
 
     private getMode(){
