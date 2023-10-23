@@ -968,7 +968,7 @@
 
       graphEditor.setAnimation({
         'type': 'rotateByCenter',
-        'autoPlay': false,
+        'autoPlay': true,
         'period': 5
       }, ids[0]);
 
@@ -978,23 +978,34 @@
       // //设置背景色
       // graphEditor.setBackgroundColor('black');
       // graphEditor.deleteNodes();
-      //单击修改属性
+     
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'changeAttributes',
+      //   attributes: {
+      //     'fill': 'rgba(0,0,0,1)'
+      //   },
+      //   triggers: [{
+      //     type: 'operation',
+      //     operation: {
+      //       target: 0,
+      //       source: "state",
+      //       operator: "="
+      //     }
+      //   }]
+      // }, ids[0])
       graphEditor.addEvent({
         type: 'valuechange',
         action: 'changeAttributes',
-        animation: true,
         attributes: {
           'fill': 'rgba(0,0,0,1)'
         },
         triggers: [{
-          type: 'operation',
-          operation: {
-            target: 0,
-            source: "state",
-            operator: "="
-          }
+          type: 'script',
+          script: 'viewer.setNodeAttribute(node,"stroke","green"); return state==0'
         }]
       }, ids[0])
+
       // graphEditor.addEvent({
       //   "type": "valuechange",
       //   "action": "updateAnimation",
@@ -1178,7 +1189,7 @@
         }
       );
       console.log(existGraph);
-      graphEditor.setGraph(existGraph);
+     // graphEditor.setGraph(existGraph);
       //创建监听
       graphEditor.onSelectionChanged((sender, event) => {
         let selectedNodes = event.getProperty('nodes');
@@ -1246,7 +1257,7 @@
 
       }
 
-       //addSimpleNodeToEditor();
+       addSimpleNodeToEditor();
      //  graphEditor.fitView(1200,800);
     //   graphEditor.setScale(1);
       graphEditor.onSelectionChanged((sender, event) => {

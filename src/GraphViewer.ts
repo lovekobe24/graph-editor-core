@@ -364,8 +364,8 @@ export default class GraphViewer extends GraphManager {
                     if (fnJs) {
                         let keys = Object.keys(variableJson);
                         let values = Object.values(variableJson);
-                        let executeFn = new Function(...keys, fnJs);
-                        isSuccess = executeFn(...values);
+                        let executeFn = new Function('viewer', 'node',...keys, fnJs);
+                        isSuccess = executeFn(this, node,...values);
                         if (typeof isSuccess != 'boolean') {
                             isSuccess = false;
                         }
