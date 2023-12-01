@@ -35,9 +35,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"
     integrity="sha512-jhDajNRbXZ4gJ8SVzcuWTHbgSX66Dh98CwmAkhBHWVuEYVgY8G35rbZuRlQwrOcwEB6z5aYzxUptsSjgTGlCbA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- <script src="../umd/GraphEditor.js"></script>
-  <script src="../umd/GraphViewer.js"></script> -->
-  <script src="../umd/Giraffe.js"></script>
+  <script src="../umd/graph-editor.js"></script>
+  <script src="../umd/graph-viewer.js"></script>
+ 
   <!-- <script src="https://unpkg.com/graph-editor-core/umd/GraphEditor.js"></script> -->
   <!-- <script src="https://unpkg.com/graph-editor-core@1.0.25/umd/GraphViewer.js"></script> -->
   <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
@@ -199,8 +199,8 @@
     import { Utils } from "../src/Utils"
     // import Giraffe from '../src/index.all'
     const container = document.getElementById("jsonEditor")
-    const options = {}
-    const editor = new JSONEditor(container, options)
+    // const options = {}
+    // const editor = new JSONEditor(container, options)
     document.getElementById("editor").addEventListener('dragover', (event) => {
       event.preventDefault();
     })
@@ -345,8 +345,8 @@
         });
 
         let topDiv = document.createElement("div");
-        console.log(Giraffe);
-        Giraffe.Utils.convertSymbolToImage(symbol, (img) => {
+       
+        Utils.convertSymbolToImage(symbol, (img) => {
           console.log(img);
           img.style.width = '30px';
           img.style.height = '30px';
@@ -749,7 +749,7 @@
         attributes: {
           x: 300,
           y: 100,
-          radius: 50,
+          radius: 200,
           strokeWidth: 2,
           stroke: 'green',
           fill: 'green'
@@ -827,17 +827,19 @@
             scaleX: 1.2
           }
         })
+       
       graphEditor.onModelChanged((sender, event) => {
         let nodes = event.getProperty('nodes');
+        console.log(nodes);
         let eventName = event.getName();
         if (eventName == 'nodeAttributeChange') {
-          // console.log("节点的属性改变了", event.getProperty('nodes'));
+           console.log("节点的属性改变了");
         } else if (eventName == 'nodeEventsChange') {
-          //console.log("节点绑定的事件改变了", event.getProperty('events'));
+          console.log("节点绑定的事件改变了", event.getProperty('events'));
         } else if (eventName == 'nodeVariableChange') {
-
+      //    console.log("节点绑定的变量改变了", type);
           let type = event.getProperty('type');
-          // console.log("节点绑定的变量改变了", type);
+      
           switch (type) {
             case 'add':
               break;
@@ -917,7 +919,7 @@
 
         linkInfo: null
       }, ids[0]);
-      console.log(graphEditor.getVariables());
+    
       console.log(graphEditor.getVariable('变量3', ids[0]));
 
       // graphEditor.deleteVariable('变量3');
@@ -949,6 +951,7 @@
 
       // //添加动画
       selectNodes = graphEditor.getSelection();
+      console.log("selectNodes is",selectNodes);
 
 
       graphEditor.getAnimation();
@@ -1050,36 +1053,36 @@
       //         viewer.setNodeAttribute(node,'stroke','#cccccc');
       //         viewer.setNodeAttribute(node,'fill','none');
 
-      // let scriptStr = `
-      // switch(state){
-      //   case 1:
-      //      viewer.setNodeAttribute(node,'stroke','#00ff00');
-      //      viewer.setNodeAttribute(node,'fill','#00ff00');
-      //      break;
-      //      case 2:
-      //       viewer.setNodeAttribute(node,'fill','#ff0000');
-      //       viewer.setNodeAttribute(node,'stroke','#ff0000');
-      //       break;
-      //      default:
-      //         viewer.setNodeAttribute(node,'stroke','#cccccc');
-      //         viewer.setNodeAttribute(node,'fill','');
-      //   break;
-      // }
-      // `
+      let scriptStr = `
+      switch(state){
+        case 1:
+           viewer.setNodeAttribute(node,'stroke','#00ff00');
+           viewer.setNodeAttribute(node,'fill','#00ff00');
+           break;
+           case 2:
+            viewer.setNodeAttribute(node,'fill','#ff0000');
+            viewer.setNodeAttribute(node,'stroke','#ff0000');
+            break;
+           default:
+              viewer.setNodeAttribute(node,'stroke','#cccccc');
+              viewer.setNodeAttribute(node,'fill','');
+        break;
+      }
+      `
 
-      // graphEditor.addEvent({
-      //   type: 'valuechange',
-      //   action: 'executeScript',
-      //   script: scriptStr
-      // }, ids[0]);
+      graphEditor.addEvent({
+        type: 'valuechange',
+        action: 'executeScript',
+        script: scriptStr
+      }, ids[0]);
 
 
       //单击启动动画
-      // graphEditor.addEvent({
-      //   type: 'click',
-      //   action: 'updateAnimation',
-      //   animation:true
-      // }, ids[0])
+      graphEditor.addEvent({
+        type: 'click',
+        action: 'updateAnimation',
+        animation:true
+      }, ids[0])
       // graphEditor.addEventTrigger(0, {
       //   type: 'script',
       //   script: 'return state==3'
@@ -1123,24 +1126,8 @@
       //     name: 'fill', val: 'rgba(255,255,0,1)'
       //   }],
       // }, ids[0])
-      // graphEditor.addEvent({
-      //   type: 'valueUpdate',
-      //   action: 'changeProperty',
-      //   value: [{
-      //     name: 'fill', val: 'rgba(255,0,0,1)'
-      //   }],
-      //   where: {
-      //     type: 'comparison',
-      //     value: 1,
-      //     key: "state",
-      //     comparison: "!="
-      //   }
-      // }, ids[0])
-      // graphEditor.addEvent({
-      //   type: 'valueUpdate',
-      //   action: 'executeScript',
-      //   fnjs: "switch(data.state){\r\n    case 1:\r\n    viewer.setNodeAttribute(node,'fill','#C80000')\r\n    break;\r\n    case 2:\r\n      viewer.setNodeAttribute(node,'fill','#FFFF2B')\r\n    break;\r\n    default:\r\n     viewer.setNodeAttribute(node,'fill','#000000')\r\n}"
-      // },ids[0]);
+     
+   
       graphEditor.order('top');
       // console.log(graphEditor.getStyleConfig());
       // console.log(graphEditor.getGridConfig());
@@ -1211,7 +1198,6 @@
               menuItem.setAttribute('disabled', 'disabled');
             }
           }
-
         }
       })
 

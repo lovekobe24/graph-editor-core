@@ -1,5 +1,9 @@
 // main entry for umd build for rollup
-
+/*
+ * JavaScript Framework v@@version
+ * Licensed under the MIT
+ * Date: @@date
+ */
 import GraphEditor from './GraphEditor';
 import GraphViewer from './GraphViewer';
 

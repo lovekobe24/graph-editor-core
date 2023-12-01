@@ -32,6 +32,11 @@ import { PenNode } from "./model/PenNode";
 import { PolylineNode } from "./model/PolylineNode";
 import { PolylineArrowNode } from "./model/PolylineArrowNode";
 
+/*
+ * JavaScript Framework v@@version
+ * Licensed under the MIT
+ * Date: @@date
+ */
 export abstract class GraphManager {
     container: HTMLDivElement | null;
     config: Config = {};
@@ -124,10 +129,11 @@ export abstract class GraphManager {
         this.stage?.setAttr('width', width * scale);
         this.stage?.setAttr('height', height * scale);
     }
+    
     /**
-  * 加载指定的图形
-  * @param graphContent 图形信息的字符串
-  */
+     * 加载指定的图形
+     * @param graphContent 图形信息的字符串
+    */
     setGraph(graphContent: any) {
         if (this.stage?.getChildren().length == 0)
             return
@@ -145,10 +151,10 @@ export abstract class GraphManager {
         this.dataModel?.fromObject(graphJson.model);
         // this.dataModel?.setVariables(graphJson.variables);
     }
-    fitView(width: number, height: number){
-        if(this.width && this.height){
-            let scaleX = width/this.width;
-            let scaleY = height/this.height;
+    fitView(width: number, height: number) {
+        if (this.width && this.height) {
+            let scaleX = width / this.width;
+            let scaleY = height / this.height;
             this.stage?.scaleX(scaleX);
             this.stage?.scaleY(scaleY);
             this.stage?.setAttr('width', width);

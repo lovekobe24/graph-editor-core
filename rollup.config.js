@@ -4,61 +4,89 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import ignore from 'rollup-plugin-ignore'
 import inject from '@rollup/plugin-inject'
 import path from 'path'
-// import terser from '@rollup/plugin-terser'
+import replace from 'rollup-plugin-replace';
+import pkg from './package.json';
 
 export default [
     {
         input: `src/GraphEditor.ts`,
         output: [
             {
-                file: 'umd/GraphEditor.js',
+                file: 'umd/graph-editor.js',
                 name: 'GraphEditor',
                 format: 'iife',
                 sourcemap: false,
                 freeze: false,
+                banner: `/*!
+                * GraphEditor v${pkg.version}
+                * (c) ${new Date().getFullYear()} Zhang Na
+                * License: MIT
+                */`
             }
         ],
         plugins: [
             ignore(['canvas']),
             nodeResolve(),
             commonjs(),
-            typescript()
+            typescript(),
+            replace({
+                delimiters: ['', ''],
+                '__VERSION__': pkg.version
+              })
         ],
     },
     {
         input: `src/GraphViewer.ts`,
         output: [
             {
-                file: 'umd/GraphViewer.js',
+                file: 'umd/graph-viewer.js',
                 name: 'GraphViewer',
                 format: 'iife',
                 sourcemap: false,
                 freeze: false,
+                banner: `/*!
+                * GraphViewer v${pkg.version}
+                * (c) ${new Date().getFullYear()} Zhang Na
+                * License: MIT
+                */`
             }
         ],
         plugins: [
             ignore(['canvas']),
             nodeResolve(),
             commonjs(),
-            typescript()
+            typescript(),
+            replace({
+                delimiters: ['', ''],
+                '__VERSION__': pkg.version
+              })
         ],
     },
     {
         input: `src/index.all.ts`,
         output: [
             {
-                file: 'umd/Giraffe.js',
+                file: 'umd/graph-editor-core.js',
                 name: 'Giraffe',
                 format: 'iife',
                 sourcemap: false,
                 freeze: false,
+                banner: `/*!
+                * Giraffe v${pkg.version}
+                * (c) ${new Date().getFullYear()} Zhang Na
+                * License: MIT
+                */`
             }
         ],
         plugins: [
             ignore(['canvas']),
             nodeResolve(),
             commonjs(),
-            typescript()
+            typescript(),
+            replace({
+                delimiters: ['', ''],
+                '__VERSION__': pkg.version
+              })
         ],
     },
     {

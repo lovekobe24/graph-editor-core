@@ -40,8 +40,6 @@ import { BaseConnectedLineNode } from "./model/BaseConnectedLineNode";
 import gifuct from './lib/gifuct';
 
 
-
-
 export default class GraphEditor extends GraphManager {
     //网格绘制层
     private gridLayer: Layer = new Konva.Layer({ listening: false, name: '网格层' });
@@ -1207,7 +1205,7 @@ export default class GraphEditor extends GraphManager {
      * @param opt 图元的json信息
      */
     addSymbolNode(opt: NodeConfig) {
-
+        console.log("addSymbolNode",opt);
         let node = Node.create(opt);
         let cloneNode = node.clone(true);
         if (cloneNode) {
@@ -1255,6 +1253,15 @@ export default class GraphEditor extends GraphManager {
             }
             this.addNode(node);
         }
+    }
+    /**
+     * 获取文档坐标
+     * @param e 鼠标事件
+     */
+    getPointerPosition(e:MouseEvent){
+        this.stage.setPointersPositions(e);
+        let dropPos = this.getStageScalePoint();
+        return dropPos;
     }
 
     /**
