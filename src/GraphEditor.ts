@@ -515,10 +515,27 @@ export default class GraphEditor extends GraphManager {
             //如果resize开始，则停止绘制自动切换到普通模式
             this.setMode(REGULAR_MODE);
             //找到所有的相关连接线
-            this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
+            //this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
+            (function loop(nodes) {
+                for (let node of nodes) {
+                    node.getRef().transformsEnabled('none');
+                    let autoPlay = node.getAnimationValue('autoPlay');
+                    let type = node.getAnimationValue('type');
+                    if (autoPlay && type == ROTATE_BY_CENTER) {
+                        //如果正在播放动画，在移动过程中要将动画暂停,否则会引起坐标的混乱
+                        if (node.getAnimationObj().obj) {
+                            node.destroyAnimation();
+                        }
+                    }
+                    if (node instanceof GroupNode || node instanceof SymbolNode) {
+                        loop(node.getMembers());
+                    }
+                    node.getRef().transformsEnabled('all');
+                }
+            })(selectNodes);
         });
         this.transformer.on('transform', () => {
-            this.updateRelatedConnectedLines();
+          //  this.updateRelatedConnectedLines();
 
         });
         this.transformer.on('transformend', () => {
@@ -586,20 +603,19 @@ export default class GraphEditor extends GraphManager {
                             node.destroyAnimation();
                         }
                     }
-                    if (node instanceof GroupNode) {
+                    if (node instanceof GroupNode || node instanceof SymbolNode) {
                         loop(node.getMembers());
                     }
                     node.getRef().startDrag();
                 }
             })(selectNodes);
             //找到所有的相关连接线
-            this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
+            //this.relatedConnectedLinesMap = this.getRelatedConnectedLineMap(selectNodes);
 
         });
         // 监听Transformer的拖动事件
         this.transformer.on('dragmove', (e) => {
-            this.updateRelatedConnectedLines();
-
+           // this.updateRelatedConnectedLines();
         });
 
         this.transformer.on('dragend', (e: any) => {
@@ -607,12 +623,10 @@ export default class GraphEditor extends GraphManager {
             let selectNodes = this.dataModel.getSelectionManager().getSelection();
             let undoRedoManager = this.dataModel.getUndoRedoManager();
             //需要看是否有连接线
-
             let relatedConnectedLines = [];
             for (let [node, reasons] of this.relatedConnectedLinesMap) {
                 relatedConnectedLines.push(node);
             }
-
             const mergedNodes = [...selectNodes, ...relatedConnectedLines];
             let moveChange = new GeometryChange(mergedNodes, 'move', this.dataModel);
             let cmd = new Command([moveChange]);
@@ -2617,7 +2631,6 @@ export default class GraphEditor extends GraphManager {
         let allNodes=this.dataModel?.getNodes();
         for (let item of allNodes) {
             let shapeNode = item.getRef();
-            //console.log(shapeNode);
             let transform = shapeNode.getTransform();
             let newTransform = new Konva.Transform();
             const stageTransform = this.stage.getAbsoluteTransform().copy();
@@ -2627,7 +2640,6 @@ export default class GraphEditor extends GraphManager {
             let cloneOldTransform = transform.copy();
             newTransform.multiply(cloneOldTransform);
             let newTransformDeCompose = newTransform.decompose();
-            //console.log(newTransformDeCompose);
             shapeNode.setAttrs(newTransformDeCompose);
         }
         let resizeChange = new GeometryChange(allNodes, 'move', this.dataModel);
@@ -2636,22 +2648,6 @@ export default class GraphEditor extends GraphManager {
         let newHeight=contentSize.height+bottomMargin+topMargin;
         this.setSize(newWidth,newHeight);
     }
-    calculateContentSize() {
-        var maxWidth = 0;
-        var maxHeight = 0;
-        var minLeft = 0;
-        var minTop = 0;
-        console.log(this.nodeLayer.getChildren());
-        this.nodeLayer.getChildren().forEach(node => {
-            var box = node.getClientRect();
-           
-            maxWidth = Math.max(maxWidth, box.x + box.width);
-            maxHeight = Math.max(maxHeight, box.y + box.height);
-            minLeft = Math.min(minLeft, box.x);
-            minTop = Math.min(minTop, box.y);
-        });
-        return {left:minLeft,top:minTop, width: maxWidth, height: maxHeight };
-
-    }
+   
 
 }
