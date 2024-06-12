@@ -708,7 +708,7 @@
                 } else if (variables[key].type == 'boolean') {
                   varJson[key] = getRandomBoolean()
                 }else if(variables[key].type == 'string'){
-                  varJson[key] = 'stop111';
+                  varJson[key] = 'tyty111';
                 }
               }
               variableJson[node.id] = varJson;
@@ -1127,7 +1127,7 @@
             "type": "operation",
             "operation": {
               "source": "stopStr",
-              "operator": "=",
+              "operator": "includes",
               "target": "stop"
             },
             "script": ""
@@ -1147,7 +1147,7 @@
             "type": "operation",
             "operation": {
               "source": "stopStr",
-              "operator": "!=",
+              "operator": "notIncludes",
               "target": "stop"
             },
             "script": ""

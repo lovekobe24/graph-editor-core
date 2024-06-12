@@ -202,6 +202,7 @@ export default class GraphViewer extends GraphManager {
                 let operation = trigger[COMPARISON]
                 if (operation['source'] && operation['operator'] && _this.isEffective(operation['target'])) {
                     let compStr = this.getCompStr(operation['source'], operation['operator'], operation['target']);
+                    console.log(compStr);
                     fn = "return " + compStr
                 }
                 break;
@@ -238,6 +239,12 @@ export default class GraphViewer extends GraphManager {
                 break;
             case "!=":
                 compStr = key + "!=" + value;
+                break;
+            case "includes":
+                compStr = key+".includes("+value+")";
+                break;
+            case "notIncludes":
+                compStr = "!"+key+".includes("+value+")";
                 break;
         }
         return compStr;
