@@ -7,7 +7,7 @@ import { Node } from './model/Node';
 import { Utils } from "./Utils";
 
 import TemcEventSource from "./TemcEventSource";
-import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_CLICK,DRAWING_MOUSE_UP,DRAWING_MOUSE_OUT, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE, ROTATE_BY_CENTER } from './constants/TemcConstants';
+import { REGULAR_MODE, DRAWING_MODE, EDITING_MODE, DRAWING_MOUSE_DOWN, DRAWING_MOUSE_MOVE, DRAWING_MOUSE_CLICK, DRAWING_MOUSE_UP, DRAWING_MOUSE_OUT, DRAWING_MOUSE_DBL_CLICK, DIRECTION_HORIZONTAL, DIRECTION_VERTICAL, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_TOP, DIRECTION_BOTTOM, GRAPH_EDITOR_WARNING, GRAPH_EDITOR_INFO, DRAWING_MODE_SUB_CONNECTED_LINE, ROTATE_BY_CENTER, NORMAL_FIT, LEFT_ALIGN, RIGHT_ALIGN, CENTER_ALIGN } from './constants/TemcConstants';
 
 import Command from "./command/Command";
 
@@ -43,12 +43,15 @@ import gifuct from './lib/gifuct';
 export default class GraphEditor extends GraphManager {
     //网格绘制层
     private gridLayer: Layer = new Konva.Layer({ listening: false, name: '网格层' });
+
     //辅助层
     private helpLayer: Layer = new Konva.Layer({ name: '辅助层' });
     //绘图层
     private drawingLayer: Layer = new Konva.Layer({ name: '绘图层' });
     //连接点所在层
     private makerLayer: Layer = new Konva.Layer({ name: '连接点' });
+
+
     transformer: any;
     private selectionRect: Rect;
     currentMode: string = REGULAR_MODE;
@@ -111,6 +114,9 @@ export default class GraphEditor extends GraphManager {
         this.width = view.size.width;
         this.height = view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
+        this.backgroundRect = new Konva.Rect({ fill: 'none', width: this.width, height: this.height })
+        this.backgroundColorLayer.add(this.backgroundRect);
+        this.stage.add(this.backgroundColorLayer);
         this.stage.add(this.gridLayer);
         this.stage.add(this.nodeLayer);
         this.stage.add(this.helpLayer);
@@ -150,6 +156,9 @@ export default class GraphEditor extends GraphManager {
             //加载图形
             this.setGraph(this.config.graph)
         }
+    }
+    setGraph(graphContent: any) {
+        super.setGraph(graphContent);
     }
 
 
@@ -290,7 +299,7 @@ export default class GraphEditor extends GraphManager {
 
 
         });
-      
+
     }
     getImportantPoints(target: any) {
         var points = [];
@@ -385,7 +394,7 @@ export default class GraphEditor extends GraphManager {
                     }
                     this.dataModel.getSelectionManager().setSelection([node.getId()], false);
                 }
-                
+
             }
         });
         this.stage.on('click', (e: any) => {
@@ -411,14 +420,14 @@ export default class GraphEditor extends GraphManager {
             }
         });
         this.stage.on('mousemove', (e: any) => {
-          
+
             if (this.currentMode === DRAWING_MODE) {
                 this.setIsSquare(e.evt.shiftKey);
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_MOVE)
             }
         });
         this.stage.on('mouseup', (e: any) => {
-          
+
             if (this.currentMode === DRAWING_MODE) {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_UP, e.evt.button);
             }
@@ -435,7 +444,7 @@ export default class GraphEditor extends GraphManager {
         });
         this.stage?.on('mouseout', (e: any) => {
             if (this.currentMode === DRAWING_MODE) {
-                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_OUT, e.evt.button);
+                this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_OUT, e.evt.button);
             }
         });
 
@@ -469,7 +478,6 @@ export default class GraphEditor extends GraphManager {
             }
         });
         konvaNode.on('mouseleave', (e: any) => {
-            console.log('nodeLayer mouseleave')
             switch (this.currentMode) {
                 case DRAWING_MODE:
                     _this.currentTarget = null;
@@ -660,7 +668,7 @@ export default class GraphEditor extends GraphManager {
     registerContextMenu(callbackFn) {
         let _this = this;
         this.stage.on('contextmenu', (e: any) => {
-            if(_this.getMode()==REGULAR_MODE){
+            if (_this.getMode() == REGULAR_MODE) {
                 e.evt.preventDefault();
                 callbackFn(e.evt);
             }
@@ -768,18 +776,18 @@ export default class GraphEditor extends GraphManager {
     }
 
     withoutSymbolNode() {
-        let withoutSymbolNode=true;
-        let selections=this.dataModel?.getSelectionManager().getSelection();
+        let withoutSymbolNode = true;
+        let selections = this.dataModel?.getSelectionManager().getSelection();
         (function loop(nodes) {
             for (let node of nodes) {
-                if(node instanceof GroupNode){
+                if (node instanceof GroupNode) {
                     loop(node.getMembers());
-                }else{
-                    if(node instanceof SymbolNode){
-                        withoutSymbolNode=false
+                } else {
+                    if (node instanceof SymbolNode) {
+                        withoutSymbolNode = false
                     }
                 }
-               
+
             }
         })(selections);
         return withoutSymbolNode;
@@ -827,9 +835,9 @@ export default class GraphEditor extends GraphManager {
         const movingSpaces = keyboard?.movingSpaces ?? 2
         function getRealKey() {
             let realKey = e.key;
-            if(isCtrlKey && isShiftKey){
+            if (isCtrlKey && isShiftKey) {
                 realKey = 'Control+Shift+' + realKey
-            }else{
+            } else {
                 if (isCtrlKey) {
                     realKey = 'Control+' + realKey
                 }
@@ -837,7 +845,7 @@ export default class GraphEditor extends GraphManager {
                     realKey = 'Shift+' + realKey
                 }
             }
-           
+
             return realKey
         }
         let realKey = getRealKey(e.key);
@@ -847,7 +855,7 @@ export default class GraphEditor extends GraphManager {
         if (keyboard?.map?.toSelectMode?.includes(realKey)) {
             this.setMode(REGULAR_MODE);
         }
-       
+
         if (this.transformer.getAttr('visible') === false || nodes.length === 0) {
             return
         }
@@ -873,22 +881,22 @@ export default class GraphEditor extends GraphManager {
             this.move('down', movingSpaces);
         }
         if (keyboard?.map?.moveLeftSlow?.includes(realKey)) {
-            this.move('left', movingSpaces/2);
+            this.move('left', movingSpaces / 2);
         }
 
         if (keyboard?.map?.moveRightSlow?.includes(realKey)) {
-            this.move('right', movingSpaces/2);
+            this.move('right', movingSpaces / 2);
         }
 
         if (keyboard?.map?.moveUpSlow?.includes(realKey)) {
-            this.move('up', movingSpaces/2);
+            this.move('up', movingSpaces / 2);
         }
 
         if (keyboard?.map?.moveDownSlow?.includes(realKey)) {
-            this.move('down', movingSpaces/2);
+            this.move('down', movingSpaces / 2);
         }
 
-       
+
         if (keyboard?.map?.deselect?.includes(realKey)) {
             this.deselect()
         }
@@ -1205,7 +1213,6 @@ export default class GraphEditor extends GraphManager {
      * @param opt 图元的json信息
      */
     addSymbolNode(opt: NodeConfig) {
-        console.log("addSymbolNode",opt);
         let node = Node.create(opt);
         let cloneNode = node.clone(true);
         if (cloneNode) {
@@ -1258,7 +1265,7 @@ export default class GraphEditor extends GraphManager {
      * 获取文档坐标
      * @param e 鼠标事件
      */
-    getPointerPosition(e:MouseEvent){
+    getPointerPosition(e: MouseEvent) {
         this.stage.setPointersPositions(e);
         let dropPos = this.getStageScalePoint();
         return dropPos;
@@ -1404,12 +1411,12 @@ export default class GraphEditor extends GraphManager {
      */
     public insertImage() {
         let _this = this;
-        this.chooseImage((imgObj,name) => {
+        this.chooseImage((imgObj, name) => {
             this.addNode({
                 className: 'ImageNode',
                 attributes: {
                     image: imgObj,
-                    name:name,
+                    name: name,
                     x: 50,
                     y: 50,
                     width: 200,
@@ -1431,7 +1438,7 @@ export default class GraphEditor extends GraphManager {
                 let reader = new FileReader();
                 reader.addEventListener("load", () => {
                     console.log(file);
-                    callback(reader.result,file?.name.split(".")[0]);
+                    callback(reader.result, file?.name.split(".")[0]);
                 });
                 reader.readAsDataURL(file);
             } else {
@@ -1656,7 +1663,7 @@ export default class GraphEditor extends GraphManager {
         this.currentMode = mode;
         //如果有绘制到一半的东西，需要删除
         this.drawingLayer.destroyChildren();
-        switch(mode){
+        switch (mode) {
             case REGULAR_MODE:
                 this.nodeLayer.listening(true);
                 this.container.style.cursor = 'default';
@@ -1668,7 +1675,7 @@ export default class GraphEditor extends GraphManager {
         }
     }
 
-    private getMode(){
+    private getMode() {
         return this.currentMode;
     }
 
@@ -1714,6 +1721,10 @@ export default class GraphEditor extends GraphManager {
             width: this.width,
             height: this.height,
             backgroundColor: this.getBackgroundColor(),
+            locked: this.locked,
+            fit: this.fit,
+            hAlign: this.hAlign,
+            vAlign: this.vAlign,
             name: this.name,
             model: this.dataModel.toObject(isArray),
         };
@@ -1980,7 +1991,7 @@ export default class GraphEditor extends GraphManager {
      * 选中画布上所有节点
      */
     selectAll() {
-     
+
         let allNodes = this.dataModel.getNodes();
         let allIds: any = [];
         allNodes.forEach((item: any) => {
@@ -2560,4 +2571,87 @@ export default class GraphEditor extends GraphManager {
             console.warn(GRAPH_EDITOR_WARNING + "未选择图元")
         }
     }
+    setLocked(locked: boolean) {
+        this.locked = locked;
+    }
+    /**
+     * 设置画布的适应方式
+     * @param fit 设置画布适应方式，取值可为contain,cover,normal
+     * @example
+     * editor.setFit('contain')
+     */
+    setFit(fit: string) {
+        this.fit = fit;
+    }
+    /**
+     * 设置画布的水平对齐方式
+     * @param hAlign 水平对齐方式，取值可为left,right,center,默认为left
+     * @example
+     * editor.setHAlign('center')
+     */
+    setHAlign(hAlign: string) {
+        this.hAlign = hAlign;
+    }
+    /**
+     * 设置画布的垂直对齐方式
+     * @param vAlign 垂直对齐方式，取值可为top,bottom,center,默认为top
+     * @example
+     * editor.setHAlign('center')
+     */
+    setVAlign(vAlign: string) {
+        this.vAlign = vAlign;
+    }
+
+    /**
+     * 将画布大小设置成适合内容
+     * @param leftMargin 左留白
+     * @param rightMargin 右留白
+     * @param topMargin 上留空
+     * @param bottomMargin 下留空
+     * @example
+     * editor.fitContent(20,20,20,20)
+     */
+    fitContent(leftMargin?: number = 10, rightMargin?: number = 10, topMargin?: number = 10, bottomMargin?: number = 10) {
+        let contentSize = this.nodeLayer.getClientRect();
+        let translateFactor={x:leftMargin-contentSize.x,y:topMargin-contentSize.y};
+        let allNodes=this.dataModel?.getNodes();
+        for (let item of allNodes) {
+            let shapeNode = item.getRef();
+            //console.log(shapeNode);
+            let transform = shapeNode.getTransform();
+            let newTransform = new Konva.Transform();
+            const stageTransform = this.stage.getAbsoluteTransform().copy();
+            stageTransform.invert();
+            translateFactor = stageTransform.point(translateFactor);
+            newTransform.translate(translateFactor.x, translateFactor.y);
+            let cloneOldTransform = transform.copy();
+            newTransform.multiply(cloneOldTransform);
+            let newTransformDeCompose = newTransform.decompose();
+            //console.log(newTransformDeCompose);
+            shapeNode.setAttrs(newTransformDeCompose);
+        }
+        let resizeChange = new GeometryChange(allNodes, 'move', this.dataModel);
+        resizeChange.apply(true);
+        let newWidth=contentSize.width+rightMargin+leftMargin;
+        let newHeight=contentSize.height+bottomMargin+topMargin;
+        this.setSize(newWidth,newHeight);
+    }
+    calculateContentSize() {
+        var maxWidth = 0;
+        var maxHeight = 0;
+        var minLeft = 0;
+        var minTop = 0;
+        console.log(this.nodeLayer.getChildren());
+        this.nodeLayer.getChildren().forEach(node => {
+            var box = node.getClientRect();
+           
+            maxWidth = Math.max(maxWidth, box.x + box.width);
+            maxHeight = Math.max(maxHeight, box.y + box.height);
+            minLeft = Math.min(minLeft, box.x);
+            minTop = Math.min(minTop, box.y);
+        });
+        return {left:minLeft,top:minTop, width: maxWidth, height: maxHeight };
+
+    }
+
 }

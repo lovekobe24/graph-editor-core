@@ -37,6 +37,16 @@ export const DRAWING_MODE = 'drawingMode';
 export const EDITING_MODE = 'editingMode';
 export const DRAWING_MODE_SUB_CONNECTED_LINE ='drawingModeSubConnectedLine'
 
+export const COVER_FIT = 'cover';
+export const CONTAIN_FIT = 'contain';
+export const NORMAL_FIT = 'normal';
+export const LEFT_ALIGN ='left';
+export const RIGHT_ALIGN ='right';
+export const CENTER_ALIGN ='center';
+export const TOP_ALIGN ='top';
+export const BOTTOM_ALIGN ='bottom';
+
+
 export const DRAWING_MOUSE_DOWN = 0;
 export const DRAWING_MOUSE_MOVE = 1;
 export const DRAWING_MOUSE_UP = 2;

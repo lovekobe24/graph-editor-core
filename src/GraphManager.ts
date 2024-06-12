@@ -1,5 +1,5 @@
 import type { Stage } from "konva/lib/Stage";
-import { GRAPH_EDITOR_WARNING, MAX_SCALE, MIN_SCALE } from "./constants/TemcConstants";
+import { GRAPH_EDITOR_WARNING, MAX_SCALE, MIN_SCALE,LEFT_ALIGN,TOP_ALIGN,NORMAL_FIT } from "./constants/TemcConstants";
 import type { DataModel } from "./DataModel";
 import { Utils } from "./Utils";
 import Konva from "konva";
@@ -41,6 +41,9 @@ export abstract class GraphManager {
     container: HTMLDivElement | null;
     config: Config = {};
     nodeLayer: Layer = new Konva.Layer();
+     //背景绘制层
+    backgroundColorLayer: Layer = new Konva.Layer({ listening: false, name: '背景层' });
+    backgroundRect:any;
     dataModel: DataModel | undefined;
     stage: Stage | undefined;
     width: number | undefined;
@@ -49,36 +52,20 @@ export abstract class GraphManager {
     * The settings
     */
     name: string = '';
+    //画布是否锁定
+    locked:boolean=true;
+    //水平对齐
+    hAlign:String=LEFT_ALIGN;
+    //垂直对齐
+    vAlign:String=TOP_ALIGN;
+     //显示方式设置
+    fit:string=NORMAL_FIT;
+   
     constructor(config: Config) {
         if (Utils.isBrowser() && !config.container) {
             throw new Error(GRAPH_EDITOR_WARNING + 'It needs to have a container element')
         }
-        //this.registerNodeClass();
     }
-
-    registerNodeClass() {
-
-        // RectNode.register();
-        // EllipseNode.register();
-        // ArcNode.register();
-        // CircleNode.register();
-        // GroupNode.register();
-        // ImageNode.register();
-        // LabelNode.register();
-        // LineArrowNode.register();
-        // LineNode.register();
-        // PathNode.register();
-        // PenNode.register();
-        // PolylineArrowNode.register();
-        // PolylineNode.register()
-        // RegularPolygonNode.register();
-        // RingNode.register();
-        // StarNode.register();
-        // SymbolNode.register();
-        // TextNode.register();
-        // WedgeNode.register();
-    }
-
 
     /**
      * 修改视图的显示比例
@@ -148,8 +135,20 @@ export abstract class GraphManager {
         if (graphJson.name) {
             this.name = graphJson.name;
         }
+        if(graphJson.hAlign){
+            this.hAlign=graphJson.hAlign;
+        }
+        if(graphJson.vAlign){
+            this.vAlign=graphJson.vAlign;
+        }
+        if(graphJson.fit){
+            this.fit=graphJson.fit;
+        }
+        if(graphJson.locked){
+            this.locked=graphJson.locked;
+        }
+        
         this.dataModel?.fromObject(graphJson.model);
-        // this.dataModel?.setVariables(graphJson.variables);
     }
     fitView(width: number, height: number) {
         if (this.width && this.height) {
@@ -166,32 +165,12 @@ export abstract class GraphManager {
 
     }
 
-    /**
-    * 设置背景色
-    * @param color 背景色
-    * @example
-    * editor.setBackgroundColor('red');
-    */
-    setBackgroundColor(color: string) {
-        var element = this.stage?.container().querySelector('.konvajs-content') as HTMLElement;
-        if (element) {
-            element.style.backgroundColor = color;
-        } else {
-            console.warn(GRAPH_EDITOR_WARNING + "未找到画布");
-        }
-    }
-    /**
-     * 
-     * @returns 获取背景色
-     */
-    getBackgroundColor() {
-        var element = this.stage?.container().querySelector('.konvajs-content') as HTMLElement;
-        if (element) {
-            return element.style.backgroundColor;
-        } else {
-            console.warn(GRAPH_EDITOR_WARNING + "未找到容器");
-        }
-    }
+    
+
+   
+ 
+
+ 
 
     /**
     * 清空画布内容
@@ -313,4 +292,24 @@ export abstract class GraphManager {
         let cmd = new Command(changeArray);
         undoRedoManager.execute(cmd, toHistory);
     }
+     /**
+    * 设置背景色
+    * @param color 背景色
+    * @example
+    * editor.setBackgroundColor('red');
+    */
+     setBackgroundColor(color: string) {
+        if (this.backgroundRect) {
+            this.backgroundRect.setAttr('fill',color);
+        } else {
+            console.warn(GRAPH_EDITOR_WARNING + "未能设置背景色");
+        }
+    }
+     /**
+     * 
+     * @returns 获取背景色
+     */
+    getBackgroundColor() {
+        return this.backgroundRect.getAttr('fill');
+     }
 }

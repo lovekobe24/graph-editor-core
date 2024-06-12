@@ -50,7 +50,6 @@ class GeometryChange extends Change {
         for (let [node, attrValuesPairs] of this.attrValuesMap) {
             map.set(node, attrValuesPairs[flag ? 1 : 0]);
         }
-     
         this.dataModel.setAttributeValues(map,this.canvasAction);
     }
 

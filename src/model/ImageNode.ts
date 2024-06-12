@@ -67,8 +67,6 @@ export class ImageNode extends ShapeNode {
                         let imageObj = new Image();
                         imageObj.src = image;
                         this.ref.setAttr('image', imageObj);
-                    } else {
-                        // console.warn(GRAPH_EDITOR_WARNING+"节点未加入到Layer，不能渲染gif")
                     }
 
                 } else {

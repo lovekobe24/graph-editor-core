@@ -104,11 +104,9 @@ class BasePolylineShape extends AbstractShape {
 
         // 根据斜率来判断是什么样的直线
         if (k > -0.5 && k < 0.5) {
-            console.log("水平直线")
               //水平的直线
             return {x:point.x,y:oldPoint.y};
         } else if (k > 10 || k < -10) {
-            console.log("垂直直线")
             //垂直的直线
            return  {x:oldPoint.x, y:point.y};
         } else {

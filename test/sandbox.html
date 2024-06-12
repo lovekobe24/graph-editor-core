@@ -11,36 +11,36 @@
       margin: 0;
       width: 100vw;
       height: 100vh;
-     
+
     }
 
     #editor:focus {
       outline: none;
     }
-    #editor{
+
+    #editor {
       user-select: none;
     }
-   
   </style>
   <script
     src="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.js?spm=a313x.7781069.1998910419.53&file=font_3759154_f4x5ab2inh5.js"></script>
   <link rel="stylesheet"
     href="https://at.alicdn.com/t/c/font_3759154_f4x5ab2inh5.css?spm=a313x.7781069.1998910419.52&file=font_3759154_f4x5ab2inh5.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.css"
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.css"
     integrity="sha512-/JghmMAi5bleEgj1BT7h7Jm2+o4I4AbJYRVaY3eGGfdyTzV+yW3n0IedWH4ysbws5zpNK1beCqVJh0MSZxvNaA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
   <!-- 引入 layui.css -->
   <link href="//unpkg.com/layui@2.8.3/dist/css/layui.css" rel="stylesheet">
-  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"
+  <script src="./js/jquery.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"
     integrity="sha512-jhDajNRbXZ4gJ8SVzcuWTHbgSX66Dh98CwmAkhBHWVuEYVgY8G35rbZuRlQwrOcwEB6z5aYzxUptsSjgTGlCbA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="../umd/graph-editor.js"></script>
-  <script src="../umd/graph-viewer.js"></script>
- 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+  <!-- <script src="../umd/graph-editor.js"></script>
+  <script src="../umd/graph-viewer.js"></script> -->
+
   <!-- <script src="https://unpkg.com/graph-editor-core/umd/GraphEditor.js"></script> -->
   <!-- <script src="https://unpkg.com/graph-editor-core@1.0.25/umd/GraphViewer.js"></script> -->
-  <script src="//unpkg.com/layui@2.8.3/dist/layui.js"></script>
+  <script src="./js/layui.js"></script>
 </head>
 
 <body oncontextmenu="return false;">
@@ -93,6 +93,22 @@
     <button title="显示比例" id="zoom" class="layui-btn layui-btn-sm layui-btn-primary">150%</button>
     <button title="组成图元" id="constructSymbol" class="layui-btn layui-btn-sm layui-btn-primary">组成图元</button>
     <button title="编辑图元" id="deconstructSymbol" class="layui-btn layui-btn-sm layui-btn-primary">编辑图元</button>
+  </div>
+  <div>
+    <button title="锁" id="lockStage" class="layui-btn layui-btn-sm layui-btn-primary">锁</button>
+    <button title="开锁" id="unlockStage" class="layui-btn layui-btn-sm layui-btn-primary">开锁</button>
+    <button title="填充" id="cover" class="layui-btn layui-btn-sm layui-btn-primary">填充</button>
+    <button title="开锁" id="contain" class="layui-btn layui-btn-sm layui-btn-primary">适应</button>
+    <button title="开锁" id="normal" class="layui-btn layui-btn-sm layui-btn-primary">平铺</button>
+    <select id="hAlign">  
+      <option value="left">左对齐</option>  
+      <option value="right">右对齐</option>  
+      <option value="center">居中对齐</option> 
+    </select>
+    <button id="bgColorBtn" class="layui-btn layui-btn-sm layui-btn-primary">背景色</button>
+  </div>
+  <div>
+    
   </div>
   <div style="display: flex;">
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
@@ -345,7 +361,7 @@
         });
 
         let topDiv = document.createElement("div");
-       
+
         Utils.convertSymbolToImage(symbol, (img) => {
           console.log(img);
           img.style.width = '30px';
@@ -416,6 +432,11 @@
       localStorage.setItem('graph', graphEditor.toJSON());
 
     })
+    document.getElementById('bgColorBtn').addEventListener('click', () => {
+        graphEditor.setBackgroundColor("#00ff00");
+
+    })
+    
     document.getElementById('preview').addEventListener('click', (e) => {
       preview(e.target)
     })
@@ -448,6 +469,30 @@
       console.log(graphEditor.checkId());
       console.log(JSON.parse(graphEditor.toJSON()))
     })
+    document.getElementById('lockStage').addEventListener('click', (e) => {
+      graphEditor.setLocked(true);
+    })
+    document.getElementById('unlockStage').addEventListener('click', (e) => {
+      graphEditor.setLocked(false);
+    })
+    document.getElementById('cover').addEventListener('click', (e) => {
+      graphEditor.setFit("cover");
+    })
+    document.getElementById('contain').addEventListener('click', (e) => {
+      graphEditor.setFit("contain");
+    })
+    document.getElementById('normal').addEventListener('click', (e) => {
+      graphEditor.setFit("normal");
+    })
+    
+    document.getElementById('hAlign').addEventListener('click', (e) => {
+      let hAlign=document.getElementById('hAlign').value;
+      graphEditor.setHAlign(hAlign);
+    })
+
+    
+    
+    
 
     document.getElementById('autoPlayCheckBox').addEventListener('click', (e) => {
 
@@ -597,24 +642,15 @@
       if (target.innerHTML == '预览') {
 
         let currentGraph = graphEditor.toJSON();
+        console.log(currentGraph)
 
         let scale = graphEditor.getScale();
         graphEditor.clear();
-        // graphView = new GraphViewer(
-        //   {
-        //     container: document.getElementById('previewDiv'),
-        //   }
-        // );
-
-
         document.getElementById('editor').style.display = 'none';
         document.getElementById('previewDiv').style.display = 'block';
-
         graphView.setScale(scale);
-        console.log(currentGraph);
-
         graphView.setGraph(currentGraph);
-       // graphView.fitView(600,600);
+        // graphView.fitView(600,600);
 
         //注册鼠标事件
         // graphView.registerNodeMouseEvent({
@@ -669,7 +705,7 @@
           })(allNodes);
           //  console.log(variableJson);
           //  graphView.setGraphVariable(variableJson);
-          //  graphView.refreshGraph(variableJson);
+            graphView.refreshGraph(variableJson);
         }, 5000)
 
         target.innerHTML = '退出预览'
@@ -684,13 +720,13 @@
         // );
         document.getElementById('editor').style.display = 'block';
         document.getElementById('previewDiv').style.display = 'none';
-        graphEditor.setGraph(localStorage.getItem('graph'));
+        // graphEditor.setGraph(localStorage.getItem('graph'));
         target.innerHTML = '预览'
       }
 
     }
     let existGraph = localStorage.getItem('graph');
-    // graphEditor.setGraph(existGraph)
+    graphEditor.setGraph(existGraph)
 
 
     const initGraphViewer = () => {
@@ -715,22 +751,23 @@
           height: 60,
           strokeWidth: 2,
           stroke: 'red',
+          fill: 'green'
           // rotation:90
         }
       })
       graphEditor.setAttributeValue('rotation', 90);
       graphEditor.setAttributeValue('rotation', 0);
-      graphEditor.addNode({
-        className: 'EllipseNode',
-        attributes: {
-          x: 200,
-          y: 300,
-          radiusX: 60,
-          radiusY: 20,
-          strokeWidth: 2,
-          stroke: 'yellow'
-        }
-      })
+      // graphEditor.addNode({
+      //   className: 'EllipseNode',
+      //   attributes: {
+      //     x: 200,
+      //     y: 300,
+      //     radiusX: 60,
+      //     radiusY: 20,
+      //     strokeWidth: 2,
+      //     stroke: 'yellow'
+      //   }
+      // })
 
       graphEditor.addNode({
         className: 'EllipseNode',
@@ -744,17 +781,17 @@
           fill: 'green'
         }
       })
-      graphEditor.addNode({
-        className: 'CircleNode',
-        attributes: {
-          x: 300,
-          y: 100,
-          radius: 200,
-          strokeWidth: 2,
-          stroke: 'green',
-          fill: 'green'
-        }
-      })
+      // graphEditor.addNode({
+      //   className: 'CircleNode',
+      //   attributes: {
+      //     x: 300,
+      //     y: 100,
+      //     radius: 200,
+      //     strokeWidth: 2,
+      //     stroke: 'green',
+      //     fill: 'green'
+      //   }
+      // })
 
       graphEditor.addNode({
         className: 'TextNode',
@@ -812,34 +849,34 @@
       //       scaleX: 1.2
       //     }
       //   })
-      graphEditor.addNode(
-        {
-          className: 'LineNode',
-          attributes: {
-            x1: 0,
-            y1: 0,
-            x2: 100,
-            y2: 200,
-            strokeWidth: 4,
-            stroke: 'red',
-            draggable: true,
-            dash: [5, 10],
-            scaleX: 1.2
-          }
-        })
-       
+      // graphEditor.addNode(
+      //   {
+      //     className: 'LineNode',
+      //     attributes: {
+      //       x1: 10,
+      //       y1:10,
+      //       x2: 100,
+      //       y2: 200,
+      //       strokeWidth: 4,
+      //       stroke: 'red',
+      //       draggable: true,
+      //       dash: [5, 10],
+      //       scaleX: 1.2
+      //     }
+      //   })
+
       graphEditor.onModelChanged((sender, event) => {
         let nodes = event.getProperty('nodes');
         console.log(nodes);
         let eventName = event.getName();
         if (eventName == 'nodeAttributeChange') {
-           console.log("节点的属性改变了");
+          console.log("节点的属性改变了");
         } else if (eventName == 'nodeEventsChange') {
           console.log("节点绑定的事件改变了", event.getProperty('events'));
         } else if (eventName == 'nodeVariableChange') {
-      //    console.log("节点绑定的变量改变了", type);
+          //    console.log("节点绑定的变量改变了", type);
           let type = event.getProperty('type');
-      
+
           switch (type) {
             case 'add':
               break;
@@ -898,10 +935,22 @@
       // //调整显示比例
       // graphEditor.setScale(1.2);
 
-      graphEditor.setSize(500, 500);
+      graphEditor.setSize(400, 400);
+    
       //设置背景色
       graphEditor.setBackgroundColor("#ffff00");
+      //设置适应方式-平铺
+     // graphEditor.setFit("normal");
+      //设置适应方式-适应
+      graphEditor.setFit("contain");
+     // graphEditor.setHAlign("right");
+      graphEditor.setHAlign("center");
+      graphEditor.setVAlign("bottom");
+     // graphEditor.setHAlign("left");
+      //设置适应方式-填充
+     // graphEditor.setFit("cover");
       console.log(graphEditor.getBackgroundColor());
+    //  graphEditor.fitContent(10,10,10,10);
 
       // //添加变量
       graphEditor.addVariable('state', {
@@ -919,7 +968,7 @@
 
         linkInfo: null
       }, ids[0]);
-    
+
       console.log(graphEditor.getVariable('变量3', ids[0]));
 
       // graphEditor.deleteVariable('变量3');
@@ -951,7 +1000,7 @@
 
       // //添加动画
       selectNodes = graphEditor.getSelection();
-      console.log("selectNodes is",selectNodes);
+      console.log("selectNodes is", selectNodes);
 
 
       graphEditor.getAnimation();
@@ -981,7 +1030,7 @@
       // //设置背景色
       // graphEditor.setBackgroundColor('black');
       // graphEditor.deleteNodes();
-     
+
       // graphEditor.addEvent({
       //   type: 'valuechange',
       //   action: 'changeAttributes',
@@ -997,17 +1046,17 @@
       //     }
       //   }]
       // }, ids[0])
-      graphEditor.addEvent({
-        type: 'valuechange',
-        action: 'changeAttributes',
-        attributes: {
-          'fill': 'rgba(0,0,0,1)'
-        },
-        triggers: [{
-          type: 'script',
-          script: 'viewer.setNodeAttribute(node,"stroke","green"); return state==0'
-        }]
-      }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'changeAttributes',
+      //   attributes: {
+      //     'fill': 'rgba(0,0,0,1)'
+      //   },
+      //   triggers: [{
+      //     type: 'script',
+      //     script: 'viewer.setNodeAttribute(node,"stroke","green"); return state==0'
+      //   }]
+      // }, ids[0])
 
       // graphEditor.addEvent({
       //   "type": "valuechange",
@@ -1053,36 +1102,41 @@
       //         viewer.setNodeAttribute(node,'stroke','#cccccc');
       //         viewer.setNodeAttribute(node,'fill','none');
 
-      let scriptStr = `
-      switch(state){
-        case 1:
-           viewer.setNodeAttribute(node,'stroke','#00ff00');
-           viewer.setNodeAttribute(node,'fill','#00ff00');
-           break;
-           case 2:
-            viewer.setNodeAttribute(node,'fill','#ff0000');
-            viewer.setNodeAttribute(node,'stroke','#ff0000');
-            break;
-           default:
-              viewer.setNodeAttribute(node,'stroke','#cccccc');
-              viewer.setNodeAttribute(node,'fill','');
-        break;
-      }
-      `
+      // let scriptStr = `
+      // switch(state){
+      //   case 1:
+      //      viewer.setNodeAttribute(node,'stroke','#00ff00');
+      //      viewer.setNodeAttribute(node,'fill','#00ff00');
+      //      break;
+      //      case 2:
+      //       viewer.setNodeAttribute(node,'fill','#ff0000');
+      //       viewer.setNodeAttribute(node,'stroke','#ff0000');
+      //       break;
+      //      default:
+      //         viewer.setNodeAttribute(node,'stroke','#cccccc');
+      //         viewer.setNodeAttribute(node,'fill','');
+      //   break;
+      // }
+      // `
 
-      graphEditor.addEvent({
-        type: 'valuechange',
-        action: 'executeScript',
-        script: scriptStr
-      }, ids[0]);
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'executeScript',
+      //   script: scriptStr
+      // }, ids[0]);
 
 
       //单击启动动画
-      graphEditor.addEvent({
-        type: 'click',
-        action: 'updateAnimation',
-        animation:true
-      }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'click',
+      //   action: 'updateAnimation',
+      //   animation:true
+      // }, ids[0])
+      // graphEditor.addEvent({
+      //   type: 'click',
+      //   action: 'executeScript',
+      //   script: ''
+      // }, ids[0])
       // graphEditor.addEventTrigger(0, {
       //   type: 'script',
       //   script: 'return state==3'
@@ -1119,15 +1173,15 @@
       //   script: 'console.log("world,balalabalabanabbl")'
       // }, ids[0])
       //单击更改属性
-      // graphEditor.addEvent({
-      //   type: 'click',
-      //   action: 'changeAttributes',
-      //   value: [{
-      //     name: 'fill', val: 'rgba(255,255,0,1)'
-      //   }],
-      // }, ids[0])
-     
-   
+      graphEditor.addEvent({
+        type: 'click',
+        action: 'changeAttributes',
+        attributes: {
+           "fill": "#b92d2d"
+        },
+      }, ids[0])
+
+
       graphEditor.order('top');
       // console.log(graphEditor.getStyleConfig());
       // console.log(graphEditor.getGridConfig());
@@ -1153,7 +1207,7 @@
       graphEditor = new GraphEditor(
         {
           container: document.getElementById('editor'),
-          // graph: existGraph,
+         // graph: existGraph,
           view: {
             transformer: {
               anchorSize: 6
@@ -1175,20 +1229,20 @@
           }
         }
       );
-      console.log(existGraph);
-     // graphEditor.setGraph(existGraph);
+      //  console.log(existGraph);
+      // graphEditor.setGraph(existGraph);
       //创建监听
       graphEditor.onSelectionChanged((sender, event) => {
         let selectedNodes = event.getProperty('nodes');
-        console.log("onSelectionChanged", selectedNodes);
+        //  console.log("onSelectionChanged", selectedNodes);
       })
       graphEditor.onFnStateChanged((sender, event) => {
-        console.log("改变菜单的状态");
-        console.log(graphEditor.getFnState());
+        //  console.log("改变菜单的状态");
+        //  console.log(graphEditor.getFnState());
         let menuState = graphEditor.getFnState();
         for (let [key, value] of menuState) {
           let enabled = value;
-          let menuItem=document.getElementById(key);
+          let menuItem = document.getElementById(key);
           if (menuItem) {
             if (enabled) {
               menuItem.classList.remove('layui-btn-disabled');
@@ -1211,7 +1265,7 @@
         for (let i = 0; i < buttons.length; i++) {
 
           let innerHTML = buttons[i].innerHTML;
-          console.log(innerHTML);
+          // console.log(innerHTML);
           if (fnState.has(innerHTML)) {
             let state = fnState.get(innerHTML);
             if (state) {
@@ -1243,9 +1297,9 @@
 
       }
 
-       addSimpleNodeToEditor();
-     //  graphEditor.fitView(1200,800);
-    //   graphEditor.setScale(1);
+    addSimpleNodeToEditor();
+      //  graphEditor.fitView(1200,800);
+      //   graphEditor.setScale(1);
       graphEditor.onSelectionChanged((sender, event) => {
         menuNode.style.display = 'none';
         let selectedNodes = event.getProperty('nodes');
@@ -1351,7 +1405,7 @@
     const initVariablePanel = (node) => {
       let variables = node.variables;
       if (variables) {
-        editor.set(variables)
+        // editor.set(variables)
       }
 
     }
@@ -1368,7 +1422,7 @@
         document.getElementById('autoPlayCheckBox').value = false
       }
     }
-   initGraphEditor()
+    initGraphEditor()
     //initGraphViewer()
   </script>
 </body>

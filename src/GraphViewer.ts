@@ -2,7 +2,7 @@
 import Konva from "konva";
 
 import EVENT_TYPE from './constants/EventType';
-import { COMPARISON, CHANGE_ATTRS_ACTION, EXECUTE_SCRIPT_ACTION, VALUE_UPDATE_EVT_TYPE, MOUSE_CLICK_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE, SCRIPT, UPDATE_ANIMATION_ACTION, EVENT_TRIGGERS } from './constants/TemcConstants';
+import { COMPARISON, CHANGE_ATTRS_ACTION, EXECUTE_SCRIPT_ACTION, VALUE_UPDATE_EVT_TYPE, MOUSE_CLICK_EVT_TYPE, GRAPH_EDITOR_WARNING, MOUSE_DBL_CLICK_EVT_TYPE, MOUSE_LEAVE_EVT_TYPE, MOUSE_ENTER_EVT_TYPE, SCRIPT, UPDATE_ANIMATION_ACTION, EVENT_TRIGGERS, NORMAL_FIT, COVER_FIT, CONTAIN_FIT, LEFT_ALIGN, RIGHT_ALIGN, CENTER_ALIGN, TOP_ALIGN, BOTTOM_ALIGN } from './constants/TemcConstants';
 import { DataModel } from './DataModel';
 import { ContainerNode, ContainerNodeAttrs } from './model/ContainerNode';
 import { defaultConfig } from "./DefaultConfig";
@@ -22,19 +22,56 @@ export default class GraphViewer extends GraphManager {
         this.width = defaultConfig.view.size.width;
         this.height = defaultConfig.view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
+        this.backgroundRect = new Konva.Rect({ fill: 'none',width:this.width,height:this.height})
+        this.backgroundColorLayer.add(this.backgroundRect);
+        this.stage.add(this.backgroundColorLayer);
         this.stage.add(this.nodeLayer);
         this.dataModel = new DataModel(this);
         this.addDataModelListeners();
         if (this.config.graph) {
             this.setGraph(this.config.graph)
         }
-
+        this.initZoomEvt();
         this.initStageDrag();
+
+    }
+    initZoomEvt() {
+        var scaleBy = 1.01;
+        this.stage.on('wheel', (e) => {
+            // stop default scrolling
+            e.evt.preventDefault();
+
+            var oldScale = _this.stage.scaleX();
+            var pointer = _this.stage.getPointerPosition();
+
+            var mousePointTo = {
+                x: (pointer.x - _this.stage.x()) / oldScale,
+                y: (pointer.y - _this.stage.y()) / oldScale,
+            };
+
+            // how to scale? Zoom in? Or zoom out?
+            let direction = e.evt.deltaY > 0 ? 1 : -1;
+
+            // when we zoom on trackpad, e.evt.ctrlKey is true
+            // in that case lets revert direction
+            if (e.evt.ctrlKey) {
+                direction = -direction;
+            }
+
+            var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+            _this.stage.scale({ x: newScale, y: newScale });
+
+            var newPos = {
+                x: pointer.x - mousePointTo.x * newScale,
+                y: pointer.y - mousePointTo.y * newScale,
+            };
+            _this.stage.position(newPos);
+        });
     }
 
     initStageDrag() {
-        let _this=this;
-        this.stage.setAttr("draggable", true);
+        let _this = this;
         this.stage.on('dragstart', (e: any) => {
             this.dataModel?.getNodes().forEach((node: Node) => {
                 let autoPlay = node.getAnimationValue('autoPlay');
@@ -53,38 +90,7 @@ export default class GraphViewer extends GraphManager {
             })
 
         });
-        var scaleBy = 1.01;
-        this.stage.on('wheel', (e) => {
-            // stop default scrolling
-            e.evt.preventDefault();
-    
-            var oldScale = _this.stage.scaleX();
-            var pointer = _this.stage.getPointerPosition();
-    
-            var mousePointTo = {
-              x: (pointer.x - _this.stage.x()) / oldScale,
-              y: (pointer.y - _this.stage.y()) / oldScale,
-            };
-    
-            // how to scale? Zoom in? Or zoom out?
-            let direction = e.evt.deltaY > 0 ? 1 : -1;
-    
-            // when we zoom on trackpad, e.evt.ctrlKey is true
-            // in that case lets revert direction
-            if (e.evt.ctrlKey) {
-              direction = -direction;
-            }
-    
-            var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-    
-            _this.stage.scale({ x: newScale, y: newScale });
-    
-            var newPos = {
-              x: pointer.x - mousePointTo.x * newScale,
-              y: pointer.y - mousePointTo.y * newScale,
-            };
-            _this.stage.position(newPos);
-        });
+
     }
 
 
@@ -176,8 +182,8 @@ export default class GraphViewer extends GraphManager {
         }
         return variableJson;
     }
-    private isEffective(obj){
-        return Utils.is(obj,'number') || Utils.is(obj,'string') || Utils.is(obj,'number')
+    private isEffective(obj) {
+        return Utils.is(obj, 'number') || Utils.is(obj, 'string') || Utils.is(obj, 'number')
     }
     /**
      * 根据条件生成函数体
@@ -185,7 +191,7 @@ export default class GraphViewer extends GraphManager {
      * @returns 
      */
     private getFnByWhen(trigger: any) {
-        let _this=this;
+        let _this = this;
         let type = trigger.type;
         let fn;
         switch (type) {
@@ -265,8 +271,18 @@ export default class GraphViewer extends GraphManager {
         super.setGraph(graphContent);
         this.dataModel?.getNodes().forEach((node: Node) => {
             node.setAttributeValue("draggable", false);
-            node.setAttributeValue("listening", false);
+            //这句不能要，不然会造成事件不响应了
+            //node.setAttributeValue("listening", false);
         })
+      
+        //如果被锁定，则stage不能拖拽
+        if (this.locked) {
+            this.stage.setAttr("draggable", false);
+        } else {
+            this.stage.setAttr("draggable", true);
+        }
+        this.fitCanvas();
+        this.alignCanvas();
         this.parseMouseEventNode();
         this.refreshGraph();
     }
@@ -292,11 +308,6 @@ export default class GraphViewer extends GraphManager {
                 let properties = event.attributes;
                 if (properties) {
                     if (isSuccess) {
-                        // properties.forEach((prop: any) => {
-                        //     jsonObj[prop.name] = prop.val;
-                        //     //如果使用node的方法，则不能正确的为组元素的属性赋值
-                        //     //node.setAttributeValue(prop.name, prop.val);
-                        // })
                         this.setAttribute(node, properties);
                     } else {
                         //从单个事件来讲不能条件不成功就退到初始状态，因为可以前面的事件满足了，已经设置过改属性了，事件中本身可能就有冲突的逻辑，按照事件次序依次执行即可，条件必须涵盖所有取值情况
@@ -345,7 +356,7 @@ export default class GraphViewer extends GraphManager {
     }
 
     private changeNodeByEventOnce(node: any, variableJson: any, ownVariable: boolean) {
-      
+
         let _this = this;
         //是不是可以不用
         // if (ownVariable) {
@@ -364,8 +375,8 @@ export default class GraphViewer extends GraphManager {
                     if (fnJs) {
                         let keys = Object.keys(variableJson);
                         let values = Object.values(variableJson);
-                        let executeFn = new Function('viewer', 'node',...keys, fnJs);
-                        isSuccess = executeFn(this, node,...values);
+                        let executeFn = new Function('viewer', 'node', ...keys, fnJs);
+                        isSuccess = executeFn(this, node, ...values);
                         if (typeof isSuccess != 'boolean') {
                             isSuccess = false;
                         }
@@ -416,7 +427,7 @@ export default class GraphViewer extends GraphManager {
             } else {
                 variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             }
-        
+
             //variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
             let symbolMembers = node.getMembers() ? node.getMembers() : [];
             symbolMembers.forEach((element: any) => {
@@ -444,7 +455,7 @@ export default class GraphViewer extends GraphManager {
      * })
      */
     refreshGraph(realTimeVariableJson?: any) {
-      
+
         this.realTimeVariableJson = realTimeVariableJson ? realTimeVariableJson : {};
         if (this.dataModel) {
             this.dataModel.nodes.forEach((node: any) => {
@@ -468,6 +479,7 @@ export default class GraphViewer extends GraphManager {
         }
     }
     private bindEventToNode(node: any) {
+
         let _this = this;
         let events = node.getEvents();
         events.forEach((event: any) => {
@@ -539,7 +551,76 @@ export default class GraphViewer extends GraphManager {
         }
         return additionalInfo;
     }
+    fitCanvas() {
+        let fit=this.fit;
+        let containerWidth = parseInt(this.config.container?.style.width.split('px')[0]);
+        let containerHeight = parseInt(this.config.container?.style.height.split('px')[0]);
+      
+        let scaleX = containerWidth / this.width;
+        let scaleY = containerHeight / this.height;
+      
+        switch (fit) {
+            case COVER_FIT:
+                if (scaleX > scaleY) {
+                    this.stage?.scaleX(scaleX);
+                    this.stage?.scaleY(scaleX);
+                    this.stage?.setAttr('width', this.width * scaleX);
+                    this.stage?.setAttr('height', this.height * scaleX);
+                } else {
+                    this.stage?.scaleX(scaleY);
+                    this.stage?.scaleY(scaleY);
+                    this.stage?.setAttr('width', this.width * scaleY);
+                    this.stage?.setAttr('height', this.height * scaleY);
+                }
+                break;
+            case CONTAIN_FIT:
+                if (scaleX > scaleY) {
+                    this.stage?.scaleX(scaleY);
+                    this.stage?.scaleY(scaleY);
+                    this.stage?.setAttr('width', this.width * scaleY);
+                    this.stage?.setAttr('height', this.height * scaleY);
+                } else {
+                    this.stage?.scaleX(scaleX);
+                    this.stage?.scaleY(scaleX);
+                    this.stage?.setAttr('width', this.width * scaleX);
+                    this.stage?.setAttr('height', this.height * scaleX);
+                }
 
+                break;
+        }
+    }
 
-
+    alignCanvas() {
+        let hAlign = this.hAlign;
+        let vAlign = this.vAlign;
+        let contentContainer = this.stage!.container().querySelector('.konvajs-content');
+        let containerWidth = parseInt(this.config.container?.style.width.split('px')[0]);
+        let containerHeight = parseInt(this.config.container?.style.height.split('px')[0]);
+        let stageWidth =  this.stage?.getAttr('width');
+        let stageHeight =  this.stage?.getAttr('height');
+        switch (hAlign) {
+            case LEFT_ALIGN:
+                break;
+            case RIGHT_ALIGN:
+                let xPos=containerWidth - stageWidth;
+                contentContainer.style.left=xPos+"px";
+                break;
+            case CENTER_ALIGN:
+                if (containerWidth > stageWidth) {
+                    contentContainer.style.left=(containerWidth - stageWidth) / 2+"px";
+                }
+                break;
+        }
+        switch(vAlign){
+            case BOTTOM_ALIGN:
+                let yPos=containerHeight - stageHeight;
+                contentContainer.style.top=yPos+"px";
+                break;
+            case CENTER_ALIGN:
+                if(containerHeight>stageHeight){
+                    contentContainer.style.top=(containerHeight - stageHeight) / 2+"px";
+                }
+                break;
+        }
+    }
 }
