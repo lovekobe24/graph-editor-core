@@ -183,7 +183,7 @@ export default class GraphViewer extends GraphManager {
         return variableJson;
     }
     private isEffective(obj) {
-        return Utils.is(obj, 'number') || Utils.is(obj, 'string') || Utils.is(obj, 'number')
+        return Utils.is(obj, 'number') || Utils.is(obj, 'string') || Utils.is(obj, 'boolean')
     }
     /**
      * 根据条件生成函数体
@@ -204,7 +204,6 @@ export default class GraphViewer extends GraphManager {
                     let compStr = this.getCompStr(operation['source'], operation['operator'], operation['target']);
                     fn = "return " + compStr
                 }
-
                 break;
         }
         return fn;
@@ -218,6 +217,9 @@ export default class GraphViewer extends GraphManager {
      */
     private getCompStr(key: string, comparison: string, value: any) {
         let compStr;
+        if(Utils.is(value,'string')){
+            value="'"+value+"'"
+        }
         switch (comparison) {
             case "=":
                 compStr = key + "==" + value;
@@ -465,7 +467,6 @@ export default class GraphViewer extends GraphManager {
                 } else {
                     variableJson = this.getVariableJson(Utils.deepCopy(node.getVariables()));
                 }
-
                 this.changeNodeByEvent(node, variableJson, true);
             })
         }

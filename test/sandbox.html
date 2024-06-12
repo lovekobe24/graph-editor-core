@@ -100,15 +100,15 @@
     <button title="填充" id="cover" class="layui-btn layui-btn-sm layui-btn-primary">填充</button>
     <button title="开锁" id="contain" class="layui-btn layui-btn-sm layui-btn-primary">适应</button>
     <button title="开锁" id="normal" class="layui-btn layui-btn-sm layui-btn-primary">平铺</button>
-    <select id="hAlign">  
-      <option value="left">左对齐</option>  
-      <option value="right">右对齐</option>  
-      <option value="center">居中对齐</option> 
+    <select id="hAlign">
+      <option value="left">左对齐</option>
+      <option value="right">右对齐</option>
+      <option value="center">居中对齐</option>
     </select>
     <button id="bgColorBtn" class="layui-btn layui-btn-sm layui-btn-primary">背景色</button>
   </div>
   <div>
-    
+
   </div>
   <div style="display: flex;">
     <div class="layui-tab" lay-filter="test-hash" style="border:1px solid gray;">
@@ -433,10 +433,10 @@
 
     })
     document.getElementById('bgColorBtn').addEventListener('click', () => {
-        graphEditor.setBackgroundColor("#00ff00");
+      graphEditor.setBackgroundColor("#00ff00");
 
     })
-    
+
     document.getElementById('preview').addEventListener('click', (e) => {
       preview(e.target)
     })
@@ -484,15 +484,15 @@
     document.getElementById('normal').addEventListener('click', (e) => {
       graphEditor.setFit("normal");
     })
-    
+
     document.getElementById('hAlign').addEventListener('click', (e) => {
-      let hAlign=document.getElementById('hAlign').value;
+      let hAlign = document.getElementById('hAlign').value;
       graphEditor.setHAlign(hAlign);
     })
 
-    
-    
-    
+
+
+
 
     document.getElementById('autoPlayCheckBox').addEventListener('click', (e) => {
 
@@ -623,6 +623,14 @@
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+    function getRandomBoolean() {
+      let random = Math.random();
+      if (random > 0.5) {
+        return true;
+      } else {
+        return false;
+      }
+    }
     let timer;
     graphView = new GraphViewer(
       {
@@ -693,8 +701,15 @@
               let className = node.className;
               let varJson = {};
               let variables = node.variables;
+              //变量必须同时有，因为没有判断没有的情况，因为有可能空值也有一定的事件
               for (let key in variables) {
-                varJson[key] = getRandomInt(1, 3)
+                if (variables[key].type == 'integer') {
+                  varJson[key] = getRandomInt(1, 3)
+                } else if (variables[key].type == 'boolean') {
+                  varJson[key] = getRandomBoolean()
+                }else if(variables[key].type == 'string'){
+                  varJson[key] = 'stop111';
+                }
               }
               variableJson[node.id] = varJson;
               //图元将不再遍历
@@ -703,9 +718,9 @@
               }
             }
           })(allNodes);
-          //  console.log(variableJson);
+            console.log(variableJson);
           //  graphView.setGraphVariable(variableJson);
-            graphView.refreshGraph(variableJson);
+          graphView.refreshGraph(variableJson);
         }, 5000)
 
         target.innerHTML = '退出预览'
@@ -867,12 +882,12 @@
 
       graphEditor.onModelChanged((sender, event) => {
         let nodes = event.getProperty('nodes');
-        console.log(nodes);
+
         let eventName = event.getName();
         if (eventName == 'nodeAttributeChange') {
-          console.log("节点的属性改变了");
+          //console.log("节点的属性改变了");
         } else if (eventName == 'nodeEventsChange') {
-          console.log("节点绑定的事件改变了", event.getProperty('events'));
+          //console.log("节点绑定的事件改变了", event.getProperty('events'));
         } else if (eventName == 'nodeVariableChange') {
           //    console.log("节点绑定的变量改变了", type);
           let type = event.getProperty('type');
@@ -886,9 +901,9 @@
               break;
           }
         } else if (eventName == 'nodeAnimationChange') {
-          console.log("动画属性改变了", event.getProperty('animation'));
+          //  console.log("动画属性改变了", event.getProperty('animation'));
         } else if (eventName == 'modelVariableChange') {
-          console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
+          //  console.log("数据模型上绑定的变量发生编号", event.getProperty('variable'));
           let type = event.getProperty('type');
           switch (type) {
             case 'add':
@@ -936,21 +951,21 @@
       // graphEditor.setScale(1.2);
 
       graphEditor.setSize(400, 400);
-    
+
       //设置背景色
       graphEditor.setBackgroundColor("#ffff00");
       //设置适应方式-平铺
-     // graphEditor.setFit("normal");
+      // graphEditor.setFit("normal");
       //设置适应方式-适应
       graphEditor.setFit("contain");
-     // graphEditor.setHAlign("right");
+      // graphEditor.setHAlign("right");
       graphEditor.setHAlign("center");
       graphEditor.setVAlign("bottom");
-     // graphEditor.setHAlign("left");
+      // graphEditor.setHAlign("left");
       //设置适应方式-填充
-     // graphEditor.setFit("cover");
+      // graphEditor.setFit("cover");
       console.log(graphEditor.getBackgroundColor());
-    //  graphEditor.fitContent(10,10,10,10);
+      //  graphEditor.fitContent(10,10,10,10);
 
       // //添加变量
       graphEditor.addVariable('state', {
@@ -1020,8 +1035,16 @@
 
       graphEditor.setAnimation({
         'type': 'rotateByCenter',
-        'autoPlay': true,
+        'autoPlay': false,
         'period': 20
+      }, ids[0]);
+      graphEditor.addVariable('stop', {
+        type: 'boolean',
+        defaultVal: true
+      }, ids[0]);
+      graphEditor.addVariable('stopStr', {
+        type: 'string',
+        defaultVal: 'stop'
       }, ids[0]);
 
       // graphEditor.setAnimation('type','rotateByCenter',selectNodes[0].id);
@@ -1056,6 +1079,100 @@
       //     type: 'script',
       //     script: 'viewer.setNodeAttribute(node,"stroke","green"); return state==0'
       //   }]
+      // }, ids[0])
+      //stop的布尔值添加事件
+      let scriptStr = `
+      if(stop){
+        viewer.setNodeAttribute(node,'fill','#000000');
+      }else{
+        viewer.setNodeAttribute(node,'fill','#ffcc90');
+      }
+      `
+      // graphEditor.addEvent({
+      //   type: 'valuechange',
+      //   action: 'executeScript',
+      //   script: scriptStr
+      // }, ids[0])
+      //使用触发器的方法，添加布尔变量的
+      // graphEditor.addEvent({
+      //   "type": "valuechange",
+      //   "action": "changeAttributes",
+      //   "attributes": {
+      //     'fill': 'rgba(0,0,0,1)'
+      //   },
+      //   "animation": true,
+      //   "script": "",
+      //   "triggers": [
+      //     {
+      //       "type": "operation",
+      //       "operation": {
+      //         "source": "stop",
+      //         "operator": "=",
+      //         "target": false
+      //       },
+      //       "script": ""
+      //     }
+      //   ]
+      // }, ids[0])
+      graphEditor.addEvent({
+        "type": "valuechange",
+        "action": "changeAttributes",
+        "attributes": {
+          'fill': 'rgba(0,0,0,1)'
+        },
+        "animation": true,
+        "script": "",
+        "triggers": [
+          {
+            "type": "operation",
+            "operation": {
+              "source": "stopStr",
+              "operator": "=",
+              "target": "stop"
+            },
+            "script": ""
+          }
+        ]
+      }, ids[0])
+      graphEditor.addEvent({
+        "type": "valuechange",
+        "action": "changeAttributes",
+        "attributes": {
+          'fill': 'rgba(255,89,0,1)'
+        },
+        "animation": true,
+        "script": "",
+        "triggers": [
+          {
+            "type": "operation",
+            "operation": {
+              "source": "stopStr",
+              "operator": "!=",
+              "target": "stop"
+            },
+            "script": ""
+          }
+        ]
+      }, ids[0])
+      // graphEditor.addEvent({
+      //   "type": "valuechange",
+      //   "action": "changeAttributes",
+      //   "attributes": {
+      //     'fill': 'rgba(255,89,0,1)'
+      //   },
+      //   "animation": true,
+      //   "script": "",
+      //   "triggers": [
+      //     {
+      //       "type": "operation",
+      //       "operation": {
+      //         "source": "stop",
+      //         "operator": "!=",
+      //         "target": false
+      //       },
+      //       "script": ""
+      //     }
+      //   ]
       // }, ids[0])
 
       // graphEditor.addEvent({
@@ -1177,7 +1294,7 @@
         type: 'click',
         action: 'changeAttributes',
         attributes: {
-           "fill": "#b92d2d"
+          "fill": "#b92d2d"
         },
       }, ids[0])
 
@@ -1207,7 +1324,7 @@
       graphEditor = new GraphEditor(
         {
           container: document.getElementById('editor'),
-         // graph: existGraph,
+          // graph: existGraph,
           view: {
             transformer: {
               anchorSize: 6
@@ -1297,7 +1414,7 @@
 
       }
 
-    addSimpleNodeToEditor();
+      addSimpleNodeToEditor();
       //  graphEditor.fitView(1200,800);
       //   graphEditor.setScale(1);
       graphEditor.onSelectionChanged((sender, event) => {
