@@ -2648,6 +2648,8 @@ export default class GraphEditor extends GraphManager {
         let newHeight=contentSize.height+bottomMargin+topMargin;
         this.setSize(newWidth,newHeight);
     }
+
+   
    
 
 }

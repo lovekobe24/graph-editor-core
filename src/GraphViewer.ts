@@ -15,6 +15,8 @@ import { GroupNode, SymbolNode } from "./index.all";
 export default class GraphViewer extends GraphManager {
 
     eventToRealTimeInfo: any = new Map();
+    //运行态上下文
+    ctx:any;
     constructor(config: ViewerConfig) {
         super(config);
         this.config = config;
@@ -202,7 +204,6 @@ export default class GraphViewer extends GraphManager {
                 let operation = trigger[COMPARISON]
                 if (operation['source'] && operation['operator'] && _this.isEffective(operation['target'])) {
                     let compStr = this.getCompStr(operation['source'], operation['operator'], operation['target']);
-                    console.log(compStr);
                     fn = "return " + compStr
                 }
                 break;
@@ -357,8 +358,8 @@ export default class GraphViewer extends GraphManager {
                 //执行脚本需要传递node和data两个参数
                 let keys = Object.keys(variableJson);
                 let values = Object.values(variableJson);
-                let executeFn = new Function('viewer', 'node', ...keys, val);
-                executeFn(this, node, ...values);
+                let executeFn = new Function('viewer', 'node','ctx', ...keys, val);
+                executeFn(this, node,this.ctx, ...values);
                 break;
         }
 
@@ -630,5 +631,8 @@ export default class GraphViewer extends GraphManager {
                 }
                 break;
         }
+    }
+    setContext(ctx){
+        this.ctx=ctx;
     }
 }
