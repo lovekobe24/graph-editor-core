@@ -106,6 +106,8 @@
       <option value="center">居中对齐</option>
     </select>
     <button id="bgColorBtn" class="layui-btn layui-btn-sm layui-btn-primary">背景色</button>
+    <button id="flipX" class="layui-btn layui-btn-sm layui-btn-primary">FlipX</button>
+    <button id="flipY" class="layui-btn layui-btn-sm layui-btn-primary">FlipY</button>
   </div>
   <div>
 
@@ -489,6 +491,13 @@
       let hAlign = document.getElementById('hAlign').value;
       graphEditor.setHAlign(hAlign);
     })
+    document.getElementById('flipX').addEventListener('click', (e) => {
+      graphEditor.flip('x');
+    })
+    document.getElementById('flipY').addEventListener('click', (e) => {
+      graphEditor.flip('y');
+    })
+    
 
 
 
@@ -741,7 +750,10 @@
 
     }
     let existGraph = localStorage.getItem('graph');
-    graphEditor.setGraph(existGraph)
+    if(existGraph){
+       graphEditor.setGraph(existGraph)
+    }
+
 
 
     const initGraphViewer = () => {
@@ -955,12 +967,12 @@
       //设置背景色
       graphEditor.setBackgroundColor("#ffff00");
       //设置适应方式-平铺
-      // graphEditor.setFit("normal");
+       graphEditor.setFit("normal");
       //设置适应方式-适应
-      graphEditor.setFit("contain");
-      // graphEditor.setHAlign("right");
-      graphEditor.setHAlign("center");
-      graphEditor.setVAlign("bottom");
+     // graphEditor.setFit("contain");
+       graphEditor.setHAlign("right");
+      // graphEditor.setHAlign("center");
+      // graphEditor.setVAlign("bottom");
       // graphEditor.setHAlign("left");
       //设置适应方式-填充
       // graphEditor.setFit("cover");
@@ -1324,7 +1336,7 @@
       graphEditor = new GraphEditor(
         {
           container: document.getElementById('editor'),
-          // graph: existGraph,
+         //  graph: existGraph,
           view: {
             transformer: {
               anchorSize: 6
@@ -1414,7 +1426,7 @@
 
       }
 
-      addSimpleNodeToEditor();
+     addSimpleNodeToEditor();
       //  graphEditor.fitView(1200,800);
       //   graphEditor.setScale(1);
       graphEditor.onSelectionChanged((sender, event) => {
@@ -1539,7 +1551,9 @@
         document.getElementById('autoPlayCheckBox').value = false
       }
     }
-    initGraphEditor()
+    initGraphEditor();
+    console.log(graphEditor.getSize());
+    graphEditor.setSize(2000,2000)
     //initGraphViewer()
   </script>
 </body>

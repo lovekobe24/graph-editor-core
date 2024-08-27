@@ -16,7 +16,7 @@ export default class GraphViewer extends GraphManager {
 
     eventToRealTimeInfo: any = new Map();
     //运行态上下文
-    ctx:any;
+    ctx: any;
     constructor(config: ViewerConfig) {
         super(config);
         this.config = config;
@@ -24,7 +24,7 @@ export default class GraphViewer extends GraphManager {
         this.width = defaultConfig.view.size.width;
         this.height = defaultConfig.view.size.height;
         this.stage = new Konva.Stage({ container: config.container, width: this.width, height: this.height } as Konva.StageConfig);
-        this.backgroundRect = new Konva.Rect({ fill: 'none',width:this.width,height:this.height})
+        this.backgroundRect = new Konva.Rect({ fill: 'none', width: this.width, height: this.height })
         this.backgroundColorLayer.add(this.backgroundRect);
         this.stage.add(this.backgroundColorLayer);
         this.stage.add(this.nodeLayer);
@@ -219,8 +219,8 @@ export default class GraphViewer extends GraphManager {
      */
     private getCompStr(key: string, comparison: string, value: any) {
         let compStr;
-        if(Utils.is(value,'string')){
-            value="'"+value+"'"
+        if (Utils.is(value, 'string')) {
+            value = "'" + value + "'"
         }
         switch (comparison) {
             case "=":
@@ -242,10 +242,10 @@ export default class GraphViewer extends GraphManager {
                 compStr = key + "!=" + value;
                 break;
             case "includes":
-                compStr = key+".includes("+value+")";
+                compStr = key + ".includes(" + value + ")";
                 break;
             case "notIncludes":
-                compStr = "!"+key+".includes("+value+")";
+                compStr = "!" + key + ".includes(" + value + ")";
                 break;
         }
         return compStr;
@@ -284,7 +284,7 @@ export default class GraphViewer extends GraphManager {
             //这句不能要，不然会造成事件不响应了
             //node.setAttributeValue("listening", false);
         })
-      
+
         //如果被锁定，则stage不能拖拽
         if (this.locked) {
             this.stage.setAttr("draggable", false);
@@ -358,8 +358,8 @@ export default class GraphViewer extends GraphManager {
                 //执行脚本需要传递node和data两个参数
                 let keys = Object.keys(variableJson);
                 let values = Object.values(variableJson);
-                let executeFn = new Function('viewer', 'node','ctx', ...keys, val);
-                executeFn(this, node,this.ctx, ...values);
+                let executeFn = new Function('viewer', 'node', 'ctx', ...keys, val);
+                executeFn(this, node, this.ctx, ...values);
                 break;
         }
 
@@ -561,15 +561,22 @@ export default class GraphViewer extends GraphManager {
         return additionalInfo;
     }
     fitCanvas() {
-        let fit=this.fit;
-        let containerWidth = parseInt(this.config.container?.style.width.split('px')[0]);
-        let containerHeight = parseInt(this.config.container?.style.height.split('px')[0]);
-      
+        let fit = this.fit;
+        let containerWidth = this.config.container?.clientWidth;
+        let containerHeight = this.config.container?.clientHeight;
+
         let scaleX = containerWidth / this.width;
         let scaleY = containerHeight / this.height;
-      
+
         switch (fit) {
+            case NORMAL_FIT:
+                // this.stage?.scaleX(1);
+                // this.stage?.scaleY(1);
+                // this.stage?.setAttr('width', this.width);
+                // this.stage?.setAttr('height', this.height);
+                break;
             case COVER_FIT:
+                console.log("excute cover fit")
                 if (scaleX > scaleY) {
                     this.stage?.scaleX(scaleX);
                     this.stage?.scaleY(scaleX);
@@ -597,42 +604,45 @@ export default class GraphViewer extends GraphManager {
 
                 break;
         }
+        //修改背景矩形
+        this.backgroundRect.setAttr('width', this.stage?.getAttr('width'));
+        this.backgroundRect.setAttr('height', this.stage?.getAttr('height'));
     }
 
     alignCanvas() {
         let hAlign = this.hAlign;
         let vAlign = this.vAlign;
         let contentContainer = this.stage!.container().querySelector('.konvajs-content');
-        let containerWidth = parseInt(this.config.container?.style.width.split('px')[0]);
-        let containerHeight = parseInt(this.config.container?.style.height.split('px')[0]);
-        let stageWidth =  this.stage?.getAttr('width');
-        let stageHeight =  this.stage?.getAttr('height');
+        let containerWidth = this.config.container?.clientWidth;
+        let containerHeight = this.config.container?.clientHeight;
+        let stageWidth = this.stage?.getAttr('width');
+        let stageHeight = this.stage?.getAttr('height');
         switch (hAlign) {
             case LEFT_ALIGN:
+                // contentContainer.style.left="0px";
                 break;
             case RIGHT_ALIGN:
-                let xPos=containerWidth - stageWidth;
-                contentContainer.style.left=xPos+"px";
+                let xPos = containerWidth - stageWidth;
+                contentContainer.style.left = xPos + "px";
                 break;
             case CENTER_ALIGN:
-                if (containerWidth > stageWidth) {
-                    contentContainer.style.left=(containerWidth - stageWidth) / 2+"px";
-                }
+                contentContainer.style.left = (containerWidth - stageWidth) / 2 + "px";
                 break;
         }
-        switch(vAlign){
+        switch (vAlign) {
             case BOTTOM_ALIGN:
-                let yPos=containerHeight - stageHeight;
-                contentContainer.style.top=yPos+"px";
+                let yPos = containerHeight - stageHeight;
+                contentContainer.style.top = yPos + "px";
                 break;
             case CENTER_ALIGN:
-                if(containerHeight>stageHeight){
-                    contentContainer.style.top=(containerHeight - stageHeight) / 2+"px";
-                }
+                contentContainer.style.top = (containerHeight - stageHeight) / 2 + "px";
+                break;
+            case TOP_ALIGN:
+                // contentContainer.style.top="0px";
                 break;
         }
     }
-    setContext(ctx){
-        this.ctx=ctx;
+    setContext(ctx) {
+        this.ctx = ctx;
     }
 }

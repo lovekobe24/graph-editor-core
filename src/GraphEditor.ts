@@ -442,11 +442,13 @@ export default class GraphEditor extends GraphManager {
                 this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_CLICK, e.evt.button);
             }
         });
-        this.stage?.on('mouseout', (e: any) => {
+        let contentDiv = this.stage!.container().querySelector('.konvajs-content');
+        contentDiv.addEventListener('mouseout',(e)=>{
             if (this.currentMode === DRAWING_MODE) {
-                this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_OUT, e.evt.button);
+                this.drawingShape.notifyDrawingAction(this, this.getStageScalePoint(), DRAWING_MOUSE_OUT, e.button);
             }
-        });
+        })
+
 
 
     }
@@ -1710,6 +1712,9 @@ export default class GraphEditor extends GraphManager {
         let scale = this.stage.getAttr('scaleX');
         this.stage.setAttr('width', width * scale);
         this.stage.setAttr('height', height * scale);
+        //修改背景矩形
+        this.backgroundRect.setAttr('width', width * scale);
+        this.backgroundRect.setAttr('height', height * scale);
         this.gridLayer.destroyChildren();
         this.initGrid();
     }
@@ -2647,6 +2652,36 @@ export default class GraphEditor extends GraphManager {
         let newWidth=contentSize.width+rightMargin+leftMargin;
         let newHeight=contentSize.height+bottomMargin+topMargin;
         this.setSize(newWidth,newHeight);
+    }
+
+   /**
+    * 镜像翻转功能
+    * @param direction 翻转方向，取值为x,则沿x轴翻转，取值为y,则沿着y轴翻转
+    * @param nodeIds 需要翻转的节点id数组，没有的话，则取当前画布选中元素
+    * @example
+    * editor.flip('x')
+    */
+    flip(direction:string,nodeIds?: Array<string>){
+        let undoRedoManager = this.dataModel.getUndoRedoManager();
+        let selectNodes;
+        if (nodeIds) {
+            selectNodes = this.dataModel.nodes.filter(item => nodeIds.indexOf(item.id) != -1)
+        } else {
+            selectNodes = this.dataModel.getSelectionManager().getSelection();
+        }
+        for (let item of selectNodes) {
+            let shapeNode = item.getRef();
+            if(direction=='x'){
+                let originScaleX=shapeNode.getAttr('scaleX');
+                shapeNode.setAttr('scaleX',-originScaleX);
+            }else if(direction=='y'){
+                let originScaleY=shapeNode.getAttr('scaleY');
+                shapeNode.setAttr('scaleY',-originScaleY);
+            }
+        }
+        let geometryChange = new GeometryChange(selectNodes, 'resize', this.dataModel);
+        let cmd = new Command([geometryChange]);
+        undoRedoManager.execute(cmd);
     }
 
    

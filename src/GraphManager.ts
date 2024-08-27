@@ -115,6 +115,16 @@ export abstract class GraphManager {
         let scale = this.stage?.getAttr('scaleX');
         this.stage?.setAttr('width', width * scale);
         this.stage?.setAttr('height', height * scale);
+        //修改背景矩形
+        this.backgroundRect.setAttr('width', width * scale);
+        this.backgroundRect.setAttr('height', height * scale);
+    }
+
+    /**
+     * 获取画布的宽度和高度
+     */
+    getSize(){
+        return {width:this.width,height:this.height}
     }
     
     /**
@@ -144,7 +154,7 @@ export abstract class GraphManager {
         if(graphJson.fit){
             this.fit=graphJson.fit;
         }
-        if(graphJson.locked){
+        if(graphJson.locked!=undefined){
             this.locked=graphJson.locked;
         }
         
